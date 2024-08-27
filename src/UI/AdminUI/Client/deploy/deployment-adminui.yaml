@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminui
+  namespace: default
+  labels:
+    app: adminui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminui
+  template:
+    metadata:
+      labels:
+        app: adminui
+      annotations:
+        dapr.io/enabled: "false"
+        dapr.io/app-id: "adminui"
+        dapr.io/app-port: "80"
+        dapr.io/log-level: "info"
+        dapr.io/sidecar-liveness-probe-period-seconds: "20"
+        dapr.io/sidecar-readiness-probe-period-seconds: "20"
+    spec:
+      containers:
+      - name: adminui
+        image: siccardev.azurecr.io/adminui:latest
+        env:
+        - name: SICCARSERVICE
+          value: "#{TENANTISSUER}#"
+        - name: APPPATH
+          value: "#{APPPATH}#"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m" 
+          limits:
+            memory: "96Mi"
+            cpu: "250m"          
+        ports:
+        - containerPort: 80
+        imagePullPolicy: Always

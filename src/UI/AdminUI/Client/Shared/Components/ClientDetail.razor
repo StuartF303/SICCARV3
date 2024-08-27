@@ -1,0 +1,184 @@
+﻿@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using System.Linq
+@using IdentityServer4.Models
+@using JetBrains.Annotations
+@using Microsoft.Extensions.Logging
+@using Siccar.Common.ServiceClients
+@using Client = Siccar.Common.ServiceClients.Models.Tenant.Client
+@using Syncfusion.Blazor.Lists
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor
+@using ChangeEventArgs = Microsoft.AspNetCore.Components.ChangeEventArgs
+@using Syncfusion.Blazor.Notifications
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+@inject ITenantServiceClient TenantServiceClient
+@inject ILogger<ClientDetail> Logger
+
+<div class="mainPadding">
+
+<h3>Client Detail</h3>
+
+<SfToast @ref="_toastNotification" ID="toast_type">
+    <ToastPosition X="Right"></ToastPosition>
+</SfToast>
+
+<EditForm @ref="_form" Model="@Client">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="col-lg-12 control-section">
+        <div class="box mt-4">
+
+            <div class="row clientRow">
+                <div class="col-2">
+                    <label class="clientLabel">Client ID :</label>
+                </div>
+                <div class="col-4">
+                    <SfTextBox @bind-Value="@Client.ClientId" Readonly="true"></SfTextBox>
+                    <ValidationMessage For="@(() => Client.ClientId)"></ValidationMessage>
+                </div>
+
+                <div class="col-2">
+                    <label class="clientLabel">Tenant ID :</label>
+                </div>
+                <div class="col-4">
+                    <SfTextBox @bind-Value="@Client.TenantId" Readonly="true" CssClass="monoFont"></SfTextBox>
+                    <ValidationMessage For="@(() => Client.TenantId)"></ValidationMessage>
+                </div>
+            </div>
+
+            <div class="row clientRow">
+                <div class="col-2">
+                    <label class="clientLabel">Client Name :</label>
+                </div>
+                <div class="col-4">
+                    <SfTextBox @bind-Value="@Client.ClientName"></SfTextBox>
+                    <ValidationMessage For="@(() => Client.ClientName)"></ValidationMessage>
+                </div>
+
+                <div class="col-2">
+                    <label class="clientLabel">Client Description :</label>
+                </div>
+                <div class="col-4">
+                    <SfTextBox @bind-Value="@Client.Description"></SfTextBox>
+                </div>
+            </div>
+
+                <div class="row clientRow">
+                <div class="col-3">
+                    <label class="clientLabel">Require Client Secret :</label>
+                </div>
+                <div class="col-3">
+                    <SfCheckBox ID="require-client-secret" @bind-Checked="@Client.RequireClientSecret" @onchange="RequireClientSecretChanged"></SfCheckBox>
+                </div>
+            </div>
+
+            @{
+                if (Client.RequireClientSecret && Client.ClientSecrets.Any())
+                {
+                    <h6>Client Secrets</h6>
+                    <div class="row clientRow">
+                        <div class="col-2">
+                            <label class="clientLabel">Description :</label>
+                        </div>
+                        <div class="col-4">
+                            <SfTextBox @bind-Value="@Client.ClientSecrets.First().Description"></SfTextBox>
+                        </div>
+                        <div class="col-2">
+                            <label class="clientLabel">Type :</label>
+                        </div>
+                        <div class="col-4">
+                            <SfTextBox @bind-Value="@Client.ClientSecrets.First().Type" Readonly="true"></SfTextBox>
+                        </div>
+                    </div>
+
+                        if (_isNewClientSecret || !_isNew && Client.RequireClientSecret && Client.ClientSecrets.Any() && _isNewClientSecret)
+                        {
+                        <div class="row clientRow">
+                            <label>Please copy and save the secret somewhere secure as it is not displayed again</label>
+                            <div class="col-2">
+                                <label class="clientLabel">Value :</label>
+                            </div>
+                            <div class="col-4">
+                                <SfTextBox @bind-Value="@Client.ClientSecrets.First().Value" Readonly="true" @onfocusin="CopySharedSecret"></SfTextBox>
+                                <SfButton Type="button" @onclick="CopySharedSecret">Copy</SfButton>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </div>
+
+</EditForm>
+
+<div class="box mt-4">
+
+<SfTab>
+    <TabItems>
+
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Allowed Grant Types"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <ListView DataSource="@Client.AllowedGrantTypes"></ListView>
+            </ContentTemplate>
+        </TabItem>
+
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Redirect URIs"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <ListView DataSource="@Client.RedirectUris"></ListView>
+            </ContentTemplate>
+        </TabItem>
+
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Post Logout Redirect URIs"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <ListView DataSource="@Client.PostLogoutRedirectUris"></ListView>
+            </ContentTemplate>
+        </TabItem>
+
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Allowed CORS Origins"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <ListView DataSource="@Client.AllowedCorsOrigins"></ListView>
+            </ContentTemplate>
+        </TabItem>
+
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Allowed Scopes"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <ListView DataSource="@Client.AllowedScopes"></ListView>
+            </ContentTemplate>
+        </TabItem>
+
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Client Roles"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                    <ListViewWithDropDown DataSource="@Client.Claims" DropdownListDataSource="@this.rolesChoice"></ListViewWithDropDown>
+            </ContentTemplate>
+        </TabItem>
+
+    </TabItems>
+</SfTab>
+
+
+<SfButton @onclick="CancelChanges">Cancel Changes</SfButton>
+<SfButton @onclick="SaveChanges">Save changes</SfButton>
+
+</div>
+
+</div>

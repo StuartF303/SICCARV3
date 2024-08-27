@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>Siccar.Registers.ValidatorCore</RootNamespace>
+		<AssemblyName>Siccar.Registers.Validator.Core</AssemblyName>
+		<ApplicationIcon>logo.ico</ApplicationIcon>
+		<Title>Siccar.Registers.Validator.Core</Title>
+		<Company>Wallet.Services</Company>
+		<Copyright>Wallet.Services (Scotland) Limited</Copyright>
+		<PackageIcon>logo.png</PackageIcon>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<Version>1.6.0-alpha</Version>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<PackageOutputPath>$(Solutiondir)packages</PackageOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="logo.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="logo.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\Tenant\TenantCore\logo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.0" />
+		<PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<ProjectReference Include="..\..\..\Common\SiccarCommon\SiccarCommon.csproj" />
+		<ProjectReference Include="..\..\Register\RegisterCore\RegisterCore.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+		<PackageReference Include="Siccar.Common" Version="1.6.*" />
+		<PackageReference Include="Siccar.Platform.Registers.Core" Version="1.6.*" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="logo.png">
+			<PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+		</None>
+	</ItemGroup>
+
+</Project>

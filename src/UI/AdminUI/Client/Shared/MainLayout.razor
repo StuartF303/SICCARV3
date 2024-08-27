@@ -1,0 +1,31 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
+ <div class="wrapper">
+     <AuthorizeView>
+        <Authorized>
+            <MainMenu />
+            <!--<main class="mg-left mg-top p-5">@Body</main>-->
+            <div id="main-content container-fluid col-md-12" class="e-content-animation">
+                <Header />
+                <div class="default">@Body</div>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <!-- Need to do this because we need to the /login to reach the Authentication page -->
+            <div class="wrapper wrapper-restricted">
+                <main class="content-wrapper">
+                    <div class="container-fluid">
+                        <div style="display: grid; height: 75vh; justify-content: center; align-items: center;">
+                           @Body
+                        </div>
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+   
+</div>
+

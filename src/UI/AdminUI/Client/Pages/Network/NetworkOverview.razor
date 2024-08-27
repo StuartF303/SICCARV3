@@ -1,0 +1,103 @@
+﻿@page "/network"
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Maps
+@using Syncfusion.Blazor.Data
+@using Siccar.Network.Peers.Core
+@inject NavigationManager navManager
+@inject Siccar.UI.Admin.Services.PageHistoryState pageHistoryState
+@attribute [Authorize]
+
+
+    <div class="box box-solid box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title">Network Map</h3>
+            <div class="box-tools pull-right">
+                <!-- Buttons, labels, and many other things can be placed here! -->
+                <!-- Here is a label for example -->
+                <span class="label label-primary">Label</span>
+            </div>
+            <!-- /.box-tools -->
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+            <SfMaps>
+                <MapsLayers>
+                    <MapsLayer ShapeData='new {dataOptions ="data/maps/world-map.json"}' TValue="MapNodeLocations">
+                        <MapsMarkerSettings>
+
+                        </MapsMarkerSettings>
+                        <MapsShapeSettings ColorValuePath="Color" />
+                    </MapsLayer>
+                </MapsLayers>
+                <MapsZoomSettings Enable="false" />
+                <MapsLegendSettings Visible="true" />
+            </SfMaps>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            @nodeCount Known Network Nodes
+        </div>
+        <!-- box-footer -->
+    </div>
+    <div class="box box-solid box-secondary">
+        <div class="box-header with-border">
+            <h4 class="box-title">Peer Status</h4>
+
+            <!-- /.box-tools -->
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+            <SfGrid TValue="Peer" AllowSelection="true" AllowSorting="true" AllowFiltering="false"
+                    EnableVirtualization="true" EnableHover="false" Height="280" RowHeight="38">
+
+                <SfDataManager Url="http://localhost:5003/api/Peer" Adaptor="Adaptors.ODataV4Adaptor"></SfDataManager>
+
+                <GridPageSettings PageSize="10"></GridPageSettings>
+                <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
+                <GridColumns>
+
+                    <GridColumn Field=@nameof(Peer.Id) HeaderText="ID" Visible="false" IsPrimaryKey="true" Width="130"></GridColumn>
+                    <GridColumn Field=@nameof(Peer.PeerName) HeaderText="Peer Name" ClipMode="ClipMode.EllipsisWithTooltip"></GridColumn>
+                    <GridColumn Field=@nameof(Peer.URIEndPoint) HeaderText="Endpoint" Width="180"></GridColumn>
+                    <GridColumn Field=@nameof(Peer.Status) HeaderText="Status" Width="180" AllowEditing="false">
+                        <Template>
+                            @{
+                                switch (((Peer)context).Status)
+                                {
+                                    case PeerStatus.Connected:
+                                        <i class="fas fa-globe"> Online</i>
+                                        break;
+                                    case PeerStatus.Connecting:
+                                        <i class="fas fa-minus-circle"> Connecting</i>
+                                        break;
+                                    case PeerStatus.Disconnecting:
+                                        <i class="fas fa-broadcast-tower"> Disconnecting</i>
+                                        break;
+                                    case PeerStatus.Failed:
+                                        <i class="fas fa-unlink"> Failed</i>
+                                        break;
+                                }
+                            }
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+
+
+@code {
+
+    int nodeCount { get; set; } = 0;
+
+    public class MapNodeLocations
+    {
+
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        pageHistoryState.AddPageToHistory(navManager.Uri);
+        return base.OnInitializedAsync();
+    }
+}

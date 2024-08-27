@@ -1,0 +1,64 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: register-service
+  namespace: default
+  labels:
+    app: register-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: register-service
+  template:
+    metadata:
+      labels:
+        app: register-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "register-service"
+        dapr.io/app-port: "8080"
+        dapr.io/log-level: "debug"
+        dapr.io/sidecar-liveness-probe-period-seconds: "20"
+        dapr.io/sidecar-readiness-probe-period-seconds: "20"
+        dapr.io/app-token-secret: "app-api-token"
+        dapr.io/http-max-request-size: "16"
+        dapr.io/config: featureconfig
+        dapr.io/enable-app-health-check: "true"
+        dapr.io/app-health-check-path: "/api/registers/healthz"
+    spec:
+      containers:
+      - name: register-service
+        image: siccardev.azurecr.io/register-service:latest
+        envFrom:
+        - secretRef:
+            name: app-api-token
+        env:
+        - name: REGISTERREPOSITORY__MONGODBSERVER
+          value: "#{REGISTERREPOSITORY__MONGODBSERVER}#"
+        - name: REGISTERREPOSITORY__DATABASENAME
+          value: "#{REGISTERREPOSITORY__DATABASENAME}#"
+        - name: SERILOG__MINIMUMLEVEL
+          value: "#{SERILOG__MINIMUMLEVEL}#"
+        - name: TENANTISSUER
+          value: "#{TENANTISSUER}#"
+        - name: APP__API__TOKEN
+          value: "#{APP__API__TOKEN}#"
+        - name: DaprSecret
+          value: "#{DaprSecret}#"
+        - name: APPLICATIONINSIGHTS__CONNECTIONSTRING
+          value: "#{APPLICATIONINSIGHTS__CONNECTIONSTRING}#"
+        - name: APPLICATIONINSIGHTS__INSTRUMENTATIONKEY
+          value: "#{APPLICATIONINSIGHTS__INSTRUMENTATIONKEY}#"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m" 
+          limits:
+            memory: "2000Mi"
+            cpu: "1000m"          
+        ports:
+        - containerPort: 80
+        imagePullPolicy: Always
+    

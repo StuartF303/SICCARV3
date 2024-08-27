@@ -1,0 +1,95 @@
+﻿@inject IActionServiceClient actionService
+@inject DataSubmissionService dataService
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Authentication
+@inject IAccessTokenProvider TokenProvider
+@inject IHttpContextAccessor HttpContextAccessor
+@using Action = Siccar.Application.Action
+@using System.Text.Json
+
+<div class="siccar-form">
+    @if (action is null)
+    {
+        <p>Loading</p>
+    }
+    else
+    {
+        <CascadingValue Value="action" Name="Action" IsFixed="false">
+            <CascadingValue Value="WalletAddress" Name="WalletAddress" IsFixed="true">
+                <CascadingValue Value="RegisterId" Name="RegisterId" IsFixed="true">
+                    <FormControl control="action.Form" updateParentState="@UpdateState" />
+                </CascadingValue>
+            </CascadingValue>
+        </CascadingValue>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public System.Action<Siccar.Application.Action> ProvideActionCallback { get; set; }
+    [Parameter]
+    public Siccar.Application.Action action { get; set; }
+    [Parameter]
+    public string WalletAddress { get; set; }
+    [Parameter]
+    public string AccessToken { get; set; }
+    [Parameter]
+    public string TxId { get; set; }
+    [Parameter]
+    public string RegisterId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dataService.ClearData();
+        action = await actionService.GetAction(WalletAddress, RegisterId, TxId, AccessToken);
+
+        ProvideActionCallback?.Invoke(action);
+
+        if (action.PreviousData != null)
+        {
+            //get previous Transaction data
+            var prevActionData = action.PreviousData.Deserialize<Dictionary<string, object>>();
+            var dataSchemas = action.DataSchemas.First().RootElement.GetProperty("properties");
+            foreach (var schema in dataSchemas.EnumerateObject())
+            {
+                if(prevActionData.ContainsKey(schema.Name))
+                    dataService.UpdateFormData(schema.Name, prevActionData[schema.Name].ToString());
+            }
+        }
+
+        ProvideActionCallback?.Invoke(action);
+    }
+
+
+    public void UpdateState(Siccar.Application.Action newAction)
+    {
+        action = newAction;
+        dataService.ClearData();
+        ProvideActionCallback?.Invoke(action);
+        StateHasChanged();
+    }
+
+    public async Task GetAccessToken()
+    {
+
+        var accessTokenResult = await TokenProvider.RequestAccessToken();
+        AccessToken = string.Empty;
+        if (accessTokenResult != null && accessTokenResult.Status == AccessTokenResultStatus.Success)
+        {
+            if (accessTokenResult.TryGetToken(out var token))
+            {
+                AccessToken = token.Value;
+            }
+        }
+        else
+        {
+            AccessToken = await HttpContextAccessor.HttpContext?.GetTokenAsync("access_token");
+        }
+
+
+
+    }
+}

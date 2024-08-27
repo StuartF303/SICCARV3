@@ -1,0 +1,67 @@
+﻿@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using Siccar.UI.Admin.Services
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Spinner
+@using System.Linq
+@using Siccar.Common.ServiceClients
+@using Models
+@using Siccar.UI.Admin.Adaptors;
+@inject IJSRuntime JsRuntime
+
+<style>
+    .e-spinner-pane .e-spinner-inner .e-spin-bootstrap5 {
+        stroke: navy;
+    }
+</style>
+
+<div class="mainPadding">
+
+<SfSpinner @bind-Visible="SpinnerVisible" Label="Data loading..." size="50" Type="@SpinnerType.Bootstrap5"></SfSpinner>
+
+<h3>Participants List</h3>
+
+<div id="participantsList" class="box mt-4">
+    <div class="row mb-2">
+        <div class="col-sm-6">
+                <SfDropDownList Value="@_ddListValue" TValue="string" TItem="Register" PopupHeight="350px" PopupWidth="350px" Placeholder="Select a Register" DataSource="@_registers" CssClass="BlueprintListDrop">
+                <DropDownListEvents TItem="Register" TValue="string" ValueChange="@OnRegisterChangeHandler"></DropDownListEvents>
+                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+            </SfDropDownList>
+        </div>
+            <div class="col-sm-6" style="text-align:end;">
+                <SfButton Type="button" Disabled="@(RegisterId == "noregister")" @onclick="AddParticipant">Add Participant</SfButton>
+        </div>
+    </div>    
+    <div class="box">
+        <div class="box-body">
+                <SfGrid ID="Grid"
+                @ref="_grid"
+                AllowPaging="true"
+                AllowSorting="true"
+                AllowFiltering="true"
+                GridLines="GridLine.Horizontal"
+                RowHeight="40"
+                TValue="ParticipantModel"
+                Query="Query">
+                <SfDataManager Adaptor="Adaptors.CustomAdaptor" AdaptorInstance="@typeof(ParticipantAdaptorOData)"></SfDataManager>
+                <GridSortSettings AllowUnsort="false">
+                    <GridSortColumns>
+                        <GridSortColumn Field="Name" Direction="SortDirection.Ascending"></GridSortColumn>
+                    </GridSortColumns>
+                </GridSortSettings>
+                <GridColumns>
+                    <GridColumn AllowFiltering="false" Field=@nameof(ParticipantModel.Id) HeaderText="Participant ID" TextAlign="TextAlign.Left" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})" />
+                    <GridColumn Field=@nameof(ParticipantModel.Name) HeaderText="Name" TextAlign="TextAlign.Left" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})" />
+                    <GridColumn AllowFiltering="false" Field=@nameof(ParticipantModel.Organisation) HeaderText="Organisation" TextAlign="TextAlign.Left" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})" />
+                </GridColumns>
+                <GridEvents RowSelected="RowSelectedHandler" TValue="ParticipantModel"></GridEvents>
+            </SfGrid>
+        </div>
+    </div>
+</div>
+
+</div>
+

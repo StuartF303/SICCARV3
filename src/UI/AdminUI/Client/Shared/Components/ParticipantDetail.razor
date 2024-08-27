@@ -1,0 +1,109 @@
+﻿@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using System.Linq
+@using IdentityServer4.Models
+@using JetBrains.Annotations
+@using Microsoft.Extensions.Logging
+@using Siccar.Common.ServiceClients
+@using Participant = Siccar.Application.Participant;
+@using Syncfusion.Blazor.Lists
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor
+@using ChangeEventArgs = Microsoft.AspNetCore.Components.ChangeEventArgs
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.HeatMap
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.Extensions.Configuration
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+@inject ITenantServiceClient TenantServiceClient
+@inject IWalletServiceClient WalletServiceClient
+@inject ILogger<ClientDetail> Logger
+@inject IAccessTokenProvider TokenProvider
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IJSRuntime JSRuntime
+
+<div class="mainPadding">
+
+    <h3>Participant Detail</h3>
+
+    <SfToast @ref="_toastNotification" ID="toast_type">
+        <ToastPosition X="Right"></ToastPosition>
+    </SfToast>
+
+    <EditForm @ref="_form" Model="@Participant">
+        <DataAnnotationsValidator />
+
+        <div class="col-lg-12 control-section">
+            <div class="box mt-4">
+
+                <div class="row clientRow">
+                    <div class="col-2">
+                        <label class="clientLabel">ID :</label>
+                    </div>
+                    <div class="col-5">
+                        <SfTextBox @bind-Value="@Participant.Id" Readonly="true" CssClass="monoFont"></SfTextBox>
+                        <ValidationMessage For="@(() => Participant.Id)"></ValidationMessage>
+                    </div>
+
+                    <div class="col-2">
+                        <label class="clientLabel">NAME :</label>
+                    </div>
+                    <div class="col-3">
+                        <SfTextBox @bind-Value="@Participant.Name" Readonly="@(!_isNew)"></SfTextBox>
+                        <ValidationMessage For="@(() => Participant.Name)"></ValidationMessage>
+                    </div>
+                </div>
+
+                <div class="row clientRow">
+                    <div class="col-2">
+                        <label class="clientLabel">Organization :</label>
+                    </div>
+                    <div class="col-5">
+                        <SfTextBox @bind-Value="@Participant.Organisation" Readonly="true"></SfTextBox>
+                        <ValidationMessage For="@(() => Participant.Organisation)"></ValidationMessage>
+                    </div>
+
+                    <div class="col-2">
+                        <label class="clientLabel">didUri :</label>
+                    </div>
+                    <div class="col-3">
+                        <SfTextBox @bind-Value="@Participant.didUri" Readonly="true" CssClass="monoFont"></SfTextBox>
+                        <ValidationMessage For="@(() => Participant.didUri)"></ValidationMessage>
+                    </div>
+                </div>
+
+                <div class="row clientRow">
+                    <div class="col-2">
+                        <label class="clientLabel">Wallet :</label>
+                    </div>
+                    <div class="col-5">
+                        <SfDropDownList @ref="@this.WalletChoiceList" TValue="string" TItem="Wallet" Placeholder="Select Participant's Wallet"
+                                        DataSource="@WalletListDataSource"
+                                        @bind-Value="@Participant.WalletAddress"
+                                        Readonly="(!_isNew)"
+                                        CssClass="monoFont">
+                            <DropDownListFieldSettings Value="Address" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </div>
+                    <div class="col-2">
+                        <label class="clientLabel">Stealth :</label>
+                    </div>
+                    <div class="col-1">
+                        <SfSwitch @bind-Checked="@Participant.useStealthAddress" TChecked="bool" Disabled="true"></SfSwitch>
+                        <ValidationMessage For="@(() => Participant.useStealthAddress)"></ValidationMessage>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </EditForm>
+
+    <div class="box mt-4">
+        <SfButton @onclick="CancelAdding">Cancel</SfButton>
+        <SfButton @onclick="PublishParticipant" disabled="@(!_isNew && canPublish)">Publish Participant</SfButton>
+    </div>
+
+</div>

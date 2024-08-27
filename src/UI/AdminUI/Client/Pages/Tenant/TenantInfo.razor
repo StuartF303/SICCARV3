@@ -1,0 +1,70 @@
+﻿@page "/tenants/{SelectedTenantId}"
+@using Syncfusion.Blazor.Spinner
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Notifications
+@using Siccar.UI.Admin.Pages.Register
+@attribute [Authorize]
+
+<div class="mainPadding">
+
+<h3>Tenant Information</h3>
+@if (SelectedTenant == null)
+{
+    <SfSpinner Size="40" Label="Material" Type="SpinnerType.Material" Visible="true"></SfSpinner>
+}
+else
+{
+    <EditForm class="form" @ref="Form" Model="@SelectedTenant">
+        <SfToast @ref="ToastNotification" ID="toast_type">
+            <ToastPosition X="Center"></ToastPosition>
+        </SfToast>
+        <EditableCard ID="Org" @bind-Value="SelectedTenant.Name" CardTitle="Organisation" DataUpdatedCallback="DataChangedCallbackHandler" />
+        <EditableCard ID="Admin" @bind-Value="SelectedTenant.AdminEmail" CardTitle="Administrator Email" DataUpdatedCallback="DataChangedCallbackHandler" IsEditable=true />
+        <EditableCard ID="Billing" @bind-Value="SelectedTenant.BillingEmail" CardTitle="Billing Email" DataUpdatedCallback="DataChangedCallbackHandler" IsEditable=true />
+        <div class="validation-messages">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+        </div>
+    </EditForm>
+
+    <SfTab CssClass="default-tab">
+        <TabItems>
+            <TabItem>
+                <ChildContent>
+                    <TabHeader Text="Register List"></TabHeader>
+                </ChildContent>
+                <ContentTemplate>
+                    <div class="negatePadding">
+                        <RegisterList RegisterIds="@SelectedTenant?.Registers"/>
+                    </div>
+                </ContentTemplate>
+            </TabItem>
+            <TabItem>
+                <ChildContent>
+                    <TabHeader Text="Organisation Settings"></TabHeader>
+                </ChildContent>
+                <ContentTemplate>
+                    <RoleManagement />
+                </ContentTemplate>
+            </TabItem>
+            <TabItem>
+                <ChildContent>
+                    <TabHeader Text="Wallets"></TabHeader>
+                </ChildContent>
+                <ContentTemplate>
+                    <TenantWalletsList />
+                </ContentTemplate>
+            </TabItem>
+            <TabItem>
+                <ChildContent>
+                    <TabHeader Text="Client List"></TabHeader>
+                </ChildContent>
+                <ContentTemplate>
+                    <ClientList TenantId="@SelectedTenantId" />
+                </ContentTemplate>
+            </TabItem>
+        </TabItems>
+    </SfTab>
+}
+
+</div>

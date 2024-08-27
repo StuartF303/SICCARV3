@@ -1,0 +1,126 @@
+{
+  "apiresources": [
+    {
+      "Id": "aadf0c6b-8c30-4ce0-85d4-07df54a7eccb",
+      "Name": "SiccarExtIdServer",
+      "Scope": [
+        "wallet.read",
+        "wallet.update",
+        "wallet.create",
+        "wallet.admin",
+        "profile",
+        "api"
+      ]
+    }
+  ],
+  "identityresources": [
+    {
+      "Name": "openid",
+      "DisplayName": "OpenID"
+    },
+    {
+      "Name": "profile",
+      "DisplayName": "Profile"
+    },
+    {
+      "Name": "api",
+      "DisplayName": "API"
+    }
+  ],
+  "scopes": [
+    {
+      "Name": "tenant.admin",
+      "DisplayName": "Tenant Administrative Access"
+    },
+    {
+      "Name": "tenant.read",
+      "DisplayName": "Tenant Audit Access"
+    },
+    {
+      "Name": "tenant.billing",
+      "DisplayName": "Tenant Usage Access"
+    },
+    {
+      "Name": "wallet.read",
+      "DisplayName": "Reads Wallets"
+    },
+    {
+      "Name": "wallet.user",
+      "DisplayName": "Reads Wallets"
+    },
+    {
+      "Name": "wallet.sign",
+      "DisplayName": "Reads Wallets"
+    },
+    {
+      "Name": "wallet.update",
+      "DisplayName": "Updates Wallets"
+    },
+    {
+      "Name": "wallet.create",
+      "DisplayName": "Creates Wallet"
+    },
+    {
+      "Name": "wallet.admin",
+      "DisplayName": "Administers Wallets"
+    },
+    {
+      "Name": "register.write",
+      "DisplayName": "Can submit new transactions for a register"
+    },
+    {
+      "Name": "register.read",
+      "DisplayName": "Can read a register"
+    },
+    {
+      "Name": "register.maintainer",
+      "DisplayName": "Can maintainer a register"
+    },
+    {
+      "Name": "register.creator",
+      "DisplayName": "Can create a register"
+    },
+    {
+      "Name": "register.admin",
+      "DisplayName": "Can Administers functions such as subscriptions to a Register"
+    },
+    {
+      "Name": "blueprint.admin",
+      "DisplayName": "Administers an Installation"
+    },
+    {
+      "Name": "blueprint.publish",
+      "DisplayName": "Administers an Installation"
+    },
+    {
+      "Name": "blueprint.draft",
+      "DisplayName": "Usage view for Installation"
+    },
+    {
+      "Name": "installation.admin",
+      "DisplayName": "Administers an Installation"
+    },
+    {
+      "Name": "installation.usage",
+      "DisplayName": "Usage view for Installation"
+    }
+  ],
+  "roles": [
+    "blueprint.admin",
+    "blueprint.publish",
+    "blueprint.authoriser",
+    "installation.admin",
+    "installation.reader",
+    "installation.billing",
+    "tenant.admin",
+    "tenant.app.admin",
+    "tenant.billing",
+    "wallet.user",
+    "wallet.owner",
+    "wallet.delegate",
+    "register.creator",
+    "register.maintainer",
+    "register.reader"
+  ] 
+
+}

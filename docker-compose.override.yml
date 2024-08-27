@@ -1,0 +1,288 @@
+version: '3.4'
+
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "5341:6379"
+    volumes:
+      - ~/.docker-conf/redis/data:/data
+    networks:
+      - siccarsvcnet
+
+  zipkin:
+    ports:
+      - "5412:9411"
+    networks:
+      - siccarsvcnet
+
+  mongodb:
+    ports:
+      - "27017:27017"
+    volumes:
+      - ~/.docker-conf/mongodb/data:/data/db
+    networks:
+      - siccarsvcnet
+
+  mysql:
+    ports:
+      - "3306:3306"
+    networks:
+      - siccarsvcnet
+    volumes:
+      - ~/.docker-conf/mysql/data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=5iccar-dev-secret
+
+  rabbitmq:
+    hostname: 'dev-rabbitmq'
+    ports:
+      - "5672:5672" 
+      - "15672:15672"
+    volumes:
+      - '~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/mnesia/'
+    networks:
+      - siccarsvcnet
+ 
+  seq:
+    ports:
+      - "5550:80"
+      - "5555:5341"
+    networks:
+      - siccarsvcnet
+
+  seq-input-syslog:
+    image: datalust/seq-input-syslog:latest
+    depends_on:
+      - seq
+    ports:
+      - "514:514/udp"
+    environment:
+      - SEQ_ADDRESS=http://seq:5341
+
+  proxy: #ngingx reverse proxy
+    image: nginx-proxy
+    container_name: Proxy
+    restart: always
+    build:
+      context: .
+      dockerfile: src/Services/Proxy/Dockerfile
+    ports:
+      - "8080:80"
+      - "8443:443"
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:514"
+        syslog-format: "rfc5424"
+        tag: "nginx/syslog"
+    networks:
+      - siccarsvcnet
+
+  blueprint:
+    build:
+        args:
+            FEED_ACCESSTOKEN: ${FEED_ACCESSTOKEN}
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - TENANTISSUER=http://tenant:8080
+      - APPLICATIONINSIGHTS_INSTRUMENTATIONKEY=${APPLICATIONINSIGHTS_INSTRUMENTATIONKEY}
+    ports:
+      - "50090:50001"
+      - "5009:8080"
+    networks:
+      - siccarsvcnet
+  blueprint-dapr:
+    environment: 
+     - APP_API_TOKEN=${APP_API_TOKEN}
+    command: ["./daprd",
+      "-app-id", "blueprint-service",
+      "-app-port", "8080",
+      "-log-level", "debug",
+      "-components-path", "/components",
+      "-config", "/components/config.yaml",
+      "-dapr-http-max-request-size", "16"
+      ]
+    volumes:
+      - "./components/:/components"
+
+  action:
+    build:
+        args:
+            FEED_ACCESSTOKEN: ${FEED_ACCESSTOKEN}
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - TENANTISSUER=http://tenant:8080
+      - APPLICATIONINSIGHTS_INSTRUMENTATIONKEY=${APPLICATIONINSIGHTS_INSTRUMENTATIONKEY}
+    ports:
+      - "50100:50001"
+      - "5010:8080"
+    networks:
+      - siccarsvcnet
+  action-dapr:
+    environment: 
+      - APP_API_TOKEN=${APP_API_TOKEN}
+    command: ["./daprd",
+      "-app-id", "action-service",
+      "-app-port", "8080",
+      "-components-path", "/components",
+      "-config", "/components/config.yaml",
+      "-dapr-http-max-request-size", "16"
+      ]
+    volumes:
+      - "./components/:/components"
+      - "./src/Services/Action/ActionService/files:/files"
+
+  tenant:
+    build:
+        args:
+            FEED_ACCESSTOKEN: ${FEED_ACCESSTOKEN}
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=5iccar
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=default.pfx
+      - TENANTISSUER=http://tenant:8080
+      - DEFAULTTENANT=0afebb0a-f3f9-48d2-9ae0-293755e883bd
+      - APPLICATIONINSIGHTS_INSTRUMENTATIONKEY=${APPLICATIONINSIGHTS_INSTRUMENTATIONKEY}
+    ports:
+      - "5007:8443"
+      - "5008:8080"
+    networks:
+      - siccarsvcnet
+  tenant-dapr:
+    environment: 
+      - APP_API_TOKEN=${APP_API_TOKEN}
+    command: ["./daprd",
+      "-app-id", "tenant-service",
+      "-app-port", "8080",
+      "-components-path", "/components",
+      "-config", "/components/config.yaml",
+      "-dapr-http-max-request-size", "16"
+      ]
+    volumes:
+      - "./components/:/components"
+
+  wallet:
+    build:
+        args:
+            FEED_ACCESSTOKEN: ${FEED_ACCESSTOKEN}
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - TENANTISSUER=http://tenant:8080
+      - APPLICATIONINSIGHTS_INSTRUMENTATIONKEY=${APPLICATIONINSIGHTS_INSTRUMENTATIONKEY}
+    ports:
+      - "50005:50001"
+      - "5001:8080"
+    networks:
+      - siccarsvcnet
+    volumes:
+      - "./src/Services/Wallet/WalletService/keys:/keys"
+  wallet-dapr:
+    environment: 
+     - APP_API_TOKEN=${APP_API_TOKEN}
+    command: ["./daprd",
+      "-app-id", "wallet-service",
+      "-app-port", "8080",
+      "-components-path", "/components",
+      "-config", "/components/config.yaml",
+      "-dapr-http-max-request-size", "16"
+      ]
+    volumes:
+      - "./components/:/components"
+
+  peer:
+    build:
+        args:
+            FEED_ACCESSTOKEN: ${FEED_ACCESSTOKEN}
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      - TENANTISSUER=http://tenant:8080
+      - APPLICATIONINSIGHTS_INSTRUMENTATIONKEY=${APPLICATIONINSIGHTS_INSTRUMENTATIONKEY}
+    ports:
+      - "50030:50001"
+      - "5003:8080"
+    networks:
+      - siccarsvcnet
+  peer-dapr:
+    environment: 
+     - APP_API_TOKEN=${APP_API_TOKEN}
+    command: ["./daprd",
+      "-app-id", "peer-service",
+      "-app-port", "8080",
+      "-components-path", "/components",
+      "-config", "/components/config.yaml",
+      "-dapr-http-max-request-size", "16"
+      ]
+    volumes:
+      - "./components/:/components"
+
+  register:
+    build:
+        args:
+            FEED_ACCESSTOKEN: ${FEED_ACCESSTOKEN}
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - TENANTISSUER=http://tenant:8080
+      - APPLICATIONINSIGHTS_INSTRUMENTATIONKEY=${APPLICATIONINSIGHTS_INSTRUMENTATIONKEY}
+    ports:
+      - "50040:50001"
+      - "5004:8080"
+    networks:
+      - siccarsvcnet
+  register-dapr:
+    environment: 
+     - APP_API_TOKEN=${APP_API_TOKEN}
+     - TENANTISSUER=http://tenant
+    command: ["./daprd",
+      "-app-id", "register-service",
+      "-app-port", "8080",
+      "-components-path", "/components",
+      "-config", "/components/config.yaml",
+      "-dapr-http-max-request-size", "16"
+      ]
+    volumes:
+      - "./components/:/components"
+
+  validator:
+    build:
+        args:
+            FEED_ACCESSTOKEN: ${FEED_ACCESSTOKEN}
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - TENANTISSUER=http://tenant:8080
+      - APPLICATIONINSIGHTS_INSTRUMENTATIONKEY=${APPLICATIONINSIGHTS_INSTRUMENTATIONKEY}
+    ports:
+      - "50050:50001"
+      - "5005:8080"
+    networks:
+      - siccarsvcnet
+  validator-dapr:
+    environment: 
+     - APP_API_TOKEN=${APP_API_TOKEN}
+    command: ["./daprd",
+      "-app-id", "validator-service",
+      "-app-port", "8080",
+      "-components-path", "/components",
+      "-config", "/components/config.yaml",
+      "-dapr-http-max-request-size", "16"
+      ]
+    volumes:
+      - "./components/:/components"
+
+  adminui:
+    build:
+      args:
+        FEED_ACCESSTOKEN: ${FEED_ACCESSTOKEN}
+    ports:
+      - "7443:443"
+      - "7080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - siccarsvcnet
+
+networks:
+  siccarsvcnet:
+    driver: bridge

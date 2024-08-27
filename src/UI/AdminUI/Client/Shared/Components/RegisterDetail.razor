@@ -1,0 +1,122 @@
+﻿@using Siccar.Common.ServiceClients
+@using Siccar.UI.Admin.Adaptors
+@using Siccar.UI.Admin.Models
+@using Siccar.UI.Admin.Pages.Register
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Data
+
+<div class="mainPadding">
+
+<div id="registerDetails" class="container-fluid">
+    <div class="row">
+        <div class="col-3">
+            <h3>Register Detail</h3>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-sm-7">
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="regLabel">REGISTER NAME</label>
+                </div>
+                <div class="col-sm-8">
+                    <text>@_register?.Name</text>
+                </div>
+                <div class="col-sm-1" style="text-align:center;line-height:40px; padding-top:10px">
+                    <i class="bi bi-circle-fill" style="@_statusStyle"></i>
+                </div>
+            </div>
+            <div class="row">
+                <div id="rowDes" class="col-sm-3">
+                    <div class="row">
+                        <label class="regLabel">HEIGHT</label>
+                    </div>
+                    <div class="row">
+                        <label class="regLabel">PEERS</label>
+                    </div>
+                    <div class="row">
+                        <label class="regLabel">RATE</label>
+                    </div>
+                </div>
+
+                <div class="col-sm-3">
+                    <div class="row">
+                        <div>
+                            <text>@_register?.Height</text>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <text>42</text>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <text>@GetTransactionsPerDay()</text>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label class="regLabel align-content-center">Consortium</label>
+                    <textarea rows="5" Multiline="true" readonly class="consortText">Consortium Data</textarea>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-5">
+            <div class="col-12">
+                <RegisterGraph ChartHeight="150px" ChartWidth="400px" YAxisTitle="Trans/Day" />
+            </div>
+        </div>
+
+
+    </div>
+    <SfGrid ID="Grid"
+            @ref="_grid"
+            AllowPaging="true"
+            AllowSorting="true"
+            GridLines="GridLine.Horizontal"
+            RowHeight="40"
+            TValue="RegisterDetailRawTransaction"
+            Query="Query">
+        <SfDataManager Adaptor="Adaptors.CustomAdaptor" AdaptorInstance="@typeof(TransactionAdaptorOData)"></SfDataManager>
+        <GridSortSettings AllowUnsort="false">
+            <GridSortColumns>
+                <GridSortColumn Field="TimeStamp" Direction="SortDirection.Descending"></GridSortColumn>
+            </GridSortColumns>
+        </GridSortSettings>
+        <GridColumns>
+            <GridColumn Field=@nameof(RegisterDetailRawTransaction.TxId) HeaderText="Transaction ID" TextAlign="TextAlign.Left" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})" />
+            <GridColumn Field=@nameof(RegisterDetailRawTransaction.SenderWallet) HeaderText="Source Address" TextAlign="TextAlign.Left" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})" />
+            <GridColumn Width="150" Field=@nameof(RegisterDetailRawTransaction.TimeStamp) Format="yyyy-MM-dd HH:mm:ss" Type="ColumnType.DateTime" HeaderText="Submitted" TextAlign="TextAlign.Center" />
+            <GridColumn Width="50" TextAlign="TextAlign.Center">
+                <HeaderTemplate>
+                    <span class="bi bi-search" style="color:white; font-size: 25px; text-align:center; padding-right: 0px; padding-left: 0px"></span>
+                </HeaderTemplate>
+                <Template Context="Context">
+                    @{
+                        var rt = Context as RegisterDetailRawTransaction;
+                                    <span class="bi bi-check-all" style="@GetStyle(rt.TxId)"></span>
+                    }
+                </Template>
+            </GridColumn>
+        </GridColumns>
+        <GridEvents RowSelected="RowSelectedHandler" RowDataBound="RowBoundHandler" TValue="RegisterDetailRawTransaction"></GridEvents>
+
+    </SfGrid>
+    <style>
+        @@keyframes @AnimationTitle {
+            from {
+                background-color: #91959c;
+            }
+
+            to {
+                background-color: #fff;
+            }
+        }
+    </style>
+</div>
+
+</div>

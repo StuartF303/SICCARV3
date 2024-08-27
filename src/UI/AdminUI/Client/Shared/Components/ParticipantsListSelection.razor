@@ -1,0 +1,9 @@
+﻿@page "/participantlist/{RegisterId}"
+@using Syncfusion.Blazor.DropDowns
+
+<SfMultiSelect TValue="List<Participant>" @bind-Value="@SelectedParticipants" TItem="Participant" DataSource="_availableParticipants" Placeholder="Select Participants" CssClass="blueprintTitle">
+    <MultiSelectEvents TItem="Participant" TValue="List<Participant>" ></MultiSelectEvents>
+    <MultiSelectFieldSettings Text="Name"></MultiSelectFieldSettings>
+</SfMultiSelect>
+
+

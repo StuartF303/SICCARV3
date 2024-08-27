@@ -1,0 +1,15 @@
+﻿@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+
+<SfTextBox @bind-Value="@ItemToAdd" Placeholder='Add an item'></SfTextBox>
+<SfButton @onclick="AddItem">Add</SfButton>
+
+@{
+    foreach (var item in DataSource)
+    {
+        <div id="sample-list-flat">
+            <div class="list-item">@item
+            <SfButton CssClass="e-close-btn" @onclick="@(async () => { await RemoveItem(item); })">X</SfButton></div>
+        </div>
+    }
+}

@@ -1,0 +1,17 @@
+{
+  "profiles": {
+    "AdminUI": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:6004;http://localhost:6003",
+      "launchUrl": "admin",
+      "commandLineArgs": "--pathbase=/admin",
+      "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/admin/_framework/debug/ws-proxy?browser={browserInspectUri}",
+      "nativeDebugging": true
+    }
+  }
+}

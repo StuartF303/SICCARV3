@@ -1,0 +1,1866 @@
+﻿{
+  "id": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+  "title": "PassportDemo",
+  "description": "A basic passport blueprint to demonstrate Siccar functionality",
+  "version": 1,
+  "dataSchemas": [],
+  "participants": [
+    {
+      "id": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "name": "Recipient ",
+      "organisation": "Recipient ",
+      "walletAddress": "ws1jksgpmhe8vcxhfx5ej4fhwyz7e4zzp4zw6er2russ4kwakzmt72eskqp38c",
+      "useStealthAddress": false
+    },
+    {
+      "id": "3e380f95-1fcb-4ec5-9fed-2643da291c1c",
+      "name": "Transporter",
+      "organisation": "Transporter",
+      "walletAddress": "ws1jj7sptu0tpatl9djd9jw8fc04waxexl9eyqvqh2y250796vekdagqxsqjc0",
+      "useStealthAddress": false
+    },
+    {
+      "id": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+      "name": "Supplier",
+      "organisation": "Supplier",
+      "walletAddress": "ws1jle65qnan70zm4jeuxtvqk9vf3rwaqlzvhmlg5949jmry4g9r376sca3nhv",
+      "useStealthAddress": false
+    }
+  ],
+  "actions": [
+    {
+      "id": 1,
+      "title": "Supplier Details",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Supplier": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+      "disclosures": [
+        {
+          "participantAddress": "TrackingData",
+          "dataPointers": [
+            "productType",
+            "passportNumber",
+            "quantity",
+            "nameOfBusiness",
+            "haulierCompany",
+            "storeLocation",
+            "postcode"
+          ]
+        },
+        {
+          "participantAddress": "3e380f95-1fcb-4ec5-9fed-2643da291c1c",
+          "dataPointers": [
+            "productType",
+            "quantity",
+            "passportNumber",
+            "storeLocation",
+            "recipientStoreLocation",
+            "recipientPostcode",
+            "postcode",
+            "nameOfBusiness"
+          ]
+        },
+        {
+          "participantAddress": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+          "dataPointers": [
+            "productType",
+            "quantity",
+            "passportNumber",
+            "recipientPostcode",
+            "storeLocation",
+            "postcode",
+            "nameOfBusiness",
+            "haulierCompany",
+            "haulierContact",
+            "haulierPhone"
+          ]
+        }
+      ],
+      "condition": {
+        "if": [
+          {
+            "==": [
+              {
+                "var": "productType"
+              },
+              "Wheat"
+            ]
+          },
+          2,
+          {
+            "==": [
+              {
+                "var": "productType"
+              },
+              "Oilseed Rape"
+            ]
+          },
+          3,
+          {
+            "==": [
+              {
+                "var": "productType"
+              },
+              "Soya Bean"
+            ]
+          },
+          3,
+          {
+            "==": [
+              {
+                "var": "productType"
+              },
+              "Sunflower Seed"
+            ]
+          },
+          3,
+          {
+            "==": [
+              {
+                "var": "productType"
+              },
+              "Linseed"
+            ]
+          },
+          3,
+          4
+        ]
+      },
+      "requested": {
+        "productType": "Linseed",
+        "quantity": 10.0,
+        "storeLocation": "Edinburgh"
+      },
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/1SupplierAction.json",
+          "type": "object",
+          "title": "Supplier Data",
+          "description": "The data set which is used for the supplier in a passport blueprint",
+          "properties": {
+            "supplierDetails": {
+              "$id": "supplierDetails",
+              "type": "object",
+              "title": "Supplier Details",
+              "description": "Section that has all supplier details"
+            },
+            "nameOfBusiness": {
+              "$id": "nameOfBusiness",
+              "type": "string",
+              "title": "Name of Business",
+              "description": "The name of your business",
+              "default": "Drymuir Farm"
+            },
+            "storeLocation": {
+              "$id": "storeLocation",
+              "type": "string",
+              "title": "Store Location",
+              "description": "The location of your business",
+              "default": "Maud, Aberdeenshire"
+            },
+            "postcode": {
+              "$id": "postcode",
+              "type": "string",
+              "title": "Postcode",
+              "description": "The postcode of your business",
+              "default": "AB42 5RR"
+            },
+            "recipientDetails": {
+              "$id": "recipientDetails",
+              "type": "object",
+              "title": "Recipient Details",
+              "description": "Section that has all recipient details"
+            },
+            "recipientNameOfBusiness": {
+              "$id": "recipientNameOfBusiness",
+              "type": "string",
+              "title": "Name of Business",
+              "description": "The name of your business",
+              "default": "Jonathan Bell Grain Supplies"
+            },
+            "recipientStoreLocation": {
+              "$id": "recipientStoreLocation",
+              "type": "string",
+              "title": "Recipient Location",
+              "description": "The location of your business",
+              "default": "Dewsbury Road, Sheffield"
+            },
+            "recipientPostcode": {
+              "$id": "recipientPostcode",
+              "type": "string",
+              "title": "Postcode",
+              "description": "The postcode of your business",
+              "default": "S8 7PQ"
+            },
+            "recipientContact": {
+              "$id": "recipientContact",
+              "type": "string",
+              "title": "Contact Name",
+              "description": "",
+              "default": "F. Gordon"
+            },
+            "recipientPhone": {
+              "$id": "recipientPhone",
+              "type": "string",
+              "title": "Phone Number",
+              "description": "",
+              "default": "(0114) 584 4247"
+            },
+            "cropDetails": {
+              "$id": "cropDetails",
+              "type": "string",
+              "title": "Crop Details",
+              "description": "Your Crop Details."
+            },
+            "productType": {
+              "$id": "productType",
+              "title": "Product Type",
+              "description": "The type of product you're selling. Selecting Wheat will prompt a Fusarium Mycotoxin risk assessment. Selecting Oilseed, Linseed, Soyabean or Sunflower will prompt a GM declaration.",
+              "type": "string",
+              "enum": [
+                "Wheat",
+                "Barley",
+                "Oats",
+                "Rye",
+                "Maize",
+                "Triticale",
+                "Oilseed Rape",
+                "Linseed",
+                "Soya Bean",
+                "Sunflower Seed",
+                "Beans",
+                "Peas",
+                "Lupins"
+              ],
+              "default": "Wheat"
+            },
+            "quantity": {
+              "$id": "quantity",
+              "type": "integer",
+              "title": "Quantity",
+              "description": "The quantity of crop in tonnes",
+              "default": 1
+            },
+            "haulierDetails": {
+              "$id": "haulierDetails",
+              "type": "object",
+              "title": "Haulier Details",
+              "description": "Section that has all haulier details"
+            },
+            "haulierCompany": {
+              "$id": "haulierCompany",
+              "type": "string",
+              "title": "Haulier Company Name",
+              "description": "",
+              "default": "AS Willox & Son"
+            },
+            "haulierContact": {
+              "$id": "haulierContact",
+              "type": "string",
+              "title": "Contact Name",
+              "description": "",
+              "default": "J Ferguson"
+            },
+            "haulierPhone": {
+              "$id": "haulierPhone",
+              "type": "string",
+              "title": "Phone Number",
+              "description": "",
+              "default": "(01639) 533847"
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "layout": "Group",
+        "scope": "$",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.supplierDetails",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.nameOfBusiness",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.storeLocation",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.postcode",
+                "layout": "VerticalLayout"
+              }
+            ]
+          },
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.recipientDetails",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.recipientNameOfBusiness",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.recipientStoreLocation",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.recipientPostcode",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.recipientContact",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.recipientPhone",
+                "layout": "VerticalLayout"
+              }
+            ]
+          },
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.cropDetails",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Choice",
+                "scope": "$.properties.productType",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Numeric",
+                "scope": "$.properties.quantity",
+                "layout": "VerticalLayout"
+              }
+            ]
+          },
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.haulierDetails",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.haulierCompany",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.haulierContact",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.haulierPhone",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "title": "Mycotoxin Risk Assessment",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Supplier": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+      "disclosures": [
+        {
+          "participantAddress": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+          "dataPointers": [
+            "deoxynivalenolRisk",
+            "deoxynivalenolRiskDocument"
+          ]
+        }
+      ],
+      "requested": {
+        "deoxynivalenolRisk": 50
+      },
+      "condition": {
+        "if": [
+          {
+            ">": [
+              {
+                "var": "deoxynivalenolRisk"
+              },
+              10
+            ]
+          },
+          3,
+          5
+        ]
+      },
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/SupplierRiskAssessment.json",
+          "type": "object",
+          "title": "Supplier Mycotoxin Risk",
+          "description": "The data set which is used for the the mycotoxin risk assessment",
+          "default": {},
+          "properties": {
+            "mycotoxinRisk": {
+              "$id": "mycotoxinRisk",
+              "type": "string",
+              "title": "Mycotoxin Risk Assessment",
+              "description": "Information regarding the risk assessment of the crop.",
+              "default": {}
+            },
+            "deoxynivalenolRisk": {
+              "$id": "deoxynivalenolRisk",
+              "title": "Risk assessment for Deoxynivalenol(DON)",
+              "description": "Risk assessment for Deoxynivalenol(DON)",
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            },
+            "deoxynivalenolRiskDocument": {
+              "$id": "deoxynivalenolRiskDocument",
+              "title": "Risk assessment for Deoxynivalenol(DON) Upload",
+              "description": "Risk assessment upload for Deoxynivalenol(DON)",
+              "type": "integer"
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "layout": "Group",
+        "scope": "$",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.mycotoxinRisk",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Numeric",
+                "scope": "$.properties.deoxynivalenolRisk",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "File",
+                "scope": "$.properties.deoxynivalenolRiskDocument",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "title": "Mycotoxin Action",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Supplier": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+      "disclosures": [
+        {
+          "participantAddress": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+          "dataPointers": [
+            "deoxynivalenolTestDate",
+            "deoxynivalenolTestResult",
+            "zearalenoneTestDate",
+            "zearalenoneTestResult"
+          ]
+        }
+      ],
+      "requested": {
+        "deoxynivalenolTestDate": "22/10/21",
+        "deoxynivalenolTestResult": 10.0,
+        "zearalenoneTest": "22/10/21",
+        "zearalenoneTestResult": 20.0
+      },
+      "condition": {
+        "if": [
+          5
+        ]
+      },
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/SupplierMycotoxinData.json",
+          "type": "object",
+          "title": "Supplier Mycotoxin Data",
+          "description": "The data set which is used for the supplier in a passport blueprint",
+          "default": {},
+          "properties": {
+            "mycotoxinTests": {
+              "$id": "mycotoxinTests",
+              "type": "string",
+              "title": "Mycotoxin Test Results",
+              "description": "Details of the various tests carried out on your wheat crop",
+              "default": {}
+            },
+            "deoxynivalenolTestDate": {
+              "$id": "deoxynivalenolTestDate",
+              "type": "string",
+              "format": "date",
+              "title": "Deoxynivalenol Test Date",
+              "description": "The date the test was carried out.",
+              "default": "2021-12-25",
+              "examples": [
+                "2018-11-13"
+              ]
+            },
+            "deoxynivalenolTestResult": {
+              "$id": "deoxynivalenolTestResult",
+              "type": "integer",
+              "title": "Deoxynivalenol Test Result",
+              "description": "The result of the test",
+              "minimum": 0,
+              "default": 0,
+              "examples": [
+                775
+              ]
+            },
+            "zearalenoneTestDate": {
+              "$id": "zearalenoneTestDate",
+              "type": "string",
+              "format": "date",
+              "title": "Zearalenone Test Date",
+              "description": "The date the test was carried out.",
+              "default": "2021-12-25",
+              "examples": [
+                "2018-11-13"
+              ]
+            },
+            "zearalenoneTestResult": {
+              "$id": "zearalenoneTestResult",
+              "type": "integer",
+              "title": "Zearalenone Test Result",
+              "description": "The result of the test",
+              "minimum": 0,
+              "default": 0,
+              "examples": [
+                775
+              ]
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "layout": "Group",
+        "scope": "$",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "conditions": [
+              {
+                "if": [
+                  {
+                    "==": [
+                      {
+                        "var": "$.properties.productType"
+                      },
+                      "Wheat"
+                    ]
+                  },
+                  "true",
+                  "false"
+                ]
+              }
+            ],
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.mycotoxinTests",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "DateTime",
+                "scope": "$.properties.deoxynivalenolTestDate",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Numeric",
+                "scope": "$.properties.deoxynivalenolTestResult",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "DateTime",
+                "scope": "$.properties.zearalenoneTestDate",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Numeric",
+                "scope": "$.properties.zearalenoneTestResult",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "title": "Genetic Modification Action",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Supplier": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+      "disclosures": [
+        {
+          "participantAddress": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+          "dataPointers": [
+            "agreementGM",
+            "cropGMInfo"
+          ]
+        }
+      ],
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/supplierGMAction.json",
+          "type": "object",
+          "title": "Supplier Genetic Modification Data",
+          "description": "The data set which is used for the supplier in a passport blueprint",
+          "default": {},
+          "properties": {
+            "cropGMDetails": {
+              "$id": "cropGMDetails",
+              "type": "string",
+              "title": "Crop Details - Oilseed",
+              "description": "Crop Details - Oilseed"
+            },
+            "cropGMInfo": {
+              "$id": "cropGMInfo",
+              "type": "string",
+              "title": "Genetic Modification Compliance",
+              "description": "Additional notes the GM compliance of this crop.",
+              "default": "Crop meets all of the GM requirements for EC 1829/2003"
+            },
+            "agreementGM": {
+              "$id": "agreementGM",
+              "title": "I agree",
+              "description": "In compliance with regulations EC 1829/2003 andEC1830/2003, the crop covered by this declaration is NOT subject to the labelling requirements specified in the above mentioned regulations and necessary steps have been taken to preserve the conventional (i.e. non-GM) status of the crop",
+              "type": "boolean"
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "layout": "Group",
+        "scope": "$",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.cropGMDetails",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.cropGMInfo",
+                "layout": "VerticalLayout"
+              }
+            ]
+          },
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Checkbox",
+                "scope": "$.properties.agreementGM",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "title": "Post harvest treatment and declaration",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Supplier": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+      "disclosures": [
+        {
+          "participantAddress": "3e380f95-1fcb-4ec5-9fed-2643da291c1c",
+          "dataPointers": [
+            "postHarvestTreatment",
+            "treatmentDate"
+          ]
+        },
+        {
+          "participantAddress": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+          "dataPointers": [
+            "postHarvestTreatment",
+            "treatmentDate",
+            "rediiStatement"
+          ]
+        }
+      ],
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/PostHarvestTreatment.json",
+          "type": "object",
+          "title": "Post harvest treatment and declaration",
+          "description": "The data set which supplies data for post harvest treatment",
+          "properties": {
+            "cropDetails": {
+              "$id": "cropDetails",
+              "type": "string",
+              "title": "Crop Details - Post Harvest Treatment",
+              "description": "Crop Details - Post Harvest Treatment"
+            },
+            "postHarvestTreatment": {
+              "$id": "postHarvestTreatment",
+              "title": "Post-Harvest Treatment",
+              "description": "The level of treatment the product has received",
+              "type": "string",
+              "enum": [
+                "No Treatement",
+                "Treatment below recommended level",
+                "Partly/Fully Treated"
+              ],
+              "default": "No Treatement"
+            },
+            "treatmentDate": {
+              "$id": "treatmentDate",
+              "title": "Treatment Date",
+              "description": "The date of the treatment",
+              "type": "string",
+              "format": "date",
+              "default": "2021-12-25",
+              "examples": [
+                "2018-11-13"
+              ]
+            },
+            "rediiStatement": {
+              "$id": "rediiStatement",
+              "title": "REDII Declaration",
+              "description": "This load has been grown on land which meets the requirements of the Renewable Energy Directive Sustainability Criteria",
+              "type": "boolean"
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "layout": "Group",
+        "scope": "$",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.cropDetails",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Choice",
+                "scope": "$.properties.postHarvestTreatment",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "DateTime",
+                "scope": "$.properties.treatmentDate",
+                "layout": "VerticalLayout"
+              }
+            ]
+          },
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Checkbox",
+                "scope": "$.properties.rediiStatement",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "title": "Transporter Action",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Transporter": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "3e380f95-1fcb-4ec5-9fed-2643da291c1c",
+      "disclosures": [
+        {
+          "participantAddress": "TrackingData",
+          "dataPointers": [
+            "vehicleReg",
+            "trailerId"
+          ]
+        },
+        {
+          "participantAddress": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+          "dataPointers": [
+            "vehicleReg",
+            "trailerId",
+            "firstLoadDate",
+            "firstLoadContents",
+            "collectionConfirmation",
+            "firstCleaningMethod",
+            "assuranceReg"
+          ]
+        },
+        {
+          "participantAddress": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+          "dataPointers": [
+            "vehicleReg",
+            "trailerId",
+            "firstLoadDate",
+            "firstLoadContents",
+            "collectionConfirmation",
+            "firstCleaningMethod",
+            "assuranceReg"
+          ]
+        }
+      ],
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/transporterData.json",
+          "type": "object",
+          "title": "transporter Data",
+          "description": "The data set which is used for the transporter in a passport blueprint",
+          "properties": {
+            "loadVerification": {
+              "$id": "loadVerification",
+              "title": "Load Verification",
+              "description": "Verify the load before collection",
+              "type": "boolean",
+              "default": false
+            },
+            "assignVehicle": {
+              "$id": "assignVehicle",
+              "type": "object",
+              "title": "Assign Vehicle",
+              "description": "Section that allows the transporter to assign the vehicle and trailer which will carry out the delivery"
+            },
+            "vehicleReg": {
+              "$id": "vehicleReg",
+              "type": "string",
+              "title": "Vehicle Registration No.",
+              "description": "Registration Number for the transporting vehicle",
+              "default": "TR61 0NY"
+            },
+            "trailerId": {
+              "$id": "trailerId",
+              "type": "string",
+              "title": "Trailer ID",
+              "description": "The id of the trailer which will be attached to the vehicle",
+              "default": "002-A78TN5"
+            },
+            "assuranceReg": {
+              "$id": "assuranceReg",
+              "type": "string",
+              "title": "Vehicle Assurance No.",
+              "description": "The number that was given to the vehilce as a part of it's assurance.",
+              "default": "40960-A17-4"
+            },
+            "vehicleHygiene": {
+              "$id": "vehicleHygiene",
+              "type": "object",
+              "title": "Vehicle Hygiene",
+              "description": "Section that allows the transporter to input data for the last three loads transported"
+            },
+            "firstLoadDate": {
+              "$id": "firstLoadDate",
+              "title": "Previous Load Date (First)",
+              "description": "The date of the last load",
+              "type": "string",
+              "format": "date",
+              "default": "2021-11-14"
+            },
+            "firstLoadContents": {
+              "$id": "firstLoadContents",
+              "title": "Previous Load Contents(First)",
+              "description": "The contents of the last load",
+              "type": "string",
+              "enum": [
+                "Wheat",
+                "Barley",
+                "Oats",
+                "Rye",
+                "Maize",
+                "Triticale",
+                "Oilseed Rape",
+                "Linseed",
+                "Soya Bean",
+                "Sunflower Seed",
+                "Beans",
+                "Peas",
+                "Lupins"
+              ],
+              "default": "Wheat"
+            },
+            "firstCleaningMethod": {
+              "$id": "firstCleaningMethod",
+              "type": "string",
+              "title": "First Cleaning Method",
+              "description": "The cleaning method of the last load",
+              "enum": [
+                "Brush",
+                "Steam",
+                "Disinfect"
+              ],
+              "default": "Brush"
+            },
+            "collectionConfirmation": {
+              "$id": "collectionConfirmation",
+              "type": "string",
+              "title": "Collection Confirmation",
+              "description": "Details of the collection"
+            },
+            "collectionLocation": {
+              "$id": "collectionLocation",
+              "title": "Collection Location",
+              "description": "The collection location of the current order",
+              "type": "string",
+              "default": "AB42 5RR"
+            },
+            "deliveryLocation": {
+              "$id": "deliveryLocation",
+              "title": "Delivery Location",
+              "description": "The delivery location of the current order",
+              "type": "string",
+              "default": "S8 7PQ"
+            },
+            "dateTime": {
+              "$id": "dateTime",
+              "title": "Date/Time of Collection",
+              "description": "The date and time of the collection",
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "scope": "$",
+        "layout": "Group",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Checkbox",
+                "scope": "$.properties.loadVerification",
+                "layout": "VerticalLayout"
+              }
+            ]
+          },
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.assignVehicle",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.vehicleReg",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.trailerId",
+                "layout": "VerticalLayout"
+              }
+            ]
+          },
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.vehicleHygiene",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "DateTime",
+                "scope": "$.properties.firstLoadDate",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Choice",
+                "scope": "$.properties.firstLoadContents",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Choice",
+                "scope": "$.properties.firstCleaningMethod",
+                "layout": "VerticalLayout"
+              }
+            ]
+          },
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.collectionConfirmation",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.collectionLocation",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.deliveryLocation",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "DateTime",
+                "scope": "$.properties.dateTime",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "title": "Mark Arrived",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Transporter": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "3e380f95-1fcb-4ec5-9fed-2643da291c1c",
+      "disclosures": [
+        {
+          "participantAddress": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+          "dataPointers": [
+            "markedArrived"
+          ]
+        },
+        {
+          "participantAddress": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+          "dataPointers": [
+            "markedArrived"
+          ]
+        }
+      ],
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/markArrived.json",
+          "type": "object",
+          "title": "Mark as arrived",
+          "description": "",
+          "default": {},
+          "properties": {
+            "markedArrived": {
+              "$id": "markedArrived",
+              "title": "Mark As Arrived",
+              "description": "Check to mark the arrival of the transport at the collection point.",
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "scope": "$",
+        "layout": "Group",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Checkbox",
+                "scope": "$.properties.markedArrived",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "title": "Vehicle Declaration Action",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Supplier": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+      "disclosures": [
+        {
+          "participantAddress": "3e380f95-1fcb-4ec5-9fed-2643da291c1c",
+          "dataPointers": [
+            "vehicleDeclarationAfterRejection",
+            "vehicleRejectionDetail"
+          ]
+        }
+      ],
+      "condition": {
+        "if": [
+          {
+            "==": [
+              {
+                "var": "vehicleDeclaration"
+              },
+              "Accept"
+            ]
+          },
+          10,
+          9
+        ]
+      },
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/vehicleDeclaration.json",
+          "type": "object",
+          "title": "Vehicle Declaration",
+          "description": "",
+          "properties": {
+            "vehicleDeclaration": {
+              "$id": "vehicleDeclaration",
+              "title": "Vehicle Declaration",
+              "description": "After visually inspecting the vehicle either accept or reject the transport vehicle.",
+              "type": "string",
+              "enum": [
+                "Accept",
+                "Reject"
+              ],
+              "default": "Reject"
+            },
+            "vehicleRejectionDetail": {
+              "$id": "vehicleRejectionDetail",
+              "title": "Rejection Reason",
+              "description": "More information about the rejection reason",
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "layout": "Group",
+        "scope": "$",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Choice",
+                "scope": "$.properties.vehicleDeclaration",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.vehicleRejectionDetail",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "title": "Vehicle Declaration Action",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Supplier": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+      "disclosures": [
+        {
+          "participantAddress": "3e380f95-1fcb-4ec5-9fed-2643da291c1c",
+          "dataPointers": [
+            "vehicleDeclarationAfterRejection",
+            "vehicleRejectionDetailAfterRejection"
+          ]
+        }
+      ],
+      "condition": {
+        "if": [
+          {
+            "==": [
+              {
+                "var": "vehicleDeclarationAfterRejection"
+              },
+              "Accept"
+            ]
+          },
+          10,
+          9
+        ]
+      },
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/vehicleDeclaration.json",
+          "type": "object",
+          "title": "Vehicle Declaration",
+          "description": "",
+          "properties": {
+            "vehicleDeclarationAfterRejection": {
+              "$id": "vehicleDeclarationAfterRejection",
+              "title": "Vehicle Declaration",
+              "description": "After visually inspecting the vehicle either accept or reject the transport vehicle.",
+              "type": "string",
+              "enum": [
+                "Accept",
+                "Reject"
+              ],
+              "default": "Reject"
+            },
+            "vehicleRejectionDetailAfterRejection": {
+              "$id": "vehicleRejectionDetailAfterRejection",
+              "title": "Rejection Reason",
+              "description": "More information about the rejection reason",
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "layout": "Group",
+        "scope": "$",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Choice",
+                "scope": "$.properties.vehicleDeclarationAfterRejection",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.vehicleRejectionDetailAfterRejection",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "title": "Collection Confirmation",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Transporter": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "3e380f95-1fcb-4ec5-9fed-2643da291c1c",
+      "disclosures": [
+        {
+          "participantAddress": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+          "dataPointers": [
+            "ticketNumber"
+          ]
+        },
+        {
+          "participantAddress": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+          "dataPointers": [
+            "ticketNumber"
+          ]
+        }
+      ],
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/collectionConfirmation.json",
+          "type": "object",
+          "title": "Collection Confirmation",
+          "description": "",
+          "default": {},
+          "properties": {
+            "ticketNumber": {
+              "$id": "ticketNumber",
+              "title": "Haulier Collection Ticket No",
+              "description": "",
+              "type": "string",
+              "default": "UU17-8890",
+              "examples": [
+                "RT90-4091"
+              ]
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "scope": "$",
+        "layout": "Group",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "TextLine",
+                "scope": "$.properties.ticketNumber",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "title": "Recipient Action",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Recipient": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "disclosures": [
+        {
+          "participantAddress": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+          "dataPointers": [
+            "referenceNumber",
+            "receivedBy",
+            "grainQualityCheck",
+            "qualityParameters",
+            "loadAcceptance",
+            "sampleDetails"
+          ]
+        },
+        {
+          "participantAddress": "3e380f95-1fcb-4ec5-9fed-2643da291c1c",
+          "dataPointers": [
+            "referenceNumber"
+          ]
+        }
+      ],
+      "condition": {
+        "if": [
+          {
+            "==": [
+              {
+                "var": "loadAcceptance"
+              },
+              "Accept"
+            ]
+          },
+          12,
+          13
+        ]
+      },
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/recipientData.json",
+          "type": "object",
+          "title": "Recipient Data",
+          "description": "The data set which is used for the recipient in a passport blueprint",
+          "properties": {
+            "arrivalConfirmation": {
+              "$id": "arrivalConfirmation",
+              "title": "Arrival Confirmation",
+              "description": "Verify that the order has arrived and is correct",
+              "type": "boolean",
+              "default": false
+            },
+            "receiverInformationSection": {
+              "$id": "receiverInformationSection",
+              "type": "object",
+              "title": "Receiver Information",
+              "description": "Section that allows you, the recipient, to input all your details"
+            },
+            "receiverDetails": {
+              "$id": "receiverDetails",
+              "title": "Reciever Details",
+              "description": "Your info",
+              "type": "string",
+              "default": "K&M Processing Plant"
+            },
+            "referenceNumber": {
+              "$id": "referenceNumber",
+              "title": "Reference Number",
+              "description": "Your refrence number for the order",
+              "type": "string",
+              "default": "E101-17-20211225-A01"
+            },
+            "receivedBy": {
+              "$id": "receivedBy",
+              "type": "string",
+              "description": "The name of the specific person who received the order",
+              "title": "Received By",
+              "default": "A. M. Masters"
+            },
+            "weighBridgeTicket": {
+              "$id": "weighBridgeTicket",
+              "type": "string",
+              "title": "Weighbridge Ticket Number",
+              "description": "The reference number for the weighbridge",
+              "default": "1701-T"
+            },
+            "arrivalDate": {
+              "$id": "arrivalDate",
+              "title": "Date and Time",
+              "description": "The date and time of arrival",
+              "type": "string",
+              "format": "date"
+            },
+            "grainQualityCheck": {
+              "$id": "grainQualityCheck",
+              "title": "Grain Quality Check",
+              "description": "Quality check parameters and details of samples taken",
+              "type": "object"
+            },
+            "qualityParameters": {
+              "$id": "qualityParameters",
+              "title": "Quality Parameters",
+              "description": "Quality check parameters for the taken sample. This could be Broken Kernels, Weeds, Green Kernels, Thin/Small Kernels, Other material etc",
+              "type": "string",
+              "default": "Quality checks taken from 3 points within load, all meet EC standard"
+            },
+            "sampleDetails": {
+              "$id": "sampleDetails",
+              "title": "Details of the sample",
+              "description": "Information about the samples were taken",
+              "type": "string",
+              "default": "3-point, upper, middle, lower samples"
+            },
+            "loadAcceptance": {
+              "$id": "loadAcceptance",
+              "title": "Accept the load",
+              "description": "Choice confirming acceptance or rejection of the delivery",
+              "type": "string",
+              "enum": [
+                "Accept",
+                "Reject"
+              ],
+              "default": "Reject"
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "layout": "Group",
+        "scope": "$",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Checkbox",
+                "scope": "$.properties.arrivalConfirmation",
+                "layout": "VerticalLayout"
+              }
+            ]
+          },
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.receiverInformationSection",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.receiverDetails",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.referenceNumber",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.receivedBy",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextLine",
+                "scope": "$.properties.weighBridgeTicket",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "DateTime",
+                "scope": "$.properties.arrivalDate",
+                "layout": "VerticalLayout"
+              }
+            ]
+          },
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.grainQualityCheck",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.qualityParameters",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.sampleDetails",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Choice",
+                "scope": "$.properties.loadAcceptance",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 12,
+      "title": "Recipient Grain Accepted",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Recipient": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "disclosures": [
+        {
+          "participantAddress": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+          "dataPointers": [
+            "declarationOfAcceptance"
+          ]
+        }
+      ],
+      "condition": {
+        "if": [
+          14
+        ]
+      },
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/recipientData.json",
+          "type": "object",
+          "title": "Recipient Data",
+          "description": "The data set which is used for the recipient in a passport blueprint",
+          "properties": {
+            "qualityAgreedSection": {
+              "$id": "qualityAgreedSection",
+              "title": "Recipient Verifcation and Completion",
+              "description": "",
+              "type": "string"
+            },
+            "loadWeight": {
+              "$id": "loadWeight",
+              "title": "Load Weight",
+              "description": "Weight of the accepted load",
+              "type": "integer",
+              "default": 1
+            },
+            "grainQualityParameters": {
+              "$id": "grainQualityParameters",
+              "title": "Grain Quality Parameters",
+              "description": "Quality check parameters for the taken sample. This could be Broken Kernels, Weeds, Green Kernels, Thin/Small Kernels, Other material etc",
+              "type": "string",
+              "default": "Quality checks taken from 3 points within load, all meet EC standard"
+            },
+            "declarationOfAcceptance": {
+              "$id": "declarationOfAcceptance",
+              "title": "Declaration",
+              "description": "I confirm that I have checked the quality of the grain and found it to be within acceptable paramaters and delcare that I am accepting this delivery.",
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "layout": "Group",
+        "scope": "$",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Label",
+                "scope": "$.properties.qualityAgreedSection",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Numeric",
+                "scope": "$.properties.loadWeight",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.grainQualityParameters",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Checkbox",
+                "scope": "$.properties.declarationOfAcceptance",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 13,
+      "title": "Recipient Grain Rejected",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Recipient": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "disclosures": [
+        {
+          "participantAddress": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+          "dataPointers": [
+            "rejectionReason",
+            "rejectionDetail"
+          ]
+        }
+      ],
+      "condition": {
+        "if": [
+          -2
+        ]
+      },
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/10RecipientGrainRejected.json",
+          "type": "object",
+          "title": "Recipient Grain Rejected",
+          "description": "The data set which is used for specifying why the crop is rejected",
+          "properties": {
+            "rejectionReason": {
+              "$id": "rejectionReason",
+              "title": "Rejection Reason",
+              "description": "A single line of why it has been rejected",
+              "type": "string"
+            },
+            "rejectionDetail": {
+              "$id": "rejectionDetail",
+              "title": "Rejection Detail",
+              "description": "More information about the rejection reason",
+              "type": "string"
+            },
+            "cropWeight": {
+              "$id": "cropWeight",
+              "title": "Crop Weight",
+              "description": "",
+              "type": "integer"
+            },
+            "cropQuality": {
+              "$id": "cropQuality",
+              "title": "Crop Quality Parameters",
+              "description": "Quality check parameters that have resulted in a rejection. This could be Broken Kernels, Weeds, Green Kernels, Thin/Small Kernels, Other material etc",
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "layout": "Group",
+        "scope": "$",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "TextLine",
+                "scope": "$.properties.rejectionReason",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.rejectionDetail",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Numeric",
+                "scope": "$.properties.cropWeight",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "TextArea",
+                "scope": "$.properties.cropQuality",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 14,
+      "title": "Storage Allocation",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "participants": [
+        {
+          "Recipient": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "disclosures": [
+        {
+          "participantAddress": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+          "dataPointers": [
+            "storageDetails"
+          ]
+        }
+      ],
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/storageAllocation.json",
+          "type": "object",
+          "title": "Storage Allocation",
+          "description": "Assign a store or vessel for the accepted load.",
+          "properties": {
+            "storageDetails": {
+              "$id": "storageDetails",
+              "title": "Storage Details",
+              "description": "Input all necessary details for allocation the crop to storage",
+              "type": "string",
+              "default": "Storage Silo 3"
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "scope": "$",
+        "layout": "Group",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "TextArea",
+                "scope": "$.properties.storageDetails",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

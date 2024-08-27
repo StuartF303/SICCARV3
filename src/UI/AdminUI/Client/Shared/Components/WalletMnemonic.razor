@@ -1,0 +1,23 @@
+﻿@using Syncfusion.Blazor.Buttons
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+        <label class="col-form-label">Mnemonic: </label>
+        <SfTextBox Multiline=true Value="@Wallet.Mnemonic" Readonly="true" @onfocusin="CopyWalletMnemonic" CssClass="walletName"></SfTextBox>
+        <SfButton Type="button" @onclick="CopyWalletMnemonic" CssClass="copyMnemonicBut">Copy Mnemonic</SfButton>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public CreateWalletResponse Wallet { get; set; }
+
+    [Inject]
+    public IJSRuntime JsRuntime { get; set; }
+
+    private async Task CopyWalletMnemonic()
+    {
+        await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Wallet.Mnemonic);
+    }
+
+}

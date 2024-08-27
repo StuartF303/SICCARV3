@@ -1,0 +1,69 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<AssemblyName>Siccar.Common.ServiceClients</AssemblyName>
+		<RootNamespace>Siccar.Common.ServiceClients</RootNamespace>
+		<PackageId>Siccar.Common.ServiceClients</PackageId>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<ApplicationIcon>siccar.ico</ApplicationIcon>
+		<Version>1.6.0</Version>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+		<Title>Siccar.Common.ServiceClients</Title>
+		<Authors>Wallet.Services</Authors>
+		<Company>Wallet.Services (Scotland) Limited</Company>
+		<PackageIcon>logo.png</PackageIcon>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageOutputPath>$(Solutiondir)packages</PackageOutputPath>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="nuget.config" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="nuget.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+		<Content Include="siccar.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\SiccarCommon\logo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="IdentityModel" Version="6.2.0" />
+		<PackageReference Include="IdentityModel.OidcClient" Version="5.2.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.1" />
+		<PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<ProjectReference Include="..\..\Services\Peer\PeerCore\PeerCore.csproj" />
+		<ProjectReference Include="..\SiccarApplication\SiccarApplication.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+		<PackageReference Include="Siccar.Application" Version="1.6.*" />
+		<PackageReference Include="Siccar.Network.Peer.Core" Version="1.6.*" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\SiccarPlatformCryptography\SiccarPlatformCryptography.csproj" />
+	</ItemGroup>
+
+</Project>

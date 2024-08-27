@@ -1,0 +1,57 @@
+﻿@page "/registers"
+@using Syncfusion.Blazor.Spinner
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Popups
+@using Models
+@using SelectionMode = Syncfusion.Blazor.Grids.SelectionMode
+@attribute [Authorize]
+
+<style>
+    .e-spinner-pane .e-spinner-inner .e-spin-bootstrap5 {
+        stroke: navy;
+    }
+</style>
+
+<div class="mainPadding">
+
+<SfSpinner @bind-Visible="SpinnerVisible" Label="Data loading..." size="50" Type="@SpinnerType.Bootstrap5">
+
+</SfSpinner>
+
+<h3>Register List</h3>
+
+<SfButton Type="button" Disabled="@DisableAddRegister" @onclick="AddRegister">Add Register</SfButton>
+
+<SfDialog Width="600" ShowCloseIcon="true" IsModal="true" @bind-Visible="@ShowAddRegisterDialog">
+    <DialogTemplates>
+        <Header> Add Register </Header>
+        <Content> <Siccar.UI.Admin.Shared.Components.AddRegister OnSave="RegistryCreated" /></Content>
+    </DialogTemplates>
+    
+</SfDialog>
+
+@if (Registers != null)
+{
+        <div class="box mt-4">
+            <div class="box-body">
+                <SfGrid @ref="Grid" DataSource="@Registers" ID="Grid" AllowPaging="true" AllowSorting="true" GridLines="GridLine.Horizontal" RowHeight="50">
+                    <GridSortSettings AllowUnsort="false">
+                        <GridSortColumns>
+                            <GridSortColumn Field="Name" Direction="SortDirection.Ascending"></GridSortColumn>
+                        </GridSortColumns>
+                    </GridSortSettings>
+                    <GridPageSettings PageSize="10" PageSizes="@pageDropdown"></GridPageSettings>
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+                    <GridColumns>
+                        <GridColumn Field=@nameof(RegisterModel.Id) HeaderText="Register ID" TextAlign="TextAlign.Left" Width="40%" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})"></GridColumn>
+                        <GridColumn Field=@nameof(RegisterModel.Name) HeaderText="Name" TextAlign="TextAlign.Left" Width="40%"></GridColumn>
+                        <GridColumn Field=@nameof(RegisterModel.Height) HeaderText="Height" TextAlign="TextAlign.Center" Width="20%"></GridColumn>
+                    </GridColumns>
+                    <GridSelectionSettings Mode="SelectionMode.Row"></GridSelectionSettings>
+                    <GridEvents RowSelected="RowSelectHandler" TValue="RegisterModel"></GridEvents>
+                </SfGrid>
+            </div>
+        </div>
+}
+
+</div>

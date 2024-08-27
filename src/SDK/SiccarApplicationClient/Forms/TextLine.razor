@@ -1,0 +1,36 @@
+﻿@inherits BaseControl
+
+<div hidden=@_hidden class="input">
+    <label for="@_id">@_label</label>
+    <input id="@_id" type="text" placeholder="@_placeholder" @bind="InputValue" @onblur="(_) => OnBlur()" />
+    <p>@_description</p>
+</div>
+
+@code {
+    private string InputValue { get; set; } = "";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        dataService.StateChanged += StateHasChanged;
+        UpdateInputValue();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+            UpdateInputValue();
+            await base.OnParametersSetAsync();
+    }
+
+    private void OnBlur() => dataService.UpdateFormData(_id, InputValue);
+
+    private void UpdateInputValue()
+    {
+        if (_id != null)
+        {
+            var data = (string)dataService.GetFormDataByKey(_id);
+            InputValue = data;
+        }
+    }
+}
+

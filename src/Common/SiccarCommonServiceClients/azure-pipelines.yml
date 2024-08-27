@@ -1,0 +1,69 @@
+﻿---
+#Azure Pipeline for Blueprint Library
+#todo- remove variable hard coding and place into AAzure DevOps library or similar
+#This could have been done with nuget tasks but dotnet tasks seem to be preferred
+variables:
+  AzureArtifactsFeedId: 'd5d7b089-0ba1-4b7c-b132-19b693376e2e/95abafbc-e681-4a74-86c9-576273b46b20' #siccarv3feed
+  BuildEnv: $(Build.BuildNumber)  #we can decide on the where to version later - there's a couple of choices
+  BuildConfiguration: 'Debug'
+
+trigger:
+  batch: "true"
+  branches:
+    include:
+    - feature/siccarcommonserviceclients/*
+
+
+resources:
+- repo: self    
+    
+name: 1.4.$(Rev:r)
+jobs:
+- job: Job_1
+  displayName: Agent job for Siccar Service Client Library
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET 6.0 sdk'
+    inputs:
+      packageType: sdk
+      version: 6.0.x
+
+  - task: NuGetAuthenticate@0
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: 'restore'
+      projects: '**/SiccarCommonServiceClients/*.csproj'
+      feedsToUse: 'select'
+      vstsFeed: $(AzureArtifactsFeedId)
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet build
+    inputs:
+      command: build
+      projects: '**/SiccarCommonServiceClients/*.csproj'
+      arguments: --configuration $(BuildConfiguration)
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet pack
+    inputs:
+      command: pack
+      arguments: --configuration $(BuildConfiguration)
+      packagesToPack: '**/SiccarCommonServiceClients/*.csproj'
+      versioningScheme: byEnvVar
+      versionEnvVar: BuildEnv
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet nuget push
+    inputs:
+      command: 'push'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Common.ServiceClients.*.nupkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: $(AzureArtifactsFeedId)
+
+  - script: dotnet nuget push --api-key oy2lruyggfvavfrn7dcapfrcie42xmse3dkqkb5j6h6bs4 --source https://api.nuget.org/v3/index.json '$(Build.ArtifactStagingDirectory)/Siccar.Common.ServiceClients.*.nupkg'
+
+...

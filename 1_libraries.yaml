@@ -1,0 +1,193 @@
+---
+# Azure Pipeline for Siccar Library Heirarchy
+# This could have been done with nuget tasks but dotnet tasks seem to be preferred
+variables:
+  AzureArtifactsFeedId: 'd5d7b089-0ba1-4b7c-b132-19b693376e2e/95abafbc-e681-4a74-86c9-576273b46b20' #siccarv3feed
+  BuildEnv: $(Build.BuildNumber)  #we can decide on the where to version later - there's a couple of choices
+  BuildConfiguration: 'Debug'
+
+trigger:
+  batch: "true"
+  branches:
+    include:
+    - main
+    - release/*
+    - feature/*
+    - fix/*
+    - bug/*
+  paths:
+    include:
+    - src/Services/PeerCore/*
+    - src/Services/WalletServiceCore/*
+    - src/Services/ValidatorCore/*
+    - src/Services/RegisterCore*
+    - src/Common/*
+    - src/SDK/*
+
+resources:
+- repo: self    
+    
+name: 1.4.$(Rev:r)
+jobs:
+- job: Setup
+  displayName: Setup Agent to build Siccar Common Libraries
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET 6.0 sdk'
+    inputs:
+      packageType: sdk
+      version: 6.0.x
+
+  - task: NuGetAuthenticate@0
+
+- job: Siccar.Common
+  dependsOn:
+    - Setup
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommon/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar.Platform.Register.Core
+  dependsOn:
+    - Setup
+    - Siccar.Common
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommon/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+      
+- job: Siccar.Platform.Tenant.Core
+  dependsOn:
+    - Setup
+    - Siccar.Common
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommon/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+
+- job: Siccar.Platform.Wallet.Core
+  dependsOn:
+    - Setup
+    - Siccar.Common
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommon/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+      
+- job: Siccar.Platform.Validator.Core
+  dependsOn:
+    - Setup
+    - Siccar.Common
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommon/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar.Platform
+  dependsOn:
+    - Setup
+    - Siccar.Common
+    - Siccar.Platform.Register.Core
+    - Siccar.Platform.Tenant.Core
+    - Siccar.Platform.Wallet.Core
+    - Siccar.Platform.Validator.Core
+
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommon/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar.Platform
+  dependsOn:
+    - Setup
+    - Siccar.Common
+    - Siccar.Platform.Register.Core
+    - Siccar.Platform.Tenant.Core
+    - Siccar.Platform.Wallet.Core
+    - Siccar.Platform.Validator.Core
+
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommon/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar.Application
+  dependsOn:
+    - Setup
+    - Siccar.Common
+    - Siccar.Platform
+
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommon/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar.Common.ServiceClients
+  dependsOn:
+    - Setup
+    - Siccar.Common
+    - Siccar.Platform
+    - Siccar.Platform.Register.Core
+
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommon/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar.Application.Client
+  dependsOn:
+    - Setup
+    - Siccar.Common
+    - Siccar.Platform
+    - Siccar.Platform.Register.Core
+
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommon/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)

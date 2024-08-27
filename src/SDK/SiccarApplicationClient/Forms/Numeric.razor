@@ -1,0 +1,51 @@
+﻿@inherits BaseControl
+
+<!-- Numeric Control -->
+<div hidden=@_hidden class="numeric">
+    <label for="_id">@_label</label>
+    <input type="number" placeholder="@_placeholder" id="_id" value=@DecimalValue @onchange="(e) => OnChange(e)" />
+    <p>@_description</p>
+</div>
+
+@code {
+    private NumberStyles style =
+                NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign;
+    private CultureInfo culture = CultureInfo.CreateSpecificCulture("en-UK");
+    private string DecimalValue;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        dataService.StateChanged += StateHasChanged;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        DecimalValue = "0.000";
+        if (_id != null)
+        {
+            Decimal number;
+            var data = dataService.GetFormDataByKey(_id);
+            var isNumber = decimal.TryParse(data.ToString(), out number);
+            if (isNumber)
+            {
+                DecimalValue = number.ToString("0.000", culture);
+                await base.OnParametersSetAsync();
+            }
+        }
+
+
+
+    }
+
+    private void OnChange(ChangeEventArgs eventArgs)
+    {
+        if (Decimal.TryParse(eventArgs.Value.ToString(), style, culture, out var number))
+        {
+            DecimalValue = eventArgs.Value.ToString();
+            var decimalValue = Math.Round(number, 3);
+            dataService.UpdateFormData(_id, decimalValue);
+        }
+    }
+}
+

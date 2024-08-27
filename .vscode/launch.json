@@ -1,0 +1,152 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Attach with Kubernetes",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+            "preLaunchTask": "bridge-to-kubernetes.resource",
+            "env": {
+                "GRPC_DNS_RESOLVER": "native"
+            }
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        },
+        {
+            "name": "Wallet Service (DAPR)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "daprd-debug-wallet",
+            "program": "${workspaceFolder}/src/Services/Wallet/Wallet.API/bin/Debug/net5.0/Wallet.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Services/Wallet/Wallet.API",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                "uriFormat": "%s/swagger/index.html"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5001"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            },
+            "postDebugTask": "daprd-down-wallet"
+        },
+        {
+            "name": "Register Service (DAPR)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "daprd-debug-register",
+            "program": "${workspaceFolder}/src/Services/Register/Register.API/bin/Debug/net5.0/Register.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Services/Register/Register.API/",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                "uriFormat": "%s/swagger/index.html"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5003"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            },
+            "postDebugTask": "daprd-down-register"
+        },
+        {
+            "name": "Tenant Service (DAPR)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "daprd-debug-tenant",
+            "program": "${workspaceFolder}/src/Services/Tenant/TenantAPI/bin/Debug/net5.0/Tenant.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Services/Tenant/TenantAPI",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                "uriFormat": "%s/swagger/index.html"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5002"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            },
+            "postDebugTask": "daprd-down-tenant"
+        },
+        {
+            "name": "Validator Service (DAPR)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "daprd-debug-validator",
+            "program": "${workspaceFolder}/src/Services/Validator/Validator.API/bin/Debug/net5.0/Validator.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Services/Validator/Validator.API",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                "uriFormat": "%s/swagger/index.html"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5006"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            },
+            "postDebugTask": "daprd-down-validator"
+        },
+        {
+            "name": "Peer Service (DAPR)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "daprd-debug-peer",
+            "program": "${workspaceFolder}/src/Services/Network/PeerService/bin/Debug/net5.0/PeerService.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Services/Network/PeerService/",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                "uriFormat": "%s/swagger/index.html"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5007"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            },
+            "postDebugTask": "daprd-down-peer"
+        }
+    ],
+"compounds": [
+    {
+      "name": "All services with DAPR",
+      "configurations": [
+          "Peer Service (DAPR)",
+          "Register Service (DAPR)",
+          "Tenant Service (DAPR)", 
+          "Validator Service (DAPR)",
+          "Wallet Service (DAPR)"
+        ]
+    }
+   ]
+    
+}

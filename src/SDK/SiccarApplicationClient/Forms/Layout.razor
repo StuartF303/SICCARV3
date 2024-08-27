@@ -1,0 +1,246 @@
+﻿@inherits BaseControl
+@inject IActionServiceClient actionServiceClient
+@inject IRegisterServiceClient registerServiceClient
+@inject IConfiguration Configuration
+@inject IAccessTokenProvider TokenProvider
+
+@using System.Text.Json;
+@using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using System.Runtime.InteropServices.JavaScript
+
+<!-- A Layout Control which hosts subcontrols -->
+@if (Submitted)
+{
+    if (IsComplete)
+    {
+        <div class="alert alert-info fs-5 mt-3" role="alert">
+            <div class="row">
+                <div class="col-xs-12 col-xl-8">
+                    <span>All data has been successfully completed</span>
+                </div>
+                <div class="col-xs-12 col-xl-4 mt-xs-3">
+                    <button type="button" class="btn-sm" @onclick="@(e => ReturnToDashboard())">Back</button>
+                </div>
+            </div>
+        </div>
+    }
+    if (IsLoading)
+    {
+        <div class="alert alert-info fs-5 mt-3" role="alert">
+            <span>Your data is being verified</span>
+            <div class="spinner-border spinner-border-sm mx-2" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+}
+else
+{
+    @if (control.Layout == LayoutTypes.Group)
+    {
+        <form>
+            <FormControl control="@control.Elements[CurrentElementIndex]" updateParentState="@updateParentState" />
+        </form>
+        <div class="navbuttons">
+            @if (RejectionModal)
+            {
+               <!-- Start Rejection Modal
+               <div class="modal fade" id="rejectionModal" tabindex="-1" role="dialog" aria-labelledby="rejectionModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="rejectionModalLabel">Reason for Rejection</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="text" @oninput=CommentChangeHandler />
+                            </div>
+                            <div class="modal-footer">
+                                <button disabled="@RejectButtonDisabled" type="button" @onclick=RejectHandler>Reject</button>
+                                <button type="button" data-dismiss="modal" @onclick=CancelRejectHandler>Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 End Rejection Modal -->
+                <div class="rejectSpace">
+                <div class="rejectText">Please enter the reason for rejection:</div>
+                <input class="rejectDesc" type="text" @oninput=CommentChangeHandler />
+                <button class="rejectBut" disabled="@RejectButtonDisabled" type="button" @onclick=RejectHandler>Reject</button>
+                <button class="cancelBut"  type="button" @onclick=CancelRejectHandler>Cancel</button>
+                </div>
+            }
+            @if (!AlreadyRejected && !RejectionModal)
+            {
+                <button type="button" @onclick=RejectButtonClickHandler>Reject</button>
+                <p class="fs-6 mt-3"> <i class="fas fa-exclamation-circle fs-5 text-primary"></i> Clicking this button will reject the previous action sending a comment to the action participant.  The data cannot be changed or edited.</p>
+            }
+            <div>
+                @if (CurrentElementIndex != 0)
+                {
+                    <button type="button" @onclick=PreviousElement>Back</button>
+
+                }
+            </div>
+            <div>
+                @if (IsLastElement(control.Elements.Count))
+                {
+
+                    <button type="button" @onclick="@(e => Submit())" disabled=@(IsDisabled || dataService.IsSubmitDisabled)>Submit</button>
+                    <p class="fs-6 mt-3"> <i class="fas fa-exclamation-circle fs-5 text-primary"></i> Clicking this button will send your data to a secure data register.  The data cannot be changed or edited.</p>
+                }
+                else
+                {
+                    <button type="button" @onclick="@(e => NextElement(control.Elements.Count))">Next</button>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        @if (control.Elements is not null)
+        {
+            @foreach (var item in control.Elements)
+            {
+                <FormControl control="@item" updateParentState="@updateParentState" />
+            }
+        }
+        else
+        {
+            <b>No form elements defined.</b>
+        }
+    }
+}
+
+@code {
+    public int CurrentElementIndex = 0;
+    public bool Submitted = false;
+    public bool IsLoading = false;
+    public bool IsComplete = false;
+    public bool IsDisabled = false;
+    public string AccessToken;
+    private bool RejectionModal = false;
+    private string RejectionComment = "";
+    private bool RejectButtonDisabled = true;
+    public Siccar.Application.Action PendingNextAction;
+    private bool AlreadyRejected;
+    [Inject]
+    public NavigationManager MyNavigationManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dataService.StateChanged += StateHasChanged;
+        Submitted = false;
+        var prevTx = await registerServiceClient.GetTransactionById(RegisterId, action.PreviousTxId);
+        AlreadyRejected = prevTx.MetaData.TransactionType == Platform.TransactionTypes.Rejection ||
+            prevTx.MetaData.TransactionType == Platform.TransactionTypes.Blueprint;
+        await base.OnInitializedAsync();
+    }
+
+    private async Task Submit()
+    {
+        IsDisabled = true;
+        Submitted = true;
+        IsLoading = true;
+
+        var data = dataService.GetFormDataAsJson();
+
+        var actionSubmission = new ActionSubmission
+            {
+                PreviousTxId = action.PreviousTxId,
+                WalletAddress = WalletAddress,
+                Data = data,
+                RegisterId = RegisterId,
+                BlueprintId = action.Blueprint
+            };
+        var tx = await actionServiceClient.Submission(actionSubmission);
+
+        await InvokeAsync(RetrieveData);
+        return;
+    }
+
+    private void CommentChangeHandler(ChangeEventArgs changeEventArgs){
+        RejectionComment = changeEventArgs.Value.ToString().Trim();
+        RejectButtonDisabled = string.IsNullOrEmpty(RejectionComment);
+    }
+
+    private void RejectButtonClickHandler()
+    {
+        RejectionModal = true;
+        RejectionComment = "";
+    }
+
+    private void CancelRejectHandler()
+    {
+        RejectionModal = false;
+        RejectionComment = "";
+    }
+
+    private async Task RejectHandler()
+    {
+        IsDisabled = true;
+        Submitted = true;
+        IsLoading = true;
+        JsonSerializerOptions serializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var commentPayload = new Dictionary<string, string>();
+        commentPayload.Add("comment", RejectionComment);
+        var actionSubmission = new ActionSubmission
+            {
+                PreviousTxId = action.PreviousTxId,
+                WalletAddress = WalletAddress,
+                RegisterId = RegisterId,
+                BlueprintId = action.Blueprint,
+                Data = JsonDocument.Parse(JsonSerializer.Serialize(commentPayload, serializerOptions))
+            };
+        var tx = await actionServiceClient.Rejection(actionSubmission);
+
+        await InvokeAsync(RetrieveData);
+        return;
+    }
+
+    private void ReturnToDashboard()
+    {
+        //Return participant to their dashboard
+        var uriString = MyNavigationManager.Uri;
+        var uri = new Uri(uriString);
+        string uriWithoutLastSegment = uri.AbsoluteUri.Remove(uri.AbsoluteUri.Length - (uri.Segments.Last().Length + uri.Segments[uri.Segments.Length - 2].Length));
+        MyNavigationManager.NavigateTo(uriWithoutLastSegment);
+    }
+
+    private void RetrieveData()
+    {
+        IsComplete = true;
+        StateHasChanged();
+        IsLoading = false;
+    }
+
+    private void NextElement(int elementLength)
+    {
+        var lastIndex = elementLength - 1;
+        CurrentElementIndex = lastIndex == CurrentElementIndex ? lastIndex : CurrentElementIndex + 1;
+
+    }
+    private void PreviousElement()
+    {
+        CurrentElementIndex = 0 == CurrentElementIndex ? 0 : CurrentElementIndex - 1;
+    }
+
+    private bool IsLastElement(int elementLength)
+    {
+        return CurrentElementIndex == elementLength - 1;
+    }
+
+    private async Task GetAccessToken()
+    {
+        var accessTokenResult = await TokenProvider.RequestAccessToken();
+        AccessToken = string.Empty;
+
+        if (accessTokenResult.TryGetToken(out var token))
+        {
+            AccessToken = token.Value;
+        };
+    }
+}

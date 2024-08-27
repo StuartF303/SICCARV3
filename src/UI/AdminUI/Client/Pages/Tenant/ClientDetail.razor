@@ -1,0 +1,5 @@
+﻿@page "/tenants/{TenantId}/clients/{ClientId}"
+@attribute [Authorize]
+@using Siccar.Common.ServiceClients
+<Siccar.UI.Admin.Shared.Components.ClientDetail Client="@_client" TenantId="@TenantId" />
+@inject ITenantServiceClient TenantServiceClient

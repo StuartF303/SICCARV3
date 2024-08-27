@@ -1,0 +1,177 @@
+{
+  "id": "C65F6542-3DFE-4154-908B-59D31FB760E5",
+  "title": "Simple Blueprint",
+  "description": "A basic blueprint to exercise functionality",
+  "version": 1,
+  "dataSchemas": [
+    {
+      "$schema": "http://json-schema.org/draft-07/schema",
+      "$id": "https://siccar.net/schema/SimpleSend.json",
+      "type": "object",
+      "title": "Simple Data",
+      "description": "A Simple Data item between participants",
+      "properties": {
+        "data1": {
+          "$id": "data1",
+          "type": "string",
+          "title": "A simple string",
+          "description": "Some text"
+        },
+        "data2": {
+          "$id": "data2",
+          "type": "integer",
+          "title": "A simple integer value",
+          "description": "A number",
+          "default": 999
+        },
+        "data3": {
+          "$id": "data3",
+          "title": "Simple enumeration",
+          "description": "A choice",
+          "type": "string",
+          "enum": [
+            "first",
+            "second",
+            "third"
+          ],
+          "default": "second"
+        }
+      }
+    }
+  ],
+  "participants": [
+    {
+      "walletAddress": "ws1jj7sptu0tpatl9djd9jw8fc04waxexl9eyqvqh2y250796vekdagqxsqjc0",
+      "name": "Sender",
+      "organisation": "Org1",
+      "id": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+      "useStealthAddress": false
+    },
+    {
+      "walletAddress": "ws1jksgpmhe8vcxhfx5ej4fhwyz7e4zzp4zw6er2russ4kwakzmt72eskqp38c",
+      "name": "Recipient",
+      "organisation": "Org2",
+      "id": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+      "useStealthAddress": false
+    }
+  ],
+  "actions": [
+    {
+      "id": 1,
+      "title": "Single Action",
+      "previousTxId": "000000000000000000000000000000000",
+      "blueprint": "C65F6542-3DFE-4154-908B-59D31FB760E5",
+      "participants": [
+        {
+          "Supplier": [ { "==": [ 0, 0 ] } ]
+        }
+      ],
+      "sender": "48d62c39-2fdb-4b92-86ef-7abf93af2241",
+      "disclosures": [
+        {
+          "participantAddress": "9f43103d-5e5e-4ec6-9cdd-c3750af835d8",
+          "dataPointers": [
+            "data1",
+            "data2",
+            "data3"
+          ]
+        }
+      ],
+      "condition": {
+        "if": [
+          {
+            "==": [
+              {
+                "var": "data3"
+              },
+              "first"
+            ]
+          },
+          1,
+          {
+            "==": [
+              {
+                "var": "data3"
+              },
+              "second"
+            ]
+          },
+          2,
+          {
+            "==": [
+              {
+                "var": "data3"
+              },
+              "third"
+            ]
+          },
+          3
+        ]
+      },
+      "dataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/schema/C65F6542-3DFE-4154-908B-59D31FB760E5/1.json",
+          "type": "object",
+          "title": "Step 1 Data",
+          "description": "The data set which is used for the supplier in a passport blueprint",
+          "properties": {
+            "data1": {
+              "$id": "data1",
+              "type": "string",
+              "title": "A String Field",
+              "description": "Some words"
+            },
+            "data2": {
+              "$id": "data2",
+              "type": "integer",
+              "title": "a value",
+              "description": "A simple count",
+              "default": 0
+            },
+            "data3": {
+              "$id": "data3",
+              "title": "an enumeration",
+              "description": "a choice",
+              "type": "string",
+              "enum": [
+                "first",
+                "second",
+                "third"
+              ],
+              "default": "first"
+            }
+          }
+        }
+      ],
+      "form": {
+        "type": "Layout",
+        "layout": "Group",
+        "scope": "$",
+        "elements": [
+          {
+            "type": "Layout",
+            "layout": "VerticalLayout",
+            "elements": [
+              {
+                "type": "TextLine",
+                "scope": "$.properties.data1",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Numeric",
+                "scope": "$.properties.data2",
+                "layout": "VerticalLayout"
+              },
+              {
+                "type": "Choice",
+                "scope": "$.properties.data3",
+                "layout": "VerticalLayout"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

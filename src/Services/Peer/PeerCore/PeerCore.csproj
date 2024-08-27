@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>Siccar.Network.Peer.Core</RootNamespace>
+		<AssemblyName>Siccar.Network.Peer.Core</AssemblyName>
+		<Authors>Development</Authors>
+		<Company>Wallet.Services (Scotland) Limited</Company>
+		<Product>Siccar</Product>
+		<Description>Core Peer Networking Elemets</Description>
+		<Copyright>Wallet.Services (Scotland) Limited</Copyright>
+		<PackageProjectUrl>www.siccar.dev</PackageProjectUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<Title>Siccar.Network.Peer.Core</Title>
+		<PackageIcon>logo.png</PackageIcon>
+		<Version>1.6.0-alpha</Version>
+		<PackageOutputPath>$(Solutiondir)packages</PackageOutputPath>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\Wallet\WalletServiceCore\logo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Macross.Json.Extensions" Version="3.0.0" />
+		<PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<ProjectReference Include="..\..\..\Common\SiccarPlatform\SiccarPlatform.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+		<PackageReference Include="Siccar.Platform" Version="1.5.*" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="nuget.config">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+</Project>

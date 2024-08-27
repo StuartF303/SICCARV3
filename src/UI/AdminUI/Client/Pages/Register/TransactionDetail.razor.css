@@ -1,0 +1,78 @@
+﻿body {
+}
+
+.e-spinner-pane .e-spinner-inner .e-spin-bootstrap5 {
+    stroke: navy;
+}
+
+a {
+    border: 0 none;
+    color: blue;
+    background-color: white;
+    display: block;
+    font-size: 14px;
+    font-weight: normal;
+    height: 40px;
+    line-height: 40px;
+    overflow: hidden;
+    padding: 0 1.4em;
+    text-align: left;
+    margin-right: 1px;
+    border: solid 1px;
+    font-weight: 400;
+    font-size: 14px !important;
+    border-color: black;
+}
+
+text, label {
+    border: 0 none;
+    color: white;
+    background-color: #232b3a;
+    display: block;
+    font-size: 14px;
+    font-weight: 400;
+    height: 40px;
+    line-height: 40px;
+    overflow: hidden;
+    padding: 0 1.4em;
+    text-align: left;
+    margin-right: 0;
+}
+
+.upper {
+    text-transform: uppercase;
+}
+
+text, textarea {
+    border: solid 1px;
+    color: black;
+    background-color: white;
+    font-weight: 400;
+    font-size: 14px !important;
+    text-align: left;
+}
+
+textarea {
+    padding: 0 1.4em;
+    text-align: left;
+    margin-right: 1px;
+    resize: none;
+}
+
+input, button, select, optgroup, textarea {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    width: 100%;
+    border: solid 1px;
+}
+
+.col, .col-3, .col-9 {
+    padding-left: 4px;
+    padding-right: 0px;
+}
+
+#transDetails .row {
+    margin-bottom: 10px;
+}

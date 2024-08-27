@@ -1,0 +1,566 @@
+﻿@page "/blueprints/create"
+@page "/blueprints/published/{RegisterId}/{BlueprintId}"
+@page "/blueprints/draft/{BlueprintId}"
+@using FluentValidation;
+@using Siccar.Common.Exceptions;
+@using Syncfusion.Blazor.Buttons
+@using Siccar.Common.ServiceClients
+@using System.Text.Json
+@using System.IO
+@using Siccar.UI.Admin.Shared.Components
+@using Siccar.UI.Admin.Models
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Notifications;
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Layouts
+@using Action = Siccar.Application.Action
+@using System.Collections.ObjectModel
+@using System.Net
+@inject IBlueprintServiceClient bpServiceClient;
+@inject NavigationManager navManager;
+@inject IJSRuntime JS
+@inject IRegisterServiceClient RegisterServiceClient
+@inject IWalletServiceClient WalletServiceClient
+@inject IValidator<Blueprint> Validator
+@inject Siccar.UI.Admin.Services.PageHistoryState pageHistoryState
+@attribute [Authorize]
+
+<div class="createBlueprint">
+
+<SfSplitter Height="100%" Width="100%" SeparatorSize=2>
+    <SplitterPanes>
+        <SplitterPane Collapsible="true">
+            <ContentTemplate>
+
+<div class="leftBlueprintCol">
+
+    <div class="titleAndBut">
+
+        <div class="leftBlueprintTitle"><h3>Create Blueprint</h3></div>
+
+            <div class="rightBlueprintBut"><SfButton OnClick="ExportToJsonClickHandler" HtmlAttributes="@(new Dictionary<string, object>(){ {"title", "Export to JSON"}})" CssClass="exportToJSON"></SfButton></div>
+    </div>
+
+    <SfToast @ref="_toastNotification" ID="toast_type">
+        <ToastPosition X="Right"></ToastPosition>
+        <ToastButtons>
+            <ToastButton Content="Ignore" OnClick="() => _toastNotification.HideAsync()"></ToastButton>
+            <ToastButton Content="Open Draft" OnClick="NavigateToDraft"></ToastButton>
+        </ToastButtons>
+    </SfToast>
+
+    <SfDialog Width="600"
+              ShowCloseIcon="true"
+              IsModal="true"
+              VisibleChanged="isVisible => { if (!isVisible) { ShowConfirmOverwriteDialog=false; } }"
+              Visible="@ShowConfirmOverwriteDialog">
+        <DialogTemplates>
+            <Header> Overwrite Draft </Header>
+            <Content>
+                @{
+                    <p>Are you sure you wish to overwrite an existing draft of the this blueprint?</p>
+                }
+                <SfButton @onclick="UpdateBlueprint">Overwrite</SfButton>
+                <SfButton @onclick="() => ShowConfirmOverwriteDialog = false">Cancel</SfButton>
+            </Content>
+        </DialogTemplates>
+
+    </SfDialog>
+
+    <EditForm EditContext="@EditContext" Context="formContext" OnValidSubmit="context => PublishBlueprintClickHandler(context)">
+        <FluentValidationValidator @ref="_fluentValidationValidator" DisableAssemblyScanning="@true" />
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="blueprint-form-row">
+            <div class="form-group">
+                <label class="blueprintLabel">Title :</label>
+                <SfTextBox Placeholder='Enter a Blueprint title' @bind-Value="@Blueprint.Title" CssClass="blueprintTitle plusDesc"></SfTextBox>
+                    <SfButton OnClick="() => HideBlueprintDesc = !HideBlueprintDesc" HtmlAttributes="@(new Dictionary<string, object>(){ {"title", "Hide Description"}, {"type", "button"}})" CssClass="showHideDesc"> </SfButton>
+                <ValidationMessage For="@(() => Blueprint.Title)"></ValidationMessage>
+            </div>
+            <div class="form-group" hidden="@HideBlueprintDesc">
+                <label class="blueprintLabel">Description :</label>
+                <SfTextBox Multiline=true Placeholder='Enter Blueprint description' @bind-Value="@Blueprint.Description" CssClass="blueprintTitle"></SfTextBox>
+                <ValidationMessage For="@(() => Blueprint.Description)"></ValidationMessage>
+            </div>
+            <div hidden="(!@HideBlueprintDesc)"></div>
+
+            <label class="blueprintLabel">Register :</label>
+            <SfDropDownList TValue="string" TItem="Register" PopupHeight="350px" PopupWidth="350px" Placeholder="Select a Register" DataSource="@_registers" @bind-Value="@RegisterId" CssClass="blueprintTitle">
+                <DropDownListEvents TItem="Register" TValue="string"></DropDownListEvents>
+                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+            </SfDropDownList>
+
+            @if (RegisterId != null)
+            {
+                <label class="blueprintLabel">Participants :</label>
+                <ParticipantsListSelection @bind-SelectedParticipants="@Blueprint.Participants" RegisterId="@RegisterId"></ParticipantsListSelection>
+            }
+
+            <label class="blueprintLabel">Wallet :</label>
+                <SfDropDownList TValue="string" TItem="Wallet" PopupHeight="350px" PopupWidth="350px" Placeholder="Select a Wallet" DataSource="@_wallets" CssClass="blueprintTitle" @bind-value="@WalletAddress">
+                <DropDownListEvents TItem="Wallet" TValue="string"></DropDownListEvents>
+                <DropDownListFieldSettings Value="Address" Text="Name"></DropDownListFieldSettings>
+            </SfDropDownList>
+           
+            
+            @if (draftExists)
+            {
+                <SfButton Type="button" Disabled=_showAddAction OnClick="async () => { _isPublish = false; await UpdateBlueprintClickHandler(formContext); }" CssClass="updateBlueprintTitle">Save Changes</SfButton>
+            }
+            else
+            {
+                <SfButton Type="button" Disabled=_showAddAction OnClick="async () => { _isPublish = false; await SaveBlueprintClickHandler(formContext); }" CssClass="saveBlueprintTitle">Save Changes</SfButton>
+            }
+
+            <SfButton Type="submit" Disabled=@(_showAddAction || navManager.Uri.Contains("published")) CssClass="updateBlueprintTitle" OnClick="() => _isPublish = true">Publish</SfButton>
+        </div>
+    </EditForm>
+
+   
+    @if (Blueprint != null)
+    {
+        <div class="actionScroll">
+            <div class="actionList">
+            <SfListBox @ref="_actionListBox" TValue="int" DataSource="@BlueprintActions" TItem="Action" AllowDragAndDrop="true">
+                <ListBoxFieldSettings Value="Id" />
+                <ListBoxEvents TItem="Action" TValue="int"  Dropped='OnActionDropped'></ListBoxEvents>
+                <ListBoxSelectionSettings Mode="Syncfusion.Blazor.DropDowns.SelectionMode.Single"></ListBoxSelectionSettings>
+                <ListBoxTemplates TItem="Action">
+                    <ItemTemplate>
+                        @{
+                            var action = context;
+                        }
+                            <div class="blueprint-action-row action-row-selected-@(SelectedActionId == action.Id)">
+                                <div class="blueprint-action-row-id">@action.Id</div>
+                                <div class="blueprintContent" @onclick="() => RenderUpdateAction(action.Id)">
+                                    <div class="blueprint-action-row-title">@action.Title</div>
+                                    <div class="blueprint-action-row-participant">&nbsp;</div>
+                                    @{
+                                        var senderParticipant = (Blueprint.Participants.FirstOrDefault(participant => participant.Id == action.Sender)?.Name ?? "Not Set");
+                                        <div class="showParticipant">@senderParticipant</div>
+                                    }
+
+                                </div>
+                                <div class="blueprint-action-row-delete" @onclick="() => DeleteAction(action)">X</div>
+                            </div>
+                            <div class="blueprint-action-connector"></div>
+                    </ItemTemplate>
+                </ListBoxTemplates>
+            </SfListBox>
+            </div>
+        </div>
+
+    }
+ 
+</div>
+
+            </ContentTemplate>
+        </SplitterPane>
+        <SplitterPane Collapsible="true">
+            <ContentTemplate>
+
+<div class="rightBlueprintCol">
+
+    @if (_showAddAction)
+    {
+        <AddAction Blueprint="Blueprint" ActionId="SelectedActionId" SaveActionHandler="SaveActionHandler" CancelAddActionHandler="CancelAddActionHandler"></AddAction>
+    }
+    else
+    {
+        <div class="createActionsGroup">
+            <SfButton OnClick="AddAction" CssClass="addAction">Add Action</SfButton>
+        </div>
+    }
+
+</div>
+
+
+                </ContentTemplate>
+            </SplitterPane>
+        </SplitterPanes>
+    </SfSplitter>
+
+</div>
+
+
+@code {
+    [CascadingParameter]
+    public Error Error { get; set; }
+    [Parameter]
+    public string BlueprintId { get; set; }
+    public string WalletAddress { get; set; }
+    [Parameter]
+    public string RegisterId { get; set; }
+    public bool IsNewBlueprint { get; set; }
+    private bool _showAddAction { get; set; } = false;
+    private bool HideBlueprintDesc { get; set; } = false;
+    private IEnumerable<Register> _registers;
+    public Blueprint Blueprint = new Blueprint();
+    public int SelectedActionId { get; set; }
+    private List<Wallet> _wallets { get; set; }
+    private EditContext EditContext { get; set; }
+    ValidationMessageStore msgStore { get; set; }
+    private FluentValidationValidator _fluentValidationValidator;
+    private bool draftExists = false;
+    private SfToast _toastNotification;
+    private bool ShowConfirmOverwriteDialog = false;
+    private bool _isPublish;
+    private SfListBox<int, Action> _actionListBox;
+
+    private ObservableCollection<Action> _blueprintActions = new();
+    private ObservableCollection<Action> BlueprintActions
+    {
+        get { return _blueprintActions; }
+        set
+        {
+            _blueprintActions = value;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        BlueprintActions = new ObservableCollection<Action>(Blueprint.Actions);
+        EditContext = new EditContext(Blueprint);
+        EditContext.OnValidationRequested -= EditContextOnOnValidationRequested;
+        EditContext.OnValidationRequested += EditContextOnOnValidationRequested;
+        IsNewBlueprint = navManager.Uri.Contains("create");
+        pageHistoryState.AddPageToHistory(navManager.Uri);
+    
+
+        if (!string.IsNullOrEmpty(BlueprintId))
+        {
+            IsNewBlueprint = false;
+            try
+            {
+                if (navManager.Uri.Contains("published"))
+                {
+                    try
+                    {
+                        Blueprint = await bpServiceClient.GetPublished(RegisterId, BlueprintId);
+                        BlueprintActions = new ObservableCollection<Action>(Blueprint.Actions);
+                    }
+                    catch (Exception e)
+                    {
+                        Error?.ProcessError(e);
+                    }
+
+                    try
+                    {
+                        var draft = await bpServiceClient.GetBlueprintDraft(BlueprintId);
+                        draftExists = draft != null;
+                    }
+                    catch (HttpStatusException e)
+                    {
+                        if (e.Status != HttpStatusCode.NotFound)
+                        {
+                            Error?.ProcessError(e);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Error?.ProcessError(e);
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        Blueprint = await bpServiceClient.GetBlueprintDraft(BlueprintId);
+                        BlueprintActions = new ObservableCollection<Action>(Blueprint.Actions);
+                        draftExists = Blueprint != null;
+                    }
+                    catch (Exception e)
+                    {
+                        Error?.ProcessError(e);
+                    }
+
+                }
+            }
+            catch (HttpStatusException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        if (draftExists && navManager.Uri.Contains("published"))
+        {
+            await _toastNotification.ShowAsync(new ToastModel { Timeout = 0, Title = "Draft", Content = "A draft of this blueprint has outstanding changes", CssClass = "e-toast-info" });
+        }
+        EditContext = new EditContext(Blueprint);
+        EditContext.OnValidationRequested -= EditContextOnOnValidationRequested;
+        EditContext.OnValidationRequested += EditContextOnOnValidationRequested;
+        msgStore = new ValidationMessageStore(EditContext);
+
+        try
+        {
+            _wallets = await WalletServiceClient.ListWallets();
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError(e);
+        }
+
+        if (string.IsNullOrEmpty(RegisterId))
+        {
+            try
+            {
+                _registers = await RegisterServiceClient.GetRegisters();
+            }
+            catch (Exception e)
+            {
+                Error?.ProcessError(e);
+            }
+        }
+    }
+
+    private void EditContextOnOnValidationRequested(object sender, ValidationRequestedEventArgs e)
+    {
+        if (!_isPublish)
+        {
+            return;
+        }
+
+        msgStore?.Clear();
+
+        if (string.IsNullOrWhiteSpace(RegisterId))
+        {
+            msgStore?.Add(() => RegisterId, "Select a register.");
+        }
+
+        if (string.IsNullOrWhiteSpace(WalletAddress))
+        {
+            msgStore?.Add(() => WalletAddress, "Select a wallet.");
+        }
+    }
+
+    private void SaveActionHandler(UIAction uiAction)
+    {
+        var actionToUpdate = Blueprint.Actions.Find(action => action.Id == uiAction.Id);
+        if (actionToUpdate == null)
+        {
+            uiAction.SetPropertyTypesFromControlType();
+            //TODO Get empty sender dropdown to set empty string instead of null
+            uiAction.Sender ??= "";
+            var actionToAdd = JsonSerializer.Deserialize<Siccar.Application.Action>(JsonSerializer.Serialize(uiAction));
+            Blueprint.Actions.Add(actionToAdd);
+        }
+        else
+        {
+            uiAction.SetPropertyTypesFromControlType();
+            Blueprint.Actions[uiAction.Id - 1] = JsonSerializer.Deserialize<Siccar.Application.Action>(JsonSerializer.Serialize(uiAction));
+        }
+        _showAddAction = false;
+        SelectedActionId = 0;
+        BlueprintActions = new ObservableCollection<Action>(Blueprint.Actions);
+        StateHasChanged();
+    }
+
+    private void RenderUpdateAction(int actionId)
+    {
+        SelectedActionId = actionId;
+        _showAddAction = true;
+    }
+
+    private void CancelAddActionHandler()
+    {
+        _showAddAction = false;
+        SelectedActionId = 0;
+        StateHasChanged();
+    }
+
+    private void OnWalletChangeHandler(ChangeEventArgs<string, Wallet> args)
+    {
+        WalletAddress = args.ItemData.Address;
+    }
+
+    private void DeleteAction(Siccar.Application.Action action)
+    {
+        _showAddAction = false;
+        SelectedActionId = 0;
+        var actionIndex = Blueprint.Actions.IndexOf(action);
+        Blueprint.Actions.Remove(action);
+        //reset all ids after deleted action
+        for (int i = actionIndex; i < Blueprint.Actions.Count; i++)
+        {
+            Blueprint.Actions[i].Id = i + 1;
+        }
+        BlueprintActions = new ObservableCollection<Action>(Blueprint.Actions);
+    }
+
+    private void AddAction()
+    {
+        _showAddAction = true;
+        StateHasChanged();
+    }
+
+    private async Task SaveBlueprintClickHandler(EditContext editContext)
+    {
+        msgStore.Clear();
+
+        if (editContext.Validate())
+        {
+            try
+            {
+                var savedBlueprint = await bpServiceClient.CreateBlueprintDraft(Blueprint);
+                navManager.NavigateTo($"blueprints/draft/{savedBlueprint.Id}");
+            }
+            catch (Exception e)
+            {
+                Error?.ProcessError(e);
+            }
+        }
+    }
+
+    private async void PublishBlueprintClickHandler(EditContext editContext)
+    {
+        msgStore.Clear();
+        try
+        {
+            if (await _fluentValidationValidator.ValidateAsync(options => options.IncludeAllRuleSets()) && editContext.Validate())
+            {
+                try
+                {
+                    await bpServiceClient.PublishBlueprint(WalletAddress, RegisterId, Blueprint);
+                    draftExists = false;
+                    navManager.NavigateTo($"blueprints/published/{RegisterId}/{BlueprintId}");
+                }
+                catch (Exception e)
+                {
+                    Error?.ProcessError(e);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            //TODO Parse the message string into a list and add a message for each field
+            msgStore.Add(EditContext.Field("Actions"), e.Message);
+            EditContext.Validate();
+        }
+    }
+
+    private async Task ExportToJsonClickHandler()
+    {
+        if (Blueprint != null)
+        {
+            var json = JsonSerializer.Serialize(Blueprint, new JsonSerializerOptions { WriteIndented = true });
+
+            await using (var stream = GenerateStreamFromString(json))
+            {
+                var fileName = $"{Blueprint.Title}.json";
+                using var streamRef = new DotNetStreamReference(stream: stream);
+                await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+            }
+        }
+    }
+
+    private async Task UpdateBlueprintClickHandler(EditContext editContext)
+    {
+        msgStore.Clear();
+
+        if (draftExists && navManager.Uri.Contains("published"))
+        {
+            ShowConfirmOverwriteDialog = true;
+        }
+        else
+        {
+            await UpdateBlueprint();
+        }
+    }
+
+    private async Task UpdateBlueprint()
+    {
+        if (EditContext.Validate())
+        {
+            try
+            {
+                await bpServiceClient.UpdateBlueprintDraft(Blueprint);
+                ShowConfirmOverwriteDialog = false;
+                navManager.NavigateTo($"blueprints/draft/{Blueprint.Id}");
+            }
+            catch (Exception e)
+            {
+                Error?.ProcessError(e);
+            }
+        }
+    }
+
+    private void NavigateToDraft()
+    {
+        navManager.NavigateTo($"blueprints/draft/{BlueprintId}");
+        _toastNotification.HideAsync();
+        StateHasChanged();
+    }
+
+    private Stream GenerateStreamFromString(string s)
+    {
+        var stream = new MemoryStream();
+        var writer = new StreamWriter(stream);
+        writer.Write(s);
+        writer.Flush();
+        stream.Position = 0;
+        return stream;
+    }
+
+    private void OnActionDropped(DropEventArgs<Action> obj)
+    {
+        var updatedActions = _actionListBox.GetDataList().Where(a => a != null).ToList();
+        for (var i = 0; i < updatedActions.Count; i++)
+        {
+            updatedActions[i].Id = i + 1;
+        }
+        Blueprint.Actions = updatedActions;
+        BlueprintActions = new ObservableCollection<Action>(updatedActions);
+    }
+
+
+    public void Dispose()
+    {
+        if (EditContext is not null)
+        {
+            EditContext.OnValidationRequested -= EditContextOnOnValidationRequested;
+        }
+    }
+}
+<style>
+    .e-listbox-container {
+        margin: auto;
+        box-sizing: border-box;
+    }
+
+    .list-wrapper {
+        height: inherit;
+        position: relative;
+        padding: 14px 12px 14px 78px;
+    }
+
+    .list-wrapper .text,
+    .list-wrapper .description {
+        display: block;
+        margin: 0;
+        padding-bottom: 3px;
+        white-space: normal;
+    }
+
+    .list-wrapper .description {
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .e-listbox-container .list-wrapper .text {
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .list-wrapper .e-avatar {
+        position: absolute;
+        left: 5px;
+        background-color: transparent;
+        font-size: 22px;
+        top: calc(50% - 33px);
+    }
+
+    .e-listbox-container .e-list-item {
+        height: auto !important;
+    }
+</style>

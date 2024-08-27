@@ -1,0 +1,72 @@
+---
+#Azure Pipeline for Siccar Client SDK Library
+#todo- remove variable hard coding and place into AAzure DevOps library or similar
+#This could have been done with nuget tasks but dotnet tasks seem to be preferred
+variables:
+  AzureArtifactsFeedId: 'd5d7b089-0ba1-4b7c-b132-19b693376e2e/95abafbc-e681-4a74-86c9-576273b46b20' #siccarv3feed
+  BuildEnv: $(Build.BuildNumber)  #we can decide on the where to version later - there's a couple of choices
+  buildPlatform: 'Any CPU'
+  dotNetFramework: 'net6.0'
+  dotNetVersion: '6.0.x'
+  buildConfiguration: 'Debug'
+
+trigger:
+  batch: "true"
+  branches:
+    include:
+    - feature/siccarapplicationclient/*
+
+
+resources:
+- repo: self    
+    
+name: 1.4.$(Rev:r)
+jobs:
+- job: Job_1
+  displayName: Agent job for Siccar Client SDK Library
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - task: UseDotNet@2
+    displayName: 'Use .NET 6.0 sdk'
+    inputs:
+      packageType: sdk
+      version: 6.0.x
+  # - checkout: self
+  - task: NuGetAuthenticate@0
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: 'restore'
+      projects: '**/SiccarApplicationClient/*.csproj'
+      feedsToUse: 'select'
+      vstsFeed: $(AzureArtifactsFeedId)
+      includeNuGetOrg: true
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet build $(BuildConfiguration)
+    inputs:
+      command: build
+      projects: '**/SiccarApplicationClient/*.csproj'
+      arguments: --configuration $(BuildConfiguration)
+ 
+  - task: DotNetCoreCLI@2
+    displayName: dotnet pack
+    inputs:
+      command: pack
+      packagesToPack: '**/SiccarApplicationClient/*.csproj'
+      versioningScheme: byEnvVar
+      versionEnvVar: BuildEnv
+      arguments: --configuration $(BuildConfiguration)
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet nuget push
+    inputs:
+      command: 'push'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Application.*.*pkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: $(AzureArtifactsFeedId)
+
+  - script: dotnet nuget push --api-key $(nuget-api-key) --source https://api.nuget.org/v3/index.json '$(Build.ArtifactStagingDirectory)/Siccar.Application.*.nupkg'
+
+...

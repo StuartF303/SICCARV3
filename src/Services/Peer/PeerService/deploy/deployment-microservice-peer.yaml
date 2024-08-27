@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peer-service
+  namespace: default
+  labels:
+    app: peer-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: peer-service
+  template:
+    metadata:
+      labels:
+        app: peer-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "peer-service"
+        dapr.io/app-port: "8080"
+        dapr.io/log-level: "debug"
+        dapr.io/sidecar-liveness-probe-period-seconds: "20"
+        dapr.io/sidecar-readiness-probe-period-seconds: "20"
+        dapr.io/http-max-request-size: "16"
+        dapr.io/config: featureconfig
+        dapr.io/enable-app-health-check: "true"
+        dapr.io/app-health-check-path: "/api/peer/healthz"
+    spec:
+      containers:
+      - name: peer-service
+        image: siccardev.azurecr.io/peer-service:latest
+        env:
+        - name: PEER__NAME
+          value: "#{PEER__NAME}#"
+        - name: PEER__SEED
+          value: "#{PEER__SEED}#"
+        - name: PEER__IPENDPOINT
+          value: "#{PEER__IPENDPOINT}#"
+        - name: SERILOG__MINIMUMLEVEL
+          value: "#{SERILOG__MINIMUMLEVEL}#"
+        - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+          value: "true"
+        - name: APP__API__TOKEN
+          value: "#{APP__API__TOKEN}#"
+        - name: DaprSecret
+          value: "#{DaprSecret}#"
+        - name: APPLICATIONINSIGHTS__CONNECTIONSTRING
+          value: "#{APPLICATIONINSIGHTS__CONNECTIONSTRING}#"
+        - name: APPLICATIONINSIGHTS__INSTRUMENTATIONKEY
+          value: "#{APPLICATIONINSIGHTS__INSTRUMENTATIONKEY}#"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m" 
+          limits:
+            memory: "512Mi"
+            cpu: "500m"          
+        ports:
+        - containerPort: 80
+        imagePullPolicy: Always

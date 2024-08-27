@@ -1,0 +1,38 @@
+﻿@using Syncfusion.Blazor.Buttons
+@using Siccar.Common.ServiceClients
+@using System.ComponentModel.DataAnnotations
+
+<EditForm @ref="_form" Model="@Wallet">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+        
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                    <label class="col-form-label">Wallet Name</label>
+                    <SfTextBox @bind-Value="@Wallet.Name" CssClass="walletName"></SfTextBox>
+                    <ValidationMessage For="@(() => Wallet.Name)"></ValidationMessage>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                    <label class="col-form-label">Wallet Description</label>
+                    <SfTextBox @bind-Value="@Wallet.Description" CssClass="walletName"></SfTextBox>
+                </div>
+            </div>
+           
+        </div>
+    </div>
+    
+    @if (!_showMnemonic)
+    {
+        <SfButton @onclick="CreateWalletCall" CssClass="createWalletBut">Create Wallet</SfButton>
+    }
+</EditForm>
+
+@if (_showMnemonic)
+{
+    <WalletMnemonic Wallet="_createdWalletResponse"></WalletMnemonic>
+}

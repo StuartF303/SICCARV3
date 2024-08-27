@@ -1,0 +1,51 @@
+﻿@import '../custom.scss';
+
+.e-grid {
+    border: none
+}
+
+.e-toolbar-item .e-tbar-btn {
+    background-color: $primary;
+    color: $light;
+}
+
+.e-toolbar {
+    background-color: transparent;
+    border: none;
+
+    .e-toolbar-item {
+        margin: 0 !important;
+        padding: 0;
+    }
+}
+
+.e-toolbar .e-toolbar-items .e-toolbar-item .e-tbar-btn.e-btn {
+    padding: 0.3em;
+
+    .e-tbar-btn-text {
+        font-size: 1rem;
+        font-weight: 700
+    }
+}
+
+.e-grid .e-toolbar {
+    border: none;
+}
+
+.e-grid .e-gridheader {
+    border-top: none;
+}
+
+.e-grid .e-headercell {
+    background: $secondary;
+    color: white
+}
+
+.e-toolbar .e-toolbar-items {
+    margin: 1em 0;
+    background: transparent;
+}
+
+.e-pager .e-currentitem, .e-pager .e-currentitem .active {
+    background: $primary;
+}

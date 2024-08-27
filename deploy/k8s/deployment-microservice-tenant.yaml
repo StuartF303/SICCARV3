@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tenant-service
+  labels:
+    app: tenant-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tenant-service
+  template:
+    metadata:
+      labels:
+        app: tenant-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "tenant-service"
+        dapr.io/app-port: "80"
+        dapr.io/log-level: "debug"
+        dapr.io/sidecar-liveness-probe-period-seconds: "20"
+        dapr.io/sidecar-readiness-probe-period-seconds: "20"
+        dapr.io/http-max-request-size: "16"
+        dapr.io/enable-app-health-check: "true"
+        dapr.io/app-health-check-path: "/api/tenants/healthz"
+    spec:
+      containers:
+      - name: tenant-service
+        image: siccardev.azurecr.io/tenant-service:latest
+        env:
+        - name: SERILOG__MINIMUMLEVEL
+          value: "#{SERILOG__MINIMUMLEVEL}#"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"          
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        imagePullPolicy: Always
+    

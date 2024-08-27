@@ -1,0 +1,13 @@
+{
+    "status": "Failed",
+    "error": {
+        "code": "DeploymentFailed",
+        "message": "At least one resource deployment operation failed. Please list deployment operations for details. Please see https://aka.ms/DeployOperations for usage details.",
+        "details": [
+            {
+                "code": "Conflict",
+                "message": "{\r\n  \"status\": \"Failed\",\r\n  \"error\": {\r\n    \"code\": \"ResourceDeploymentFailure\",\r\n    \"message\": \"The resource operation completed with terminal provisioning state 'Failed'.\",\r\n    \"details\": [\r\n      {\r\n        \"code\": \"DeploymentFailed\",\r\n        \"message\": \"At least one resource deployment operation failed. Please list deployment operations for details. Please see https://aka.ms/DeployOperations for usage details.\",\r\n        \"details\": [\r\n          {\r\n            \"code\": \"BadRequest\",\r\n            \"message\": \"{\\r\\n  \\\"error\\\": {\\r\\n    \\\"code\\\": \\\"ForbiddenByRbac\\\",\\r\\n    \\\"message\\\": \\\"[ForbiddenByRbac (Forbidden)] Caller is not authorized to perform action on resource.\\\\r\\\\nIf role assignments, deny assignments or role definitions were changed recently, please observe propagation time.\\\\r\\\\nCaller: name=KeyVault/ManagementPlane;appid=04b07795-8ddb-461a-bbee-02f9e1bf7b46;oid=e26fdff5-fede-4700-9614-cd08e75515ab;iss=https://sts.windows.net/a2b9ca5b-54e5-437e-866e-bd48bfa6159a/\\\\r\\\\nAction: 'Microsoft.KeyVault/vaults/keys/read'\\\\r\\\\nResource: '/subscriptions/63a27db5-9ba5-4d6b-b534-1f6b60b5c1ca/resourcegroups/test77/providers/microsoft.keyvault/vaults/kve74ki5x7o7i72/keys/testkey'\\\\r\\\\nAssignment: (not found)\\\\r\\\\nVault: kve74ki5x7o7i72;location=uksouth\\\\r\\\\n\\\"\\r\\n  }\\r\\n}\"\r\n          }\r\n        ]\r\n      }\r\n    ]\r\n  }\r\n}"
+            }
+        ]
+    }
+}

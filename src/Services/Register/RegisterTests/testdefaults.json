@@ -1,0 +1,7 @@
+{
+  "RegisterRepository": {
+    "MongoDatabase": "mongodb://host.docker.internal:27017",
+    "DatabaseName": "RegisterService"
+  }
+
+}

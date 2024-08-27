@@ -1,0 +1,1 @@
+﻿## Common Platform Infrastructure for Register Services

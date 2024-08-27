@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "siccarcmd": {
+      "commandName": "Project",
+      "commandLineArgs": "auth credentials"
+    }
+  }
+}

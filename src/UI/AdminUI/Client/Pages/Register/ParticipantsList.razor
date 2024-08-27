@@ -1,0 +1,5 @@
+﻿@page "/participantslist/{RegisterId}"
+@attribute [Authorize]
+@using Siccar.Common.ServiceClients
+@inject ITenantServiceClient TenantServiceClient
+<Siccar.UI.Admin.Shared.Components.ParticipantsList RegisterId="@RegisterId" />

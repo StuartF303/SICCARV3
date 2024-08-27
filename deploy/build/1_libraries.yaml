@@ -1,0 +1,499 @@
+---
+# Azure Pipeline for Siccar Library Heirarchy
+# This could have been done with nuget tasks but dotnet tasks seem to be preferred
+variables:
+  AzureArtifactsFeedId: 'd5d7b089-0ba1-4b7c-b132-19b693376e2e/95abafbc-e681-4a74-86c9-576273b46b20' #siccarv3feed
+  BuildEnv: $(Build.BuildNumber)  #we can decide on the where to version later - there's a couple of choices
+  buildPlatform: 'Any CPU'
+  dotNetFramework: 'net8.0'
+  BuildConfiguration: 'Debug'
+
+trigger:
+  batch: "true"
+  branches:
+    include:
+    - main
+    - release/*
+    - feature/*
+    - fix/*
+    - bug/*
+  paths:
+    include:
+    - src/Services/PeerCore/*
+    - src/Services/WalletServiceCore/*
+    - src/Services/ValidatorCore/*
+    - src/Services/RegisterCore*
+    - src/Common/*
+    - src/SDK/*
+
+resources:
+- repo: self    
+    
+name: 1.6.$(Rev:r)
+jobs:
+- job: Setup
+  displayName: Setup Agent to build Siccar Common Libraries
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET 8.0 sdk'
+    inputs:
+      packageType: sdk
+      version: 8.0.x
+
+  - task: NuGetAuthenticate@1
+
+#Build the Siccar.Common Library first
+- job: Siccar_Common
+  dependsOn:
+    - Setup
+  steps:
+    - task: NuGetAuthenticate@1
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommon/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build SiccarCommon
+      inputs:
+        command: build
+        projects: '**/SiccarCommon/*.csproj'
+        arguments: --configuration $(BuildConfiguration)
+    - task: DotNetCoreCLI@2
+      displayName: dotnet pack
+      inputs:
+        command: pack
+        arguments: --configuration $(BuildConfiguration)
+        packagesToPack: '**/SiccarCommon/*.csproj'
+        outputDir: '$(Build.ArtifactStagingDirectory)'
+        versioningScheme: byEnvVar
+        versionEnvVar: BuildEnv
+
+    - task: PowerShell@2
+      displayName: 'Debug'
+      enabled: "true"
+      inputs:
+        targetType: 'inline'
+        script: | 
+          Write-Host "Debug"
+          Write-Host "azureArtifactsFeedId=$(AzureArtifactsFeedId)"
+          Write-Host "artifactStagingDirectory $(Build.ArtifactStagingDirectory)"
+          Write-Host "ArtifactStagingDirectory=$(Build.ArtifactStagingDirectory)"
+          ls $(Build.ArtifactStagingDirectory)
+          Get-ChildItem -Path $(Build.ArtifactStagingDirectory)
+          Write-Host "Build.Repository.LocalPath=$(Build.Repository.LocalPath)"
+          Get-ChildItem -Path $(Build.Repository.LocalPath)
+          ls $(Build.Repository.LocalPath)
+        pwsh: true   
+
+    - task: DotNetCoreCLI@2
+      displayName: Local Repository Push
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Common.*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: $(AzureArtifactsFeedId)
+
+# We can build the next four in parallel
+- job: Siccar_Platform_Register_Core
+  dependsOn:
+    - Setup
+    - Siccar_Common
+  steps:
+    - task: NuGetAuthenticate@1
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/RegisterCore/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build
+      inputs:
+        command: build
+        projects: '**/RegisterCore/*.csproj'
+        arguments: --configuration $(BuildConfiguration)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet pack
+      inputs:
+        command: pack
+        arguments: --configuration $(BuildConfiguration)
+        packagesToPack: '**/RegisterCore/*.csproj'
+        versioningScheme: byEnvVar
+        versionEnvVar: BuildEnv
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet nuget push
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Platform.Registers.Core.*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar_Platform_Tenant_Core
+  dependsOn:
+    - Setup
+    - Siccar_Common
+  steps:
+    - task: NuGetAuthenticate@1
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/TenantCore/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build
+      inputs:
+        command: build
+        projects: '**/TenantCore/*.csproj'
+        arguments: --configuration $(BuildConfiguration)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet pack
+      inputs:
+        command: pack
+        arguments: --configuration $(BuildConfiguration)
+        packagesToPack: '**/TenantCore/*.csproj'
+        versioningScheme: byEnvVar
+        versionEnvVar: BuildEnv
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet nuget push
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Platform.Tenant.Core.*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar_Platform_Wallet_Core
+  dependsOn:
+    - Setup
+    - Siccar_Common
+    - Siccar_Platform_Register_Core
+  steps:
+    - task: NuGetAuthenticate@1
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/WalletServiceCore/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build
+      inputs:
+        command: build
+        projects: '**/WalletServiceCore/*.csproj'
+        arguments: --configuration $(BuildConfiguration)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet pack
+      inputs:
+        command: pack
+        arguments: --configuration $(BuildConfiguration)
+        packagesToPack: '**/WalletServiceCore/*.csproj'
+        versioningScheme: byEnvVar
+        versionEnvVar: BuildEnv
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet nuget push
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Platform.Wallet.Core.*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar_Platform_Validator_Core
+  dependsOn:
+    - Setup
+    - Siccar_Common
+  steps:
+    - task: NuGetAuthenticate@1
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/ValidatorCore/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build
+      inputs:
+        command: build
+        projects: '**/ValidatorCore/*.csproj'
+        arguments: --configuration $(BuildConfiguration)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet pack
+      inputs:
+        command: pack
+        arguments: --configuration $(BuildConfiguration)
+        packagesToPack: '**/ValidatorCore/*.csproj'
+        versioningScheme: byEnvVar
+        versionEnvVar: BuildEnv
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet nuget push
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Registers.Validator.Core.*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar_Platform_Peer_Core
+  dependsOn:
+    - Setup
+    - Siccar_Common
+    - Siccar_Platform_Register_Core
+    - Siccar_Platform_Wallet_Core
+    - Siccar_Platform_Validator_Core
+    - Siccar_Platform_Tenant_Core
+  steps:
+    - task: NuGetAuthenticate@1
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/PeerCore/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+        includeNuGetOrg: true
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build
+      inputs:
+        command: build
+        projects: '**/PeerCore/*.csproj'
+        arguments: --configuration $(BuildConfiguration)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet pack
+      inputs:
+        command: pack
+        arguments: --configuration $(BuildConfiguration)
+        packagesToPack: '**/PeerCore/*.csproj'
+        versioningScheme: byEnvVar
+        versionEnvVar: BuildEnv
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet nuget push
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Network.Peer.Core.*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar_Platform_Cryptography
+  dependsOn:
+    - Setup
+    - Siccar_Common
+    - Siccar_Platform_Register_Core
+  steps:
+    - task: NuGetAuthenticate@1
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarPlatformCryptography/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+        includeNuGetOrg: true
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build
+      inputs:
+        command: build
+        projects: '**/SiccarPlatformCryptography/*.csproj'
+        arguments: --configuration $(BuildConfiguration)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet pack
+      inputs:
+        command: pack
+        arguments: --configuration $(BuildConfiguration)
+        packagesToPack: '**/SiccarPlatformCryptography/*.csproj'
+        versioningScheme: byEnvVar
+        versionEnvVar: BuildEnv
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet nuget push
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Platform.Cryptography.*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: $(AzureArtifactsFeedId)
+ 
+- job: Siccar_Platform
+  dependsOn:
+    - Setup
+    - Siccar_Common
+    - Siccar_Platform_Register_Core
+    - Siccar_Platform_Tenant_Core
+    - Siccar_Platform_Wallet_Core
+    - Siccar_Platform_Validator_Core
+    - Siccar_Platform_Peer_Core
+  steps:
+    - task: NuGetAuthenticate@1
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarPlatform/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build
+      inputs:
+        command: build
+        projects: '**/SiccarPlatform/*.csproj'
+        arguments: --configuration $(BuildConfiguration)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet pack
+      inputs:
+        command: pack
+        packagesToPack: '**/SiccarPlatform/*.csproj'
+        versioningScheme: byEnvVar
+        versionEnvVar: BuildEnv
+
+    - task: NuGetCommand@2
+      displayName: nuget push
+      inputs:
+        command: 'push'
+        allowPackageConflicts: 'true'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Platform.*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar_Application
+  dependsOn:
+    - Setup
+    - Siccar_Common
+    - Siccar_Platform
+  steps:
+    - task: NuGetAuthenticate@1
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarApplication/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build
+      inputs:
+        command: build
+        projects: '**/SiccarApplication/*.csproj'
+        arguments: --configuration $(BuildConfiguration)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet pack
+      inputs:
+        command: pack
+        arguments: --configuration $(BuildConfiguration)
+        packagesToPack: '**/SiccarApplication/*.csproj'
+        versioningScheme: byEnvVar
+        versionEnvVar: BuildEnv
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet nuget push
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Application.*.*pkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: $(AzureArtifactsFeedId)
+
+- job: Siccar_Common_ServiceClients
+  dependsOn:
+    - Setup
+    - Siccar_Common
+    - Siccar_Platform
+    - Siccar_Platform_Register_Core
+    - Siccar_Platform_Peer_Core
+  steps:
+    - task: NuGetAuthenticate@1
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarCommonServiceClients/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build
+      inputs:
+        command: build
+        projects: '**/SiccarCommonServiceClients/*.csproj'
+        arguments: --configuration $(BuildConfiguration)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet pack
+      inputs:
+        command: pack
+        arguments: --configuration $(BuildConfiguration)
+        packagesToPack: '**/SiccarCommonServiceClients/*.csproj'
+        versioningScheme: byEnvVar
+        versionEnvVar: BuildEnv
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet nuget push
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Common.ServiceClients.*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: $(AzureArtifactsFeedId)
+
+# Build and package the Siccar.Application.Client (SDK)
+- job: Siccar_Application_Client
+  dependsOn:
+    - Setup
+    - Siccar_Common_ServiceClients
+  steps:
+    - task: NuGetAuthenticate@1
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        projects: '**/SiccarApplicationClient/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(AzureArtifactsFeedId)
+        includeNuGetOrg: true
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build $(BuildConfiguration)
+      inputs:
+        command: build
+        projects: '**/SiccarApplicationClient/*.csproj'
+        arguments: --configuration $(BuildConfiguration)
+ 
+    - task: DotNetCoreCLI@2
+      displayName: dotnet pack
+      inputs:
+        command: pack
+        packagesToPack: '**/SiccarApplicationClient/*.csproj'
+        versioningScheme: byEnvVar
+        versionEnvVar: BuildEnv
+        arguments: --configuration $(BuildConfiguration)
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet nuget push
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/Siccar.Application.*.*pkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: $(AzureArtifactsFeedId)

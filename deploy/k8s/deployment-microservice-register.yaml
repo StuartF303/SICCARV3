@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: register-service
+  labels:
+    app: register-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: register-service
+  template:
+    metadata:
+      labels:
+        app: register-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "register-service"
+        dapr.io/app-port: "80"
+        dapr.io/log-level: "debug"
+        dapr.io/sidecar-liveness-probe-period-seconds: "20"
+        dapr.io/sidecar-readiness-probe-period-seconds: "20"
+        dapr.io/http-max-request-size: "16"
+        dapr.io/enable-app-health-check: "true"
+        dapr.io/app-health-check-path: "/api/registers/healthz"
+    spec:
+      containers:
+      - name: register-service
+        image: siccardev.azurecr.io/register-service:latest
+        env:
+        - name: REGISTERREPOSITORY__MONGODBSERVER
+          value: "#{REGISTERREPOSITORY__MONGODBSERVER}#"
+        - name: REGISTERREPOSITORY__DATABASENAME
+          value: "#{REGISTERREPOSITORY__DATABASENAME}#"
+        - name: SERILOG__MINIMUMLEVEL
+          value: "#{SERILOG__MINIMUMLEVEL}#"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"          
+        ports:
+        - containerPort: 80
+        imagePullPolicy: Always
+    

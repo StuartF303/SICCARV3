@@ -1,0 +1,155 @@
+﻿@page "/tenants/{TenantId}/clients/roles"
+@using Siccar.Platform.Tenants.Core
+@using Siccar.UI.Admin.Services
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.DropDowns
+@using System.Linq
+@using Syncfusion.Blazor.Buttons.Internal
+@using Siccar.Common.ServiceClients
+@using Syncfusion.Blazor.Spinner
+@using Models
+@using static Siccar.Common.Constants;
+@inject Microsoft.AspNetCore.Components.NavigationManager UriHelper
+@attribute [Authorize]
+
+<style>
+    .e-spinner-pane .e-spinner-inner .e-spin-bootstrap5 {
+        stroke: navy;
+    }
+
+    .e-headercontent {
+        border-right-width: 0px !important;
+    }
+
+    .e-grid .e-icons:not(.e-btn-icon) {
+        color: black;
+    }
+
+    .e-checkbox-wrapper label, .e-css.e-checkbox-wrapper label {
+        cursor: pointer;
+        display: inline-block;
+        line-height: normal;
+        margin: 0;
+        position: relative;
+        white-space: nowrap;
+    }
+
+    .e-checkbox-wrapper .e-frame.e-check, .e-css.e-checkbox-wrapper .e-frame.e-check {
+        background-color: white;
+        border-color: black;
+    }
+
+    .e-checkbox-wrapper.e-checkbox-disabled .e-frame.e-check, .e-css.e-checkbox-wrapper.e-checkbox-disabled .e-frame.e-check {
+        background-color: white;
+        border-color: rgba(118, 118, 118, 0.3);
+        color: rgba(118, 118, 118, 0.3);
+    }
+
+    .e-virtualtable {
+        width: 100% !important;
+    }
+
+    .e-virtualtrack {
+        width: 100% !important;
+    }
+</style>
+
+@if (RoleData != null)
+{
+    <div class="container mt-4">
+        <div class="box-body">
+            <div class="row">
+                <div class="col col-4">
+                    <h3>Role Management</h3>
+                </div>
+                <div class="col col-8">
+                    <div style="float:right">
+                        <label style="font-size:large;padding-right: 5px; vertical-align:middle">
+                            Role Group :
+                        </label>
+                        <SfDropDownList TValue="string"
+                                    TItem="string"
+                                    @bind-Value="@CurrentRoleGroupSelected"
+                                    Width="250px"
+                                    style="font-size: large"
+                                    PopupHeight="200px"
+                                    PopupWidth="150px"
+                                    DataSource="@RoleGroupEnums">
+                            <DropDownListEvents TItem="string" TValue="string" ValueChange="@OnRoleGroupDropDownChange" />
+                        </SfDropDownList>
+                    </div>
+                </div>
+            </div>
+
+            <SfGrid @ref="Grid" DataSource="@RoleData" ID="Grid" AllowFiltering="true" AllowSelection="true" AllowPaging="false" AllowSorting="true" GridLines="GridLine.Horizontal" RowHeight="40"
+                Height="420" EnableHover="false" EnableVirtualization="true" EnableColumnVirtualization="true">
+                <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+                <GridTemplates>
+                    <EmptyRecordTemplate Context="ertContext">
+                        <span>Data Loading....</span>
+                    </EmptyRecordTemplate>
+                </GridTemplates>
+                <GridSortSettings AllowUnsort="false">
+                    <GridSortColumns>
+                        <GridSortColumn Field="User" Direction="SortDirection.Ascending"></GridSortColumn>
+                    </GridSortColumns>
+                </GridSortSettings>
+                <GridSelectionSettings CheckboxOnly="true"></GridSelectionSettings>
+                <GridPageSettings PageSize="80"></GridPageSettings>
+                <GridColumns>
+                    <GridColumn Field=@nameof(RoleModel.User) Width="300" HeaderText="USER" TextAlign="TextAlign.Left"></GridColumn>
+                    <GridColumn Field=@nameof(RoleModel.Admin)
+                            AllowSorting="false"
+                            AllowFiltering="false"
+                            HeaderText="@Header1"
+                            TextAlign="TextAlign.Center">
+                        <Template Context="tContext">
+                            @{
+                                var roleModel = tContext as RoleModel;
+                                    <SfCheckBox @bind-Checked="roleModel.Admin"
+                                    ValueChange="@((args)=>OnCheckBoxChange(args, roleModel, Role1))" TChecked="bool" Disabled=@checkboxDisabled>
+                                    </SfCheckBox>
+                            }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field=@nameof(RoleModel.Reader)
+                            AllowSorting="false"
+                            AllowFiltering="false"
+                            HeaderText="@Header2"
+                            TextAlign="TextAlign.Center">
+                        <Template Context="tContext">
+                            @{
+                                var roleModel = tContext as RoleModel;
+                                    <SfCheckBox CssClass="e-checkicon" @bind-Checked="roleModel.Reader"
+                                    ValueChange="@((args)=>OnCheckBoxChange(args, roleModel, Role2))" TChecked="bool" Disabled=@checkboxDisabled>
+                                    </SfCheckBox>
+                            }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field=@nameof(RoleModel.Billing)
+                            AllowSorting="false"
+                            AllowFiltering="false"
+                            HeaderText="@Header3"
+                            TextAlign="TextAlign.Center">
+                        <Template Context="tContext">
+                            @{
+                                var roleModel = tContext as RoleModel;
+                                    <SfCheckBox CssClass="e-checkicon" @bind-Checked="roleModel.Billing"
+                                    ValueChange="@((args)=>OnCheckBoxChange(args, roleModel, Role3))" TChecked="bool" Disabled=@checkboxDisabled>
+                                    </SfCheckBox>
+                            }
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+}
+
+
+
+
+
+

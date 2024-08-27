@@ -1,0 +1,227 @@
+﻿@page "/wallets/{WalletAddress}"
+@using Siccar.Common.ServiceClients
+@using Siccar.UI.Admin.Shared.Components
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Navigations
+@using System.Text.Json
+@using Siccar.Common.Exceptions
+@using System.Net
+@attribute [Authorize]
+
+<div class="mainPadding">
+
+    <h3>Wallet Detail</h3>
+
+    @if (_wallet != null)
+    {
+        <div class="box mt-4">
+            <div class="row walletRow">
+                <div class="col-2">
+                    <label class="walletLabel">Wallet Name</label>
+                </div>
+                <div class="col-4">
+                    <SfTextBox Readonly="true" @bind-Value="@_wallet.Name" CssClass="walletTxt"></SfTextBox>
+                </div>
+
+                <div class="col-2">
+                    <label class="walletLabel">Owner</label>
+                </div>
+                <div class="col-4">
+                    <SfTextBox Readonly="true" Value="@(!string.IsNullOrWhiteSpace(_owner) ? _owner : _wallet.Owner)" CssClass="walletTxt monoFont"></SfTextBox>
+                </div>
+            </div>
+
+            <div class="row walletRow">
+                <div class="col-2">
+                    <label class="walletLabel">Wallet Address</label>
+                </div>
+                <div class="col-10">
+                    <SfTextBox Readonly="true" Value="@_wallet.Address" CssClass="walletTxt monoFont"></SfTextBox>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="box mt-4">
+
+        <SfTab>
+            <TabItems>
+                <TabItem CssClass="walletTabs">
+                    <ChildContent>
+                        <TabHeader Text="Transactions"></TabHeader>
+                    </ChildContent>
+                    <ContentTemplate>
+                        <label for="pending-transactions-only" class="col-form-label pendingLabel">PENDING TRANSACTIONS</label>
+                        <SfCheckBox ID="pending-transactions-only" @bind-Checked="@PendingTransactionsOnly" @onchange="PendingTransactionsOnlyChanged" CssClass="pendingCheck"></SfCheckBox>
+
+                        @if (PendingTransactionsOnly)
+                        {
+                            <SfGrid TValue="PendingTransaction" DataSource="_pendingTransactions">
+                                <GridSortSettings AllowUnsort="false">
+                                    <GridSortColumns>
+                                        <GridSortColumn Field="TimeStamp" Direction="SortDirection.Descending"></GridSortColumn>
+                                    </GridSortColumns>
+                                </GridSortSettings>
+                                <GridColumns>
+                                    <GridColumn Field=@nameof(PendingTransaction.Id) HeaderText="Transaction Id" TextAlign="TextAlign.Left" Width="35%" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})"></GridColumn>
+                                    <GridColumn Field=@nameof(PendingTransaction.SenderWallet) HeaderText="Source Address" TextAlign="TextAlign.Left" Width="50%" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})"></GridColumn>
+                                    <GridColumn Field=@nameof(PendingTransaction.Timestamp) HeaderText="Submitted" TextAlign="TextAlign.Center" Width="15%"></GridColumn>
+                                </GridColumns>
+                            </SfGrid>
+                        }
+                        else
+                        {
+                            <SfGrid TValue="WalletTransaction" DataSource="_allTransactions">
+                                <GridSortSettings AllowUnsort="false">
+                                    <GridSortColumns>
+                                        <GridSortColumn Field="TimeStamp" Direction="SortDirection.Descending"></GridSortColumn>
+                                    </GridSortColumns>
+                                </GridSortSettings>
+                                <GridColumns>
+                                    <GridColumn Field=@nameof(WalletTransaction.Id) HeaderText="Transaction Id" TextAlign="TextAlign.Left" Width="35%" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})"></GridColumn>
+                                    <GridColumn Field=@nameof(WalletTransaction.Sender) HeaderText="Source Address" TextAlign="TextAlign.Left" Width="50%" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})"></GridColumn>
+                                    <GridColumn Field=@nameof(WalletTransaction.Timestamp) HeaderText="Submitted" Format="yyyy-MM-dd HH:mm:ss" TextAlign="TextAlign.Center" Width="15%"></GridColumn>
+                                </GridColumns>
+                            </SfGrid>
+                        }
+                    </ContentTemplate>
+                </TabItem>
+
+                <TabItem CssClass="walletTabs">
+                    <ChildContent>
+                        <TabHeader Text="Addresses"></TabHeader>
+                    </ChildContent>
+                    <ContentTemplate>
+                        @if (_wallet?.Addresses != null)
+                        {
+                            @foreach (var address in _wallet.Addresses)
+                            {
+                                <div class="walletAddress monoFont">@address.Address</div>
+                            }
+                        }
+
+                    </ContentTemplate>
+                </TabItem>
+
+                <TabItem CssClass="walletTabs">
+                    <ChildContent>
+                        <TabHeader Text="Delegates"></TabHeader>
+
+                    </ChildContent>
+                    <ContentTemplate>
+                        @if (_wallet?.Delegates != null)
+                        {
+                            <EditDelegates @bind-Delegates="@_delegates" WalletAddress="@WalletAddress"></EditDelegates>
+                        }
+                    </ContentTemplate>
+                </TabItem>
+
+            </TabItems>
+        </SfTab>
+
+    </div>
+
+</div>
+
+@code {
+    [CascadingParameter] 
+    public Error Error { get; set; }
+    private Wallet _wallet;
+    private List<PendingTransaction> _pendingTransactions;
+    private List<EditDelegates.DelegateModel> _delegates = new();
+
+    private bool PendingTransactionsOnly { get; set; }
+
+    private List<WalletTransaction> _allTransactions = new();
+    private string _owner;
+
+    [Parameter]
+    public string WalletAddress { get; set; }
+
+    [Inject]
+    public IWalletServiceClient WalletServiceClient { get; set; }
+    [Inject]
+    public IUserServiceClient UserServiceClient { get; set; }
+    [Inject]
+    public ITenantServiceClient TenantServiceClient { get; set; }
+    [Inject]
+    Siccar.UI.Admin.Services.PageHistoryState pageHistoryState { get; set; }
+    [Inject]
+    NavigationManager navManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(WalletAddress))
+        {
+            try
+            {
+                _wallet = await WalletServiceClient.GetWallet(WalletAddress);
+                _delegates = _wallet!.Delegates.Select(d => new EditDelegates.DelegateModel
+                {
+                    AccessType = d.AccessType,
+                    Reason = d.Reason,
+                    Subject = d.Subject
+                }).ToList();
+            }
+            catch (Exception e)
+            {
+                Error?.ProcessError(e);
+            }
+
+            try
+            {
+                _allTransactions = await WalletServiceClient.GetAllTransactions(WalletAddress);
+            }
+            catch (Exception e)
+            {
+                Error?.ProcessError(e);
+            }
+
+            try
+            {
+                _owner = (await UserServiceClient.Get(Guid.Parse(_wallet.Owner!))).Deserialize<User>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true })?.UserName;
+            }
+            catch (HttpStatusException e)
+            {
+                if (e.Status == HttpStatusCode.NotFound)
+                {
+                    _owner = (await TenantServiceClient.Get(_wallet.Tenant!, _wallet.Owner!))?.ClientName;
+                }
+            }
+            catch (Exception e)
+            {
+                Error?.ProcessError(e);
+            }
+
+            pageHistoryState.AddPageToHistory(navManager.Uri);
+        }
+    }
+
+    private async Task PendingTransactionsOnlyChanged()
+    {
+        if (PendingTransactionsOnly)
+        {
+            try
+            {
+                _pendingTransactions = await WalletServiceClient.GetWalletTransactions(WalletAddress);
+            }
+            catch (Exception e)
+            {
+                Error?.ProcessError(e);
+            }
+            
+        }
+        else
+        {
+            try
+            {
+                _allTransactions = await WalletServiceClient.GetAllTransactions(WalletAddress);
+            }
+            catch (Exception e)
+            {
+                Error?.ProcessError(e);
+            }
+        }
+    }
+}

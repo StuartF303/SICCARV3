@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wallet-service
+  namespace: default
+  labels:
+    app: wallet-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wallet-service
+  template:
+    metadata:
+      labels:
+        app: wallet-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "wallet-service"
+        dapr.io/app-port: "8080"
+        dapr.io/log-level: "debug"
+        dapr.io/sidecar-liveness-probe-period-seconds: "20"
+        dapr.io/sidecar-readiness-probe-period-seconds: "20"
+        dapr.io/app-token-secret: "app-api-token"
+        dapr.io/http-max-request-size: "16"
+        dapr.io/config: featureconfig
+        dapr.io/enable-app-health-check: "true"
+        dapr.io/app-health-check-path: "/api/wallets/healthz"
+    spec:
+      containers:
+      - name: wallet-service
+        image: siccardev.azurecr.io/wallet-service:latest
+        envFrom:
+        - secretRef:
+            name: app-api-token
+        env:
+        - name: SERILOG__MINIMUMLEVEL
+          value: "#{SERILOG__MINIMUMLEVEL}#"
+        - name: APP__API__TOKEN
+          value: "#{APP__API__TOKEN}#"
+        - name: TENANTISSUER
+          value: "#{TENANTISSUER}#"
+        - name: DaprSecret
+          value: "#{DaprSecret}#"
+        - name: ConnectionStrings__WalletDB__ConnectionString
+          value: "#{WalletDB_ConnectionString}#"
+        - name: APPLICATIONINSIGHTS__CONNECTIONSTRING
+          value: "#{APPLICATIONINSIGHTS__CONNECTIONSTRING}#"
+        - name: APPLICATIONINSIGHTS__INSTRUMENTATIONKEY
+          value: "#{APPLICATIONINSIGHTS__INSTRUMENTATIONKEY}#"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m" 
+          limits:
+            memory: "2000Mi"
+            cpu: "1200m"
+        ports:
+        - containerPort: 80
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: keydata
+            mountPath: "/app/data"
+      volumes:
+        - name: keydata
+          persistentVolumeClaim:
+            claimName: keys-azurefile 

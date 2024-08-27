@@ -1,0 +1,30 @@
+﻿@inherits BaseControl
+
+<div hidden=@_hidden class="checkbox">
+    <label for="_id">@_label</label>
+    <input id="_id" type="checkbox" name="@_label" @onchange="OnChange" checked=@BoolValue />
+    <p>@_description</p>
+</div>
+
+@code {
+    private bool BoolValue { get; set; } = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_id != null)
+        {
+            var data = (bool)dataService.GetFormDataByKey(_id);
+
+            BoolValue = data;
+            await base.OnParametersSetAsync();
+        }
+
+    }
+
+    private void OnChange(ChangeEventArgs eventArgs)
+    {
+        BoolValue = (bool)eventArgs.Value;
+        dataService.UpdateFormData(_id, BoolValue);
+    }
+}
+

@@ -1,0 +1,22 @@
+﻿@using Syncfusion.Blazor.Cards
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Spinner
+@using Syncfusion.Blazor.Inputs
+@using System.Linq.Expressions
+
+
+<SfCard>
+    <div class="card-header justify-content-between">
+        <CardHeader Title=@CardTitle />
+        @if (IsEditable)
+        {
+            <SfIcon Name="IconName.Edit" Size="IconSize.Large" @onclick="SetEditCardDataHandler"></SfIcon>
+        }
+    </div>
+    <div class="edit">
+        <SfTextBox @onfocusout="OnBlurEventHandler" Enabled=EditCardData Value="@Value" ValueChanged="ValueChanged" Input="@InputHandler" ValueExpression="@ValueExpression" CssClass="posStatic"></SfTextBox>
+    </div>
+</SfCard>
+
+
+

@@ -1,0 +1,274 @@
+---
+  variables:
+    repositoryName: peer-service
+    dockerFileName: '**/Services/Peer/PeerService/Dockerfile'
+    imageName: $(repositoryName)
+    imageTag: $(Build.BuildNumber)
+    serviceConnection: siccarsp
+    azureSubscription: siccarv3conn #AZURE_PIPELINES_SERVICE_CONN_NAME_VAR_VAL
+    azureContainerRegistry: siccardev.azurecr.io #ACR_SERVER_VAR_VAL
+    azureContainerRegistryName: siccardev #ACR_NAME_VAR_VAL
+    fullCI: $[startsWith(variables['build.sourceBranch'], 'refs/heads/main') ]   
+    buildImage: true
+    artifactName: 'manifests'
+    vmImageName: 'ubuntu-latest'
+    ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+      why: pr
+    ${{ elseif eq(variables['Build.Reason'], 'Manual' ) }}:
+      why: manual
+    ${{ elseif eq(variables['Build.Reason'], 'IndividualCI' ) }}:
+      why: indivci 
+    ${{ else }}:
+      why: other
+  
+  name: $(SourceBranchName)-$(why)-$(Date:yyyyMMdd)$(Rev:.rr)
+  
+  trigger:
+    batch: "true"
+    branches:
+      include:
+      - release/peerservice/v*
+      - release/full/v*
+      - refs/release/peerservice/v*
+      - main
+      - feature/peerservice/*
+      - topic/peerservice/*
+      # - bugfix/peerservice/*
+    paths:
+      include:
+      - src/Services/Peer/PeerService/*
+      - src/Services/Peer/PeerCore/*
+      - src/Services/Peer/Router/*
+      - src/Services/Peer/PeerUtilities/*
+      - src/Services/Peer/PeerTests/*
+  
+  resources:
+  - repo: self
+  
+  stages:
+  - stage: PeerServiceCI
+    displayName: 'Build & Unit Test'
+    variables:
+      envName: siccardev
+      resourceName: default   
+
+    jobs:
+    - job: peerservicejobci
+      displayName: 'Peer Service CI (Build/Test)'
+      pool: 
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "90"
+      # variables:
+      steps:
+      - task: NuGetAuthenticate@1
+
+      - task: PowerShell@2
+        displayName: 'Debug'
+        enabled: "true"
+        inputs:
+          targetType: 'inline'
+          script: | 
+            Write-Host "Debug"
+            Write-Host "fullCI=$(fullCI)"
+            Write-Host "buildImage=$(buildImage)"
+            Write-Host "imageName=$(imageName)"
+            Write-Host "imageTag=$(imageTag)"
+            Write-Host "azureContainerRegistry=$(azureContainerRegistry)"
+            Write-Host "azureContainerRegistryName=$(azureContainerRegistryName)"
+            Write-Host "Build.Repository.LocalPath=$(Build.Repository.LocalPath)"
+            Get-ChildItem -Path $(Build.Repository.LocalPath)
+            Write-Host "Pipeline.Workspace=$(Pipeline.Workspace)"
+            Get-ChildItem -Path $(Pipeline.Workspace)
+          pwsh: true   
+
+      - task: Docker@1
+        displayName: 'Build testrunner image'
+        enabled: "true"
+        inputs:
+          command: build
+          useDefaultContext: false
+          buildContext: $(Build.Repository.LocalPath)
+          azureSubscriptionEndpoint: $(azureSubscription)
+          azureContainerRegistry: $(azureContainerRegistry)
+          arguments: '--target testrunner --build-arg FEED_ACCESSTOKEN=$(System.AccessToken)'
+          container: testrunner
+          dockerFile: $(dockerFileName)
+          imageName: '$(imageName)-test'
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: 'test'
+          projects: '**/peerservice.csproj'
+
+      - task: Docker@1
+        displayName: 'Running Unit tests'
+        enabled: "true"
+        inputs:
+          azureSubscriptionEndpoint: $(azureSubscription)
+          azureContainerRegistry: $(azureContainerRegistry)
+          command: Run an image
+          container: testrunner
+          containerName: testrunner
+          volumes: '$(System.DefaultWorkingDirectory)/TestResults:/src/tests/TestResults'
+          imageName: '$(imageName)-test'
+          runInBackground: false
+    
+      - task: PublishTestResults@2
+        displayName: 'Publish test results'
+        enabled: "true"
+        inputs:
+          testResultsFormat: XUnit
+          testResultsFiles: 'TestResults/*.trx'
+          searchFolder: '$(System.DefaultWorkingDirectory)'
+          publishRunAttachments: true
+
+    - job: peerservicejobbld
+      displayName: 'Build Deployment Images'
+      dependsOn: peerservicejobci
+      pool: 
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "30"
+      # variables:
+      steps:
+      - task: Docker@2
+        displayName: Login to ACR
+        inputs:
+          command: login
+          containerRegistry: $(serviceConnection)
+          repository: $(repositoryName)
+
+      - task: Docker@2
+        enabled: "true"
+        displayName: 'Build runtime image'
+        inputs:
+          command: build
+          useDefaultContext: false
+          buildContext: $(Build.Repository.LocalPath)
+          dockerFile: $(System.DefaultWorkingDirectory)/$(dockerFileName)
+          repository: $(repositoryName)
+          arguments: '--build-arg FEED_ACCESSTOKEN=$(System.AccessToken)'
+          includeLatestTag: true
+          imageName: $(imageName):$(imageTag)
+          tags: |
+            $(repositoryName)
+            $(imageName)
+            $(imageTag)
+            latest
+
+      - task: Docker@2
+        enabled: "true"
+        displayName: 'Push build image'
+        inputs:
+          command: push
+          containerRegistry: $(serviceConnection)
+          repository: $(repositoryName)
+          imageName: $(imageName):$(imageTag)
+          tags: |
+            $(repositoryName)
+            $(imageName)
+            $(imageTag)
+            latest
+
+
+      - task: PowerShell@2
+        enabled: "true"
+        displayName: 'Debug'
+        inputs:
+          targetType: 'inline'
+          script: | 
+            Write-Host "Manifests"
+            Write-Host "PeerService/deploy"
+            Get-ChildItem -Path src/Services/Peer/PeerService/deploy         
+          pwsh: true
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish manifest files'
+        enabled: "true"     
+        inputs:
+          artifact: '$(artifactName)'
+          targetPath: src/Services/Peer/PeerService/deploy
+
+  - stage: PeerServiceIntegrationTesting
+    displayName: 'Integration Testing'
+    dependsOn: PeerServiceCI 
+    variables:
+      envName: siccardev
+      resourceName: default   
+
+    jobs:
+    - job: peerservicejobtest
+      displayName: 'Run Integration Tests'
+      pool: 
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "90"
+      # variables:
+      steps:
+        - task: NuGetAuthenticate@1
+
+  - stage: PeerServiceDeployment
+    displayName: 'Development Deploy'
+    dependsOn: PeerServiceIntegrationTesting
+    condition: False # and(succeeded(), eq(variables['fullCI'],True))  
+    variables:
+      envName: siccardev
+      resourceName: default   
+
+    jobs:
+    - deployment: peerservicejobdeploy
+      displayName: 'Deploy to Development AKS'
+      pool: 
+        vmImage: $(vmImageName)
+      variables:
+        - group: SICCARV3-DEV
+      environment: 'siccardev.default'   #"$(envName).$(resourceName)"
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+            - task: DownloadPipelineArtifact@2
+              enabled: "true"
+              displayName: 'Download manifest files'
+              inputs:
+                artifactName: $(artifactName)
+
+            - task: PowerShell@2
+              enabled: "true"
+              displayName: 'Debug'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  Write-Host "Debug $(envName)"
+                  Write-Host "Container=$(ACR_SERVER)/$(imageName):$(imageTag)"
+                  Write-Host "Pipeline.Workspace=$(Pipeline.Workspace)"
+                  Write-Host "Artifact=$(artifactName)"
+                  Get-ChildItem -Path "$(Pipeline.Workspace)/$(artifactName)"
+                pwsh: true
+                errorActionPreference: continue
+
+            - task: replacetokens@3
+              displayName: 'replace env var tokens' #can replace this custom task with Helm later              
+              enabled: "true"
+              inputs:
+                rootDirectory: $(Pipeline.Workspace)/$(artifactName)
+                targetFiles: |
+                  deployment-microservice-peer.yaml
+                keepToken: true
+                tokenPrefix: "#{"
+                tokenSuffix: "}#"
+                verbosity: "detailed"
+                actionOnMissing: "warn"
+                  # encoding: "auto"
+                  # writeBOM: true
+
+            - task: KubernetesManifest@0
+              displayName: 'Rollout Peer Service'
+              enabled: "true"
+              inputs:
+                kind: deployment
+                action: deploy
+                namespace: default
+                manifests: |
+                  $(Pipeline.Workspace)/$(artifactName)/deployment-microservice-peer.yaml
+                  $(Pipeline.Workspace)/$(artifactName)/service-microservice-peer.yaml
+                containers: |
+                  $(azureContainerRegistry)/$(imageName):$(imageTag)

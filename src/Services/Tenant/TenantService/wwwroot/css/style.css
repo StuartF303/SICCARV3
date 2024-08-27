@@ -1,0 +1,78 @@
+﻿.bg-dark-blue {
+    background-color: #232b3a;
+}
+
+.logged-out-page {
+    text-align: center;
+}
+
+.logged-out-logo {
+    margin: 40px 0;
+}
+
+.card {
+    border: 1px solid #232b3a;
+    border-radius: 0px;
+}
+
+.card-header, .card-header:first-child {
+    background-color: #232b3a;
+    color: #fff;
+    border-radius: 0px;
+}
+
+.card-header h2 {
+    font-weight: 300;
+}
+
+.form-check-input {
+    margin-top: .6rem;
+}
+
+label {
+    display: inline-block;
+    float: left;
+    border: 0px;
+    width: 120px;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+    label.form-check-label {
+        width: 330px;
+    }
+
+    .form-control {
+        position: inherit;
+        width: calc(100% - 120px) !important;
+        border: 0px;
+        border-bottom: 1px solid #232b3a;
+        color: #3eb288;
+        border-radius: 0px;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+
+.btnLogin, .btnCancel, .btnExternal {
+    background-color: #232b3a;
+    border: 1px solid #232b3a;
+    border-radius: 0px;
+    color: #fff;
+    margin-top: 20px;
+}
+
+    .btnLogin:hover, .btnCancel:hover, .btnExternal:hover {
+        background-color: #fff;
+        border: 1px solid #232b3a;
+        border-radius: 0px;
+        color: #232b3a;
+    }
+
+.btnExternal {
+     width: 100%;
+     margin-top: 0px;
+}
+
+.list-item {
+    display: block;
+}

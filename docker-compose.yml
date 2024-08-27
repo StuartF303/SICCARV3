@@ -1,0 +1,175 @@
+
+version: '3.4'
+
+services:
+
+  redis:
+    image: redis:alpine
+
+  mongodb:
+    image: mongo
+  
+  mysql:
+    image: mysql
+
+  zipkin:
+    image: openzipkin/zipkin-slim
+
+  rabbitmq:
+    image: rabbitmq:3-management
+
+  seq:
+    image: datalust/seq:latest
+    environment:
+      - ACCEPT_EULA=Y
+    volumes:
+      - /datadrive:/data   
+      
+  blueprint:
+    image: ${DOCKER_REGISTRY-}blueprint
+    container_name: Blueprint
+    build:
+      context: .
+      dockerfile: src/Services/Blueprint/BlueprintService/Dockerfile
+    depends_on:
+      - redis
+      - rabbitmq
+      - seq
+
+  blueprint-dapr:
+    image: "daprio/daprd"
+    network_mode: "service:blueprint"
+    depends_on:
+      - blueprint
+      - redis
+      - zipkin
+      - rabbitmq
+
+  action:
+    image: ${DOCKER_REGISTRY-}action
+    container_name: Action
+    build:
+      context: .
+      dockerfile: src/Services/Action/ActionService/Dockerfile
+    depends_on:
+      - redis
+      - rabbitmq
+      - seq
+
+  action-dapr:
+    image: "daprio/daprd"
+    network_mode: "service:action"
+    depends_on:
+      - action
+      - redis
+      - zipkin
+      - rabbitmq
+
+  tenant:
+    image: ${DOCKER_REGISTRY-}tenant
+    container_name: Tenant
+    build:
+      context: .
+      dockerfile: src/Services/Tenant/TenantService/Dockerfile
+    depends_on:
+      - redis
+      - rabbitmq
+      - seq
+
+  tenant-dapr:
+    image: "daprio/daprd"
+    network_mode: "service:tenant"
+    depends_on:
+      - tenant
+      - redis
+      - zipkin
+      - seq
+      - rabbitmq
+
+  wallet:
+    image: ${DOCKER_REGISTRY-}wallet
+    container_name: Wallet
+    build:
+      context: .  
+      dockerfile: src/Services/Wallet/WalletService/Dockerfile
+    depends_on:
+      - redis
+      - seq
+      - mysql
+  wallet-dapr:
+    image: "daprio/daprd"
+    network_mode: "service:wallet"
+    depends_on:
+      - wallet
+      - redis
+      - zipkin
+      - seq
+
+  peer:
+    image: ${DOCKER_REGISTRY-}peer
+    container_name: Peer
+    build:
+      context: .
+      dockerfile: src/Services/Peer/PeerService/Dockerfile
+    depends_on:
+      - redis
+      - rabbitmq
+      - seq
+
+  peer-dapr:
+    image: "daprio/daprd"
+    network_mode: "service:peer"
+    depends_on:
+      - peer
+      - redis
+      - rabbitmq
+      - zipkin
+      - seq
+
+  register:
+    image: ${DOCKER_REGISTRY-}register
+    container_name: Register
+    build:
+      context: .
+      dockerfile: src/Services/Register/RegisterService/Dockerfile
+    depends_on:
+      - redis
+      - rabbitmq
+      - seq
+
+  register-dapr:
+    image: "daprio/daprd"
+    network_mode: "service:register"
+    depends_on:
+      - register
+      - redis
+      - zipkin
+      - rabbitmq
+      - seq
+
+  validator:
+    image: ${DOCKER_REGISTRY-}validator
+    container_name: Validator
+    build:
+      context: .
+      dockerfile: src/Services/Validator/ValidatorService/Dockerfile
+    depends_on:
+      - redis
+      - rabbitmq
+      - seq
+
+  validator-dapr:
+    image: "daprio/daprd"
+    network_mode: "service:validator"
+    depends_on:
+      - validator
+      - redis
+      - zipkin
+      - rabbitmq
+
+  adminui:
+    image: ${DOCKER_REGISTRY-}adminui
+    container_name: adminui
+    build:
+      context: .
+      dockerfile: src/UI/AdminUI/Server/Dockerfile

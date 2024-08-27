@@ -1,0 +1,50 @@
+
+### a simple register list
+
+http://localhost:5000/api/Registers
+
+### a simple register list
+
+http://localhost:5000/api/Registers/sampleRegister2
+
+### a simple docket get
+
+http://localhost:5000/api/Registers/sampleRegister2/Dockets
+
+
+### a simple transaction get
+
+http://localhost:5000/api/Registers/sampleRegister2/Transactions
+
+
+
+### a simple register create
+
+POST http://localhost:49156/api/Registers HTTP/1.1
+content-type: application/json
+
+{
+    "Id": "samplereg2",
+    "Name": "Sample Register 2",
+    "Height": 100,
+    "Votes": "",
+    "Advertise": false,
+    "IsFullReplica": true
+}
+
+### a simple transaction create
+
+POST http://localhost:49156/api/Registers/sampleRegister2/Transactions HTTP/1.1
+content-type: application/json
+
+{
+    "Id": "TripleHashOfPayFromToUTCAPyload",
+    "RegisterId": "sampleRegister2",
+    "DocType": "Step",
+    "FromAddress": "0x123432",
+    "ToAddress": "0x987654",
+    "Payload": "Base64EncodedStuff",
+    "Metadata": "eTag",
+    "DocketId": "0",
+    "State": "Init"
+}

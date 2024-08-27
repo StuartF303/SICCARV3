@@ -1,0 +1,19 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: bindingaction
+spec:
+  type: bindings.azure.blobstorage
+  version: v1
+  initTimeout: 1m
+  metadata:
+  - name: storageAccount
+    value: "#{BlobStorageAccountName}#"
+  - name: storageAccessKey
+    value: "#{BlobStorageAccountKey}#"
+  - name: container
+    value: files
+  - name: decodeBase64
+    value: true
+scopes:
+- action-service

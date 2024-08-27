@@ -1,0 +1,159 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-wallet",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/Services/Wallet/Wallet.API/Wallet.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "appId": "wallet-service",
+            "appPort": 5001,
+            "httpPort": 5010,
+            "grpcPort": 50010,
+            "metricsPort": 9091,
+            "componentsPath": "./components",
+            "config": "./components/config.yaml",
+            "label": "daprd-debug-wallet",
+            "type": "daprd",
+            "dependsOn": "build-wallet"
+        },
+        {
+            "appId": "wallet-service",
+            "label": "daprd-down-wallet",
+            "type": "daprd-down"
+        },
+        {
+            "label": "build-tenant",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/Services/Tenant/TenantAPI/Tenant.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "appId": "tenant-service",
+            "appPort": 5002,
+            "httpPort": 5020,
+            "grpcPort": 50020,
+            "metricsPort": 9092,
+            "componentsPath": "./components",
+            "label": "daprd-debug-tenant",
+            "type": "daprd",
+            "dependsOn": "build-tenant"
+        },
+        {
+            "appId": "tenant-service",
+            "label": "daprd-down-tenant",
+            "type": "daprd-down"
+        },
+        {
+            "label": "build-register",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/Services/Register/Register.API/Register.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "appId": "register-service",
+            "appPort": 5003,
+            "httpPort": 5030,
+            "grpcPort": 50030,
+            "metricsPort": 9093,
+            "componentsPath": "./components",
+            "label": "daprd-debug-register",
+            "type": "daprd",
+            "dependsOn": "build-register"
+        },
+        {
+            "appId": "register-service",
+            "label": "daprd-down-register",
+            "type": "daprd-down"
+        },
+        {
+            "label": "build-peer",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/Services/Network/PeerService/PeerService.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "appId": "peer-service",
+            "appPort": 5007,
+            "httpPort": 5070,
+            "grpcPort": 50070,
+            "metricsPort": 9097,
+            "componentsPath": "src/Services/Network/PeerService/components",
+            "logLevel": "debug",
+            "label": "daprd-debug-peer",
+            "type": "daprd",
+            "dependsOn": "build-peer"
+        },
+        {
+            "appId": "peer-service",
+            "label": "daprd-down-peer",
+            "type": "daprd-down"
+        },
+        {
+            "label": "build-validator",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/Services/Validator/Validator.API/Validator.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "appId": "validator-service",
+            "appPort": 5006,
+            "httpPort": 5060,
+            "grpcPort": 50060,
+            "metricsPort": 9096,
+            "componentsPath": "./components",
+            "label": "daprd-debug-validator",
+            "type": "daprd",
+            "dependsOn": "build-validator"
+        },
+        {
+            "appId": "validator-service",
+            "label": "daprd-down-validator",
+            "type": "daprd-down"
+        },
+        {
+            "label": "bridge-to-kubernetes.resource",
+            "type": "bridge-to-kubernetes.resource",
+            "resource": "tenant-service-77f5f8f86d-",
+            "resourceType": "pod",
+            "ports": [
+                0
+            ],
+            "targetCluster": "siccarv3dev",
+            "targetNamespace": "default",
+            "useKubernetesServiceEnvironmentVariables": false
+        }
+    ]
+}

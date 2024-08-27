@@ -1,0 +1,42 @@
+﻿@inherits BaseControl
+
+<!-- DateTime Control -->
+<div hidden=@_hidden class="datetime">
+    <label for="_id">@_label</label>
+    <input type="datetime-local" id="_id" placeholder="@_placeholder" value=@InputDate @onchange="(e) => OnChange(e)" />
+    <p>@_description</p>
+</div>
+
+@code {
+    private string InputDate { get; set; } = System.DateTime.Now.ToString("yyy-MM-ddTHH:mm:ss");
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_id != null)
+        {
+            var data = (string)dataService.GetFormDataByKey(_id);
+            if (data == string.Empty)
+            {
+                InputDate = System.DateTime.Now.ToString("yyy-MM-ddTHH:mm:ss");
+                dataService.UpdateFormData(_id, InputDate);
+            }
+            else if (data is null)
+            {
+                await base.OnParametersSetAsync();
+            }
+            else
+            {
+                InputDate = data;
+            }
+
+            await base.OnParametersSetAsync();
+        }
+    }
+
+    private void OnChange(ChangeEventArgs eventArgs)
+    {
+        InputDate = eventArgs.Value.ToString();
+        dataService.UpdateFormData(_id, InputDate);
+    }
+}
+

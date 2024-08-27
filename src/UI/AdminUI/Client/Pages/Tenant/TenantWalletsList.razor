@@ -1,0 +1,32 @@
+﻿@using SelectionMode = Syncfusion.Blazor.Grids.SelectionMode
+
+@if (true) {
+    <div class="box mt-4">
+        <div class="box-body">
+            <SfGrid @ref="@_grid"
+                    DataSource="@_wallets"
+                    TValue="WalletModel"
+                    ID="Grid"
+                    AllowPaging="true"
+                    AllowSorting="true"
+                    GridLines="GridLine.Horizontal"
+                    RowHeight="50"
+                    AllowFiltering="false">
+                <GridSortSettings AllowUnsort="false">
+                    <GridSortColumns>
+                        <GridSortColumn Field="Name" Direction="SortDirection.Ascending"></GridSortColumn>
+                    </GridSortColumns>
+                </GridSortSettings>
+                <GridFilterSettings Type="FilterType.FilterBar"></GridFilterSettings>
+                <GridColumns>
+                    <GridColumn Field="Name" HeaderText="Name" TextAlign="TextAlign.Left" FilterSettings="@(new FilterSettings { Operator = Operator.Contains })"></GridColumn>
+                    <GridColumn Field="Address" HeaderText="Address" TextAlign="TextAlign.Left" FilterSettings="@(new FilterSettings { Operator = Operator.Contains })" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})"></GridColumn>
+                    <GridColumn Field="OwnerName" HeaderText="OwnerName" TextAlign="TextAlign.Left" FilterSettings="@(new FilterSettings { Operator = Operator.Contains })" ></GridColumn>
+                </GridColumns>
+
+                <GridSelectionSettings Mode="SelectionMode.Cell"></GridSelectionSettings>
+                <GridEvents TValue="WalletModel" CellSelecting="OnWalletCellSelecting"></GridEvents>
+            </SfGrid>
+        </div>
+    </div>
+}

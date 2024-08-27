@@ -1,0 +1,94 @@
+﻿@page "/wallets"
+@using SelectionMode = Syncfusion.Blazor.Grids.SelectionMode
+@using Siccar.UI.Admin.Shared.Components
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Popups
+@attribute [Authorize]
+
+<div class="mainPadding">
+
+<h3>Wallet List</h3>
+
+<SfDialog Width="600"
+          ShowCloseIcon="true"
+          IsModal="true"
+          VisibleChanged="isVisible => { if (!isVisible) { _walletToDelete=null; ShowDeleteWalletDialog=false; } }"
+          Visible="@ShowDeleteWalletDialog">
+    <DialogTemplates>
+        <Header> Delete Wallet </Header>
+        <Content>
+            @{
+                <p>Are you sure you wish to delete the @_walletToDelete?.Name wallet?</p>
+            }
+            <SfButton @onclick="ConfirmDeleteWallet">Delete</SfButton>
+            <SfButton @onclick="CancelDeleteWallet">Cancel</SfButton>
+        </Content>
+    </DialogTemplates>
+
+</SfDialog>
+
+<SfDialog Width="600" 
+          ShowCloseIcon="true"
+          IsModal="true"
+          VisibleChanged="@CreateWalletVisibleChanged"
+          Visible="@ShowCreateWalletDialog">
+    <DialogTemplates>
+        <Header> Create Wallet </Header>
+        <Content>
+            <CreateWallet></CreateWallet>
+        </Content>
+    </DialogTemplates>
+    
+</SfDialog>
+
+<SfButton Type="button" @onclick="CreateWallet">Create Wallet</SfButton>
+
+<div class="box mt-4">
+    <div class="box-body">
+        <SfGrid @ref="@_grid"
+                DataSource="@_wallets"
+                TValue="WalletModel"
+                ID="Grid"
+                AllowPaging="true"
+                AllowSorting="true"
+                GridLines="GridLine.Horizontal"
+                RowHeight="50"
+                AllowFiltering="false">
+            <GridSortSettings AllowUnsort="false">
+                <GridSortColumns>
+                    <GridSortColumn Field="Wallet.Name" Direction="SortDirection.Ascending"></GridSortColumn>
+                </GridSortColumns>
+            </GridSortSettings>
+                <GridFilterSettings Type="FilterType.FilterBar"></GridFilterSettings>
+            <GridColumns>
+                <GridColumn Field="Wallet.Name" HeaderText="Name" TextAlign="TextAlign.Left" FilterSettings="@(new FilterSettings { Operator = Operator.Contains })"></GridColumn>
+
+                <GridColumn Field="Wallet.Address" HeaderText="Address" TextAlign="TextAlign.Left" FilterSettings="@(new FilterSettings { Operator = Operator.Contains })" CustomAttributes="@(new Dictionary<string, object>(){ {"class", "monoFontRow"}})"></GridColumn>
+
+                <GridColumn HeaderText="Pending" TextAlign="TextAlign.Center" AutoFit="true" AllowFiltering="false">
+                    <Template>
+                        @{
+                            var wallet = context as WalletModel;
+                            @wallet!.PendingTransactionCount
+                        }
+                    </Template>
+                </GridColumn>
+
+                <GridColumn AutoFit="true" AllowFiltering="false">
+                    <Template>
+                        @{
+                            var wallet = context as WalletModel;
+                            <SfButton @onclick="() => OpenDeleteWalletDialog(wallet!.Wallet)" CssClass="row-delete">X</SfButton>
+                        }
+
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+
+            <GridSelectionSettings Mode="SelectionMode.Cell"></GridSelectionSettings>
+            <GridEvents TValue="WalletModel" CellSelecting="OnWalletCellSelecting"></GridEvents>
+        </SfGrid>
+    </div>
+</div>
+
+</div>

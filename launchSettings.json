@@ -1,0 +1,58 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "action": "StartDebugging",
+        "action-dapr": "StartWithoutDebugging",
+        "blueprint": "StartDebugging",
+        "blueprint-dapr": "StartWithoutDebugging",
+        "mongodb": "StartWithoutDebugging",
+        "peer": "StartDebugging",
+        "peer-dapr": "StartWithoutDebugging",
+        "proxy": "StartWithoutDebugging",
+        "rabbitmq": "StartWithoutDebugging",
+        "redis": "StartWithoutDebugging",
+        "register": "StartDebugging",
+        "register-dapr": "StartWithoutDebugging",
+        "seq": "StartWithoutDebugging",
+        "seq-input-syslog": "StartWithoutDebugging",
+        "tenant": "StartDebugging",
+        "tenant-dapr": "StartWithoutDebugging",
+        "validator": "StartDebugging",
+        "validator-dapr": "StartWithoutDebugging",
+        "wallet": "StartDebugging",
+        "wallet-dapr": "StartWithoutDebugging",
+        "zipkin": "StartWithoutDebugging"
+      }
+    },
+    "SingleService": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "action": "DoNotStart",
+        "action-dapr": "DoNotStart",
+        "blueprint": "DoNotStart",
+        "blueprint-dapr": "DoNotStart",
+        "mongodb": "DoNotStart",
+        "peer": "DoNotStart",
+        "peer-dapr": "DoNotStart",
+        "proxy": "DoNotStart",
+        "rabbitmq": "DoNotStart",
+        "redis": "DoNotStart",
+        "register": "DoNotStart",
+        "register-dapr": "DoNotStart",
+        "seq": "DoNotStart",
+        "seq-input-syslog": "DoNotStart",
+        "tenant": "StartDebugging",
+        "tenant-dapr": "StartWithoutDebugging",
+        "validator": "DoNotStart",
+        "validator-dapr": "DoNotStart",
+        "wallet": "DoNotStart",
+        "wallet-dapr": "DoNotStart",
+        "zipkin": "DoNotStart"
+      }
+    }
+  }
+}

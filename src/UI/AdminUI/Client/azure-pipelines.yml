@@ -1,0 +1,214 @@
+---
+  variables:
+    repositoryName: adminui
+    dockerFileName: '**/UI/AdminUI/Client/Dockerfile'
+    imageName: $(repositoryName)
+    imageTag: $(Build.BuildNumber)
+    azureSubscription: siccarv3conn #AZURE_PIPELINES_SERVICE_CONN_NAME_VAR_VAL
+    azureContainerRegistry: siccardev.azurecr.io #ACR_SERVER_VAR_VAL
+    azureContainerRegistryName: siccardev #ACR_NAME_VAR_VAL
+    fullCI: $[startsWith(variables['build.sourceBranch'], 'refs/heads/main') ]
+    #buildImage: $[ eq(variables['build.sourceBranch'], 'refs/heads/main') ]
+    buildImage: true
+    artifactName: 'manifests'
+    vmImageName: 'ubuntu-latest'
+    ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+      why: pr
+    ${{ elseif eq(variables['Build.Reason'], 'Manual' ) }}:
+      why: manual
+    ${{ elseif eq(variables['Build.Reason'], 'IndividualCI' ) }}:
+      why: indivci 
+    ${{ else }}:
+      why: other
+  
+  name: $(SourceBranchName)-$(why)-$(Date:yyyyMMdd)$(Rev:.rr)
+  
+  trigger: 
+    batch: "true"
+    branches:
+      include:
+      - release/adminui/v*
+      - release/full/v*
+      - refs/release/adminui/v*
+      - main
+      - feature/adminui/*
+      - topic/adminui/*
+      # - bugfix/registerservice/*
+    paths:
+      include:
+      - src/UI/AdminUI/Client/*
+  
+  resources:
+  - repo: self
+  
+  stages:
+  - stage: AdminUICI
+    displayName: 'Build & Unit Test'
+    # variables:
+    jobs:
+    - job: adminuijobtest
+      displayName: 'AdminUI CI'
+      pool: 
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "90"
+      # variables:
+      steps:
+      - task: UseDotNet@2
+        displayName: 'Install .NET 8.0 sdk'
+        inputs:
+          packageType: sdk
+          version: 8.0.x
+
+      - task: NuGetAuthenticate@0
+      
+      - task: PowerShell@2
+        displayName: 'Debug'
+        enabled: "true"
+        inputs:
+          targetType: 'inline'
+          script: | 
+            Write-Host "Debug"
+            Write-Host "fullCI=$(fullCI)"
+            Write-Host "buildImage=$(buildImage)"
+            Write-Host "imageName=$(imageName)"
+            Write-Host "imageTag=$(imageTag)"
+            Write-Host "azureContainerRegistry=$(azureContainerRegistry)"
+            Write-Host "azureContainerRegistryName=$(azureContainerRegistryName)"
+            Write-Host "Build.Repository.LocalPath=$(Build.Repository.LocalPath)"
+            Get-ChildItem -Path $(Build.Repository.LocalPath)
+            Write-Host "Pipeline.Workspace=$(Pipeline.Workspace)"
+            Get-ChildItem -Path $(Pipeline.Workspace)
+          pwsh: true
+
+      - task: Docker@2
+        displayName: Login to ACR
+        inputs:
+          command: login
+          containerRegistry: $(azureContainerRegistryName)
+
+      - task: Docker@1
+        enabled: "true"
+        displayName: 'Build runtime image'
+        inputs:
+          useDefaultContext: false
+          buildContext: $(Build.Repository.LocalPath)
+          azureSubscriptionEndpoint: $(azureSubscription)
+          azureContainerRegistry: $(azureContainerRegistry)
+          containerregistrytype: Azure Container Registry
+          arguments: '--build-arg FEED_ACCESSTOKEN=$(System.AccessToken) --build-arg BUILDARGS=Release'
+          dockerFile: $(System.DefaultWorkingDirectory)/$(dockerFileName)
+          includeLatestTag: true
+          imageName: $(imageName):$(imageTag)
+
+      - task: Docker@2
+        enabled: "true"
+        displayName: 'Push latest image'
+        inputs:
+          azureSubscriptionEndpoint: $(azureSubscription)
+          containerregistrytype: Azure Container Registry
+          azureContainerRegistry: $(azureContainerRegistry)
+          containerRegistry: $(azureContainerRegistryName)
+          repository: $(azureContainerRegistryName)
+          command: push
+          imageName: $(imageName):latest
+
+      - task: Docker@2
+        enabled: "true"
+        displayName: 'Push runtime image'
+        inputs:
+          command: push
+          azureSubscriptionEndpoint: $(azureSubscription)
+          containerregistrytype: Azure Container Registry
+          azureContainerRegistry: $(azureContainerRegistry)
+          containerRegistry: $(azureContainerRegistryName)
+          repository: $(azureContainerRegistryName)
+          imageName: $(imageName):$(imageTag)
+
+      - task: PowerShell@2
+        enabled: "true"
+        #condition: eq(variables['fullCI'],True)
+        displayName: 'Debug'
+        inputs:
+          targetType: 'inline'
+          script: | 
+            Write-Host "Manifests"
+            Write-Host "AdminUI/deploy"
+            Get-ChildItem -Path src/UI/AdminUI/Client/deploy         
+          pwsh: true
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish manifest files'
+        enabled: "true"
+        #condition: eq(variables['fullCI'],True)       
+        inputs:
+          artifact: '$(artifactName)'
+          targetPath: src/UI/AdminUI/Client/deploy
+          
+  - stage: AdminUICD
+    displayName: Development Deploy    
+    dependsOn: AdminUICI
+    variables:
+        envName: siccardev
+        resourceName: default       
+
+    jobs:
+    - deployment: adminui_dev_cd_job
+      displayName: 'Deploy to Azure AKS'
+      pool:
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "90"
+      variables:
+        - group: SICCARV3-DEV
+      environment: 'siccardev.default'   #"$(envName).$(resourceName)"
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+            - task: DownloadPipelineArtifact@2
+              enabled: "true"
+              displayName: 'Download manifest files'
+              inputs:
+                artifactName: $(artifactName)
+
+            - task: PowerShell@2
+              enabled: "true"
+              displayName: 'Debug'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  Write-Host "Debug $(envName)"
+                  Write-Host "Container=$(ACR_SERVER)/$(imageName):$(imageTag)"
+                  Write-Host "Pipeline.Workspace=$(Pipeline.Workspace)"
+                  Write-Host "Artifact=$(artifactName)"
+                  Get-ChildItem -Path "$(Pipeline.Workspace)/$(artifactName)"
+                pwsh: true
+                errorActionPreference: continue
+
+            - task: replacetokens@3
+              displayName: 'replace env var tokens' #can replace this custom task with Helm later              
+              enabled: "true"
+              inputs:
+                rootDirectory: $(Pipeline.Workspace)/$(artifactName)
+                targetFiles: |
+                  deployment-adminui.yaml
+                keepToken: true
+                tokenPrefix: "#{"
+                tokenSuffix: "}#"
+                verbosity: "detailed"
+                actionOnMissing: "warn"
+                # encoding: "auto"
+                # writeBOM: true
+
+            - task: KubernetesManifest@0
+              displayName: 'Deploy Admin UI'
+              enabled: "true"
+              inputs:
+                kind: deployment
+                action: deploy
+                namespace: default
+                manifests: |
+                  $(Pipeline.Workspace)/$(artifactName)/deployment-adminui.yaml
+                  $(Pipeline.Workspace)/$(artifactName)/service-adminui.yaml
+                containers: |
+                  $(azureContainerRegistry)/$(imageName):$(imageTag)

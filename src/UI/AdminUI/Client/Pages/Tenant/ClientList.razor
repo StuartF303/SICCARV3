@@ -1,0 +1,54 @@
+﻿@page "/tenants/{TenantId}/clients"
+@using Siccar.Common.ServiceClients
+@using Siccar.Platform.Tenants.Core
+@using Microsoft.Extensions.Logging
+@using Siccar.UI.Admin.Shared.Components
+@using Syncfusion.Blazor.Buttons
+@inject ITenantServiceClient TenantServiceClient
+@inject ILogger<ClientList> Logger;
+@inject NavigationManager NavigationManager
+@using Syncfusion.Blazor.Notifications
+@attribute [Authorize]
+
+<SfToast @ref="_toastNotification" ID="toast_type">
+    <ToastPosition X="Right"></ToastPosition>
+</SfToast>
+
+<h3>Client List</h3>
+
+<SfButton @onclick="AddClient">Add Client</SfButton>
+
+<div class="box mt-4">
+<SfGrid DataSource="@_clients"
+        ID="Grid"
+        AllowPaging="true"
+        AllowSorting="true"
+        GridLines="GridLine.Horizontal"
+        RowHeight="50"
+        TValue="Common.ServiceClients.Models.Tenant.Client">
+
+    <GridColumns>
+        <GridColumn CustomAttributes="@(new Dictionary<string, object>(){ {"class", "name-col"}})" Field=@nameof(Common.ServiceClients.Models.Tenant.Client.ClientName) HeaderText="Name"></GridColumn>
+        <GridColumn CustomAttributes="@(new Dictionary<string, object>(){ {"class", "desc-col"}})" Field=@nameof(Common.ServiceClients.Models.Tenant.Client.Description) HeaderText="Description"></GridColumn>
+        <GridColumn CustomAttributes="@(new Dictionary<string, object>(){ {"class", "delete-col"}})">
+            <Template>
+                @{
+                    var client = (context as Common.ServiceClients.Models.Tenant.Client);
+                    _selectedClientToDelete = client;
+                    <SfButton @onclick="DeleteClient" CssClass="row-delete">X</SfButton>
+                }
+            </Template>
+        </GridColumn>
+    </GridColumns>
+    <GridSelectionSettings Mode="Syncfusion.Blazor.Grids.SelectionMode.Row"></GridSelectionSettings>
+    <GridEvents RowSelecting="RowSelecting" RowSelected="RowSelectedHandler" TValue="Common.ServiceClients.Models.Tenant.Client"></GridEvents>
+</SfGrid>
+
+</div>
+
+<Dialog Title="Delete Client"
+        Content="Are you sure you want to delete the client? This action cannot be undone."
+        OnOkClick="ConfirmDeleteClient"
+        IsVisible="@_showDialog"
+        Width="600">
+</Dialog>

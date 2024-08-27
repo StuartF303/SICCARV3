@@ -1,0 +1,28 @@
+﻿@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Notifications
+@using Microsoft.Extensions.Logging
+@inject ILogger<ClientDetail> Logger
+
+<SfToast @ref="_toastNotification" ID="toast_type">
+    <ToastPosition X="Right"></ToastPosition>
+</SfToast>
+
+<SfDropDownList @ref="@this.RolesChoiceList" TValue="string" TItem="string" Placeholder="Select a role" DataSource="@DropdownListDataSource">
+    <DropDownListFieldSettings Value="Text"></DropDownListFieldSettings>
+</SfDropDownList>
+<SfButton @onclick="AddItem">Add</SfButton>
+
+@{
+    foreach (var item in DataSource)
+    {
+        if (item.Type == "role")
+        {
+            <div id="sample-list-flat">
+                <div class="list-item">@item.Value
+                <SfButton CssClass="e-close-btn" @onclick="@(async () => { await RemoveItem(item.Value); })">X</SfButton></div>
+            </div>
+        }
+    }
+}

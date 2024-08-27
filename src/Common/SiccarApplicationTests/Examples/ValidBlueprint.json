@@ -1,0 +1,577 @@
+{
+  "Id": "e3f34829-7755-4f85-90fd-96c771d65941",
+  "Title": "Valid Blueprint",
+  "Description": "A blueprint which meets all the validation rules.",
+  "Version": 1,
+  "DataSchemas": null,
+  "Participants": [
+    {
+      "Id": "9b7901f1-5d78-4e9a-8c8a-e8542cf1d22b",
+      "Name": "Applicant",
+      "Organisation": "Siccar.Net",
+      "WalletAddress": "ws1jnzqmg5sv8py6f8r9p85x5s86jp8g6hvcnhenfewf4fmxxcfklcdqq7zkpr",
+      "didUri": "",
+      "useStealthAddress": false
+    },
+    {
+      "Id": "5fdc56a8-1a7b-40d5-880d-f796d219b0d9",
+      "Name": "Council",
+      "Organisation": "Siccar.Net",
+      "WalletAddress": "ws1jeg480wnzev53vjm773rqzcp99jswut0dprq98dymmyn0ngynrpqqwfysm5",
+      "didUri": "",
+      "useStealthAddress": false
+    },
+    {
+      "Id": "f52eb2e6-3068-4c05-b5ad-4eaedfbbf3af",
+      "Name": "Calculator",
+      "Organisation": "Siccar.Net",
+      "WalletAddress": "ws1j4tuaxdnjzhpdt6vpzxj48t5wh4u5y7rj98z5v3faz53yu48ysh7syrah7x",
+      "didUri": "",
+      "useStealthAddress": false
+    }
+  ],
+  "Actions": [
+    {
+      "id": 1,
+      "previousTxId": "",
+      "blueprint": "e3f34829-7755-4f85-90fd-96c771d65941",
+      "title": "Personal Details",
+      "description": "",
+      "sender": "9b7901f1-5d78-4e9a-8c8a-e8542cf1d22b",
+      "Participants": [],
+      "RequiredActionData": [],
+      "AdditionalRecipients": [],
+      "Disclosures": [
+        {
+          "ParticipantAddress": "5fdc56a8-1a7b-40d5-880d-f796d219b0d9",
+          "DataPointers": [
+            "name",
+            "dob",
+            "address",
+            "houseNumber",
+            "postcode",
+            "proofOfAddress",
+            "optIntoEmail"
+          ]
+        },
+        {
+          "ParticipantAddress": "9b7901f1-5d78-4e9a-8c8a-e8542cf1d22b",
+          "DataPointers": [
+            "name",
+            "dob",
+            "address",
+            "houseNumber",
+            "postcode",
+            "proofOfAddress",
+            "optIntoEmail"
+          ]
+        },
+        {
+          "ParticipantAddress": "Authorized",
+          "DataPointers": [
+            "region"
+          ]
+        }
+      ],
+      "PreviousData": null,
+      "DataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/",
+          "type": "object",
+          "required": [],
+          "properties": {
+            "name": {
+              "$id": "name",
+              "type": "string",
+              "title": "Name",
+              "description": "The users name"
+            },
+            "dob": {
+              "$id": "dob",
+              "type": "string",
+              "format": "date-time",
+              "title": "Date of Birth",
+              "description": "The users date of birth"
+            },
+            "houseNumber": {
+              "$id": "houseNumber",
+              "type": "integer",
+              "title": "House Number",
+              "description": "House Number"
+            },
+            "address": {
+              "$id": "address",
+              "type": "string",
+              "title": "Address",
+              "description": "Your address."
+            },
+            "postcode": {
+              "$id": "postcode",
+              "type": "string",
+              "title": "Postcode",
+              "description": "The postcode of your business",
+              "default": "EH"
+            },
+            "region": {
+              "$id": "region",
+              "type": "string",
+              "title": "Select Region",
+              "description": "Select the region the user live in.",
+              "enum": [
+                "Edinburgh",
+                "West Lothian"
+              ]
+            },
+            "proofOfAddress": {
+              "$id": "proofOfAddress",
+              "type": "object",
+              "title": "Upload proof of address",
+              "description": "",
+              "required": [
+                "fileName",
+                "fileType",
+                "fileSize"
+              ],
+              "properties": {
+                "fileName": {
+                  "$id": "fileName",
+                  "type": "string",
+                  "description": "The name of the file uploaded."
+                },
+                "fileType": {
+                  "$id": "fileType",
+                  "type": "string",
+                  "description": "The type of the file uploaded."
+                },
+                "fileSize": {
+                  "$id": "fileSize",
+                  "type": "integer",
+                  "description": "The size of the file uploaded in bytes."
+                }
+              }
+            },
+            "optIntoEmail": {
+              "$id": "optIntoEmail",
+              "type": "boolean",
+              "title": "Check to Opt into emails.",
+              "description": ""
+            }
+          }
+        }
+      ],
+      "Condition": {
+        "if": [
+          {
+            "==": [
+              {
+                "var": "region"
+              },
+              "West Lothian"
+            ]
+          },
+          2,
+          {
+            "==": [
+              {
+                "var": "region"
+              },
+              "Edinburgh"
+            ]
+          },
+          3
+        ]
+      },
+      "Form": {
+        "type": "Layout",
+        "Title": "",
+        "Scope": "$",
+        "Layout": "Group",
+        "Properties": null,
+        "Elements": [
+          {
+            "type": "Layout",
+            "Title": "",
+            "Scope": "",
+            "Layout": "VerticalLayout",
+            "Properties": null,
+            "Elements": [
+              {
+                "type": "TextLine",
+                "Title": "",
+                "Scope": "$.properties.name",
+                "Layout": "VerticalLayout",
+                "Properties": null,
+                "Elements": [],
+                "Conditions": []
+              },
+              {
+                "type": "Numeric",
+                "Title": "",
+                "Scope": "$.properties.houseNumber",
+                "Layout": "VerticalLayout",
+                "Properties": null,
+                "Elements": [],
+                "Conditions": []
+              },
+              {
+                "type": "TextArea",
+                "Title": "",
+                "Scope": "$.properties.address",
+                "Layout": "VerticalLayout",
+                "Properties": null,
+                "Elements": [],
+                "Conditions": []
+              },
+              {
+                "type": "TextLine",
+                "Title": "",
+                "Scope": "$.properties.postcode",
+                "Layout": "VerticalLayout",
+                "Properties": null,
+                "Elements": [],
+                "Conditions": []
+              },
+              {
+                "type": "File",
+                "Title": "",
+                "Scope": "$.properties.proofOfAddress",
+                "Layout": "VerticalLayout",
+                "Properties": null,
+                "Elements": [],
+                "Conditions": []
+              },
+              {
+                "type": "DateTime",
+                "Title": "",
+                "Scope": "$.properties.dob",
+                "Layout": "VerticalLayout",
+                "Properties": null,
+                "Elements": [],
+                "Conditions": []
+              },
+              {
+                "type": "Choice",
+                "Title": "",
+                "Scope": "$.properties.region",
+                "Layout": "VerticalLayout",
+                "Properties": null,
+                "Elements": [],
+                "Conditions": []
+              },
+              {
+                "type": "Checkbox",
+                "Title": "",
+                "Scope": "$.properties.optIntoEmail",
+                "Layout": "VerticalLayout",
+                "Properties": null,
+                "Elements": [],
+                "Conditions": []
+              }
+            ],
+            "Conditions": []
+          }
+        ],
+        "Conditions": []
+      }
+    },
+    {
+      "id": 2,
+      "previousTxId": "",
+      "blueprint": "e3f34829-7755-4f85-90fd-96c771d65941",
+      "title": "West Lothian Council",
+      "description": "",
+      "sender": "5fdc56a8-1a7b-40d5-880d-f796d219b0d9",
+      "Participants": [],
+      "RequiredActionData": [],
+      "AdditionalRecipients": [],
+      "Disclosures": [
+        {
+          "ParticipantAddress": "5fdc56a8-1a7b-40d5-880d-f796d219b0d9",
+          "DataPointers": [
+            "taxAmount"
+          ]
+        },
+        {
+          "ParticipantAddress": "f52eb2e6-3068-4c05-b5ad-4eaedfbbf3af",
+          "DataPointers": [
+            "taxAmount"
+          ]
+        }
+      ],
+      "PreviousData": null,
+      "DataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/",
+          "type": "object",
+          "required": [],
+          "properties": {
+            "taxAmount": {
+              "$id": "taxAmount",
+              "type": "integer",
+              "title": "Tax Cost",
+              "description": "The amount of current tax paid."
+            }
+          }
+        }
+      ],
+      "Condition": {
+        "if": [
+          4
+        ]
+      },
+      "Form": {
+        "type": "Layout",
+        "Title": "",
+        "Scope": "$",
+        "Layout": "Group",
+        "Properties": null,
+        "Elements": [
+          {
+            "type": "Layout",
+            "Title": "",
+            "Scope": "",
+            "Layout": "VerticalLayout",
+            "Properties": null,
+            "Elements": [
+              {
+                "type": "Numeric",
+                "Title": "Tax Amount",
+                "Scope": "$.properties.taxAmount",
+                "Layout": "VerticalLayout",
+                "Properties": null,
+                "Elements": [],
+                "Conditions": []
+              }
+            ],
+            "Conditions": []
+          }
+        ],
+        "Conditions": []
+      }
+    },
+    {
+      "id": 3,
+      "previousTxId": "",
+      "blueprint": "e3f34829-7755-4f85-90fd-96c771d65941",
+      "title": "Eduinburgh Council",
+      "description": "",
+      "sender": "5fdc56a8-1a7b-40d5-880d-f796d219b0d9",
+      "Participants": [],
+      "RequiredActionData": [],
+      "AdditionalRecipients": [],
+      "Disclosures": [
+        {
+          "ParticipantAddress": "9b7901f1-5d78-4e9a-8c8a-e8542cf1d22b",
+          "DataPointers": [
+            "taxAmount"
+          ]
+        },
+        {
+          "ParticipantAddress": "5fdc56a8-1a7b-40d5-880d-f796d219b0d9",
+          "DataPointers": [
+            "taxAmount"
+          ]
+        }
+      ],
+      "PreviousData": null,
+      "DataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/",
+          "type": "object",
+          "required": [],
+          "properties": {
+            "taxAmount": {
+              "$id": "taxAmount",
+              "type": "integer",
+              "title": "Tax Cost",
+              "description": "The amount of current tax paid."
+            }
+          }
+        }
+      ],
+      "Condition": "{ \u0022==\u0022:[0,0]}",
+      "Form": {
+        "type": "Layout",
+        "Title": "",
+        "Scope": "$",
+        "Layout": "Group",
+        "Properties": null,
+        "Elements": [
+          {
+            "type": "Layout",
+            "Title": "",
+            "Scope": "",
+            "Layout": "VerticalLayout",
+            "Properties": null,
+            "Elements": [
+              {
+                "type": "Numeric",
+                "Title": "Tax Amount",
+                "Scope": "$.properties.taxAmount",
+                "Layout": "VerticalLayout",
+                "Properties": null,
+                "Elements": [],
+                "Conditions": []
+              }
+            ],
+            "Conditions": []
+          }
+        ],
+        "Conditions": []
+      }
+    },
+    {
+      "id": 4,
+      "previousTxId": "",
+      "blueprint": "e3f34829-7755-4f85-90fd-96c771d65941",
+      "title": "Calculation",
+      "description": "",
+      "sender": "f52eb2e6-3068-4c05-b5ad-4eaedfbbf3af",
+      "Participants": [],
+      "RequiredActionData": [],
+      "AdditionalRecipients": [],
+      "Disclosures": [
+        {
+          "ParticipantAddress": "9b7901f1-5d78-4e9a-8c8a-e8542cf1d22b",
+          "DataPointers": [
+            "utilityAmount",
+            "taxAmountPlusUtility"
+          ]
+        },
+        {
+          "ParticipantAddress": "5fdc56a8-1a7b-40d5-880d-f796d219b0d9",
+          "DataPointers": [
+            "utilityAmount",
+            "taxAmountPlusUtility"
+          ]
+        }
+      ],
+      "PreviousData": null,
+      "Calculations": {
+        "taxAmountPlusUtility": {
+          "+": [
+            {
+              "var": "taxAmount"
+            },
+            {
+              "var": "utilityAmount"
+            }
+          ]
+        }
+      },
+      "DataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/",
+          "type": "object",
+          "required": [],
+          "properties": {
+            "taxAmountPlusUtility": {
+              "$id": "taxAmountPlusUtility",
+              "type": "integer",
+              "title": "Total Tax and Utility Cost",
+              "description": "Total cost of all utilities."
+            },
+            "utilityAmount": {
+              "$id": "utilityAmount",
+              "type": "integer",
+              "title": "Total Utility Cost",
+              "description": "Total cost of all utilities."
+            }
+          }
+        }
+      ],
+      "Condition": "{ \u0022==\u0022:[0,0]}",
+      "Form": {
+        "type": "Layout",
+        "Title": "",
+        "Scope": "$",
+        "Layout": "Group",
+        "Properties": null,
+        "Elements": [
+          {
+            "type": "Layout",
+            "Title": "",
+            "Scope": "",
+            "Layout": "VerticalLayout",
+            "Properties": null,
+            "Elements": [
+              {
+                "type": "Numeric",
+                "Title": "Utility Amount",
+                "Scope": "$.properties.utilityAmount",
+                "Layout": "VerticalLayout",
+                "Properties": null,
+                "Elements": [],
+                "Conditions": []
+              }
+            ],
+            "Conditions": []
+          }
+        ],
+        "Conditions": []
+      }
+    },
+    {
+      "id": 5,
+      "previousTxId": "",
+      "blueprint": "e3f34829-7755-4f85-90fd-96c771d65941",
+      "title": "View Utility Cost",
+      "description": "",
+      "sender": "9b7901f1-5d78-4e9a-8c8a-e8542cf1d22b",
+      "Participants": [],
+      "RequiredActionData": [],
+      "AdditionalRecipients": [],
+      "Disclosures": [
+        {
+          "ParticipantAddress": "5fdc56a8-1a7b-40d5-880d-f796d219b0d9",
+          "DataPointers": [
+            "viewedData"
+          ]
+        }
+      ],
+      "PreviousData": null,
+      "DataSchemas": [
+        {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "$id": "https://siccar.net/",
+          "type": "object",
+          "required": [
+            "viewedData"
+          ],
+          "properties": {
+            "viewedData": {
+              "$id": "viewedData",
+              "type": "boolean",
+              "title": "Agree you've viewed the utility cost.",
+              "description": "Total cost of all utilities."
+            }
+          }
+        }
+      ],
+      "Condition": "{ \u0022==\u0022:[0,0]}",
+      "Form": {
+        "type": "Layout",
+        "Title": "",
+        "Scope": "$",
+        "Layout": "Group",
+        "Properties": null,
+        "Elements": [
+          {
+            "type": "Checkbox",
+            "Title": "",
+            "Scope": "$.properties.viewedData",
+            "Layout": "VerticalLayout",
+            "Properties": null,
+            "Elements": [],
+            "Conditions": []
+          }
+        ],
+        "Conditions": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+﻿@page "/registers/{RegisterId}"
+@attribute [Authorize]
+
+<Siccar.UI.Admin.Shared.Components.RegisterDetail RegisterId="@RegisterId"/>
+
+@code {
+    [Parameter]
+    public string RegisterId { get; set; }
+
+    [Inject]
+    NavigationManager navManager { get; set; }
+    [Inject]
+    Siccar.UI.Admin.Services.PageHistoryState pageHistoryState { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        pageHistoryState.AddPageToHistory(navManager.Uri);
+        return base.OnInitializedAsync();
+    }
+}

@@ -1,0 +1,113 @@
+﻿@page "/{registerId}/transactions/{selectedTransactionTxId}"
+@using Siccar.UI.Admin.Models;
+@using System.Text;
+@attribute [Authorize]
+
+@if (transactionModel != null)
+{
+    <div class="mainPadding">
+    
+    <div id="transDetails" class="box ">
+        <div class="box-body">
+            <div class="row">
+                <div class="col col-3 justify-content-between">
+                    <h3>Transaction Detail</h3>
+                </div>
+            </div>
+            <div>
+                <div>
+                    <div class="row">
+                        <div class="col-2">
+                            <label>TRANSACTION ID</label>
+                        </div>
+                        <div class="col-6">
+                            <text class="monoFont">@transactionModel.TransactionId</text>
+                        </div>
+                        <div class="col-2">
+                            <label>SUBMITTED</label>
+                        </div>
+                        <div class="col-2" data-testid="submitted-datetime">
+                            <text>@transactionModel.Submitted</text>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <label>PREV. TRANSACTION ID</label>
+                        </div>
+                        <div class="col-6">
+                            @if (AccessiblePrevTransaction())
+                            {
+                                <a href="" @onclick="PreviousTxClickHandler" @onclick:preventDefault>@transactionModel.PrevTransactionId</a>
+                            }
+                            else
+                            {
+                                    <a>@transactionModel.PrevTransactionId</a>
+                            }
+                        </div>
+                        <div class="col-2">
+                            <label>VALIDATED</label>
+                        </div>
+                        <div class="col-2" data-testid="validated-datetime">
+                            <text>@transactionModel.Validated</text>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <label>DOCKET ID</label>
+                        </div>
+                        <div class="col-6">
+                                <text class="monoFont">@transactionModel.DocketId</text>
+                        </div>
+                        <div class="col-2">
+                            <label>TRANSACTION SIZE</label>
+                        </div>
+                        <div class="col-2">
+                            <text>@transactionModel.TransactionSize</text>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <label>SOURCE ADDRESS</label>
+                        </div>
+                        <div class="col-6">
+                                <text class="monoFont">@transactionModel.SourceAddress</text>
+                        </div>
+                        <div class="col-2">
+                            <label>NO. OF PAYLOADS</label>
+                        </div>
+                        <div class="col-2">
+                            <text>@transactionModel.NumberOfPayloads</text>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <label>DESTINATION ADDRESSES</label>
+                        </div>
+                        <div class="col-10">
+                                <textarea rows="@textareaRows" Multiline="true" readonly class="monoFont">
+                                @transactionModel.DestinationAddresses    
+                                                                                    </textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>METADATA LIST</label>
+                                <textarea rows="12" Multiline="true" readonly class="monoFont">@transactionModel.MetaDataList</textarea>
+                        </div>
+                        <div class="col-6">
+                            <label>PAYLOAD LIST</label>
+                                <textarea rows="12" Multiline="true" readonly class="monoFont">@transactionModel.PayloadList</textarea>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    </div>
+}
+
+
+

@@ -1,0 +1,35 @@
+﻿@inherits BaseControl
+
+<div hidden=@_hidden class="radio">
+    <span>@_label</span>
+    @foreach (var item in @_choiceEnum)
+    {
+        <div>
+            <label for="@item">@item</label>
+            <input id="@item" type="radio" name="@_label" value="@item" @onchange="OnChange" checked=@SelectedValue.Equals(item,StringComparison.OrdinalIgnoreCase) />
+        </div>
+    }
+    <p>@_description</p>
+</div>
+
+@code {
+    private string SelectedValue { get; set; } = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_id != null)
+        {
+            var data = (string)dataService.GetFormDataByKey(_id);
+            SelectedValue = data ?? "";
+
+            await base.OnParametersSetAsync();
+        }
+    }
+
+    private void OnChange(ChangeEventArgs eventArgs)
+    {
+        SelectedValue = eventArgs.Value.ToString();
+        dataService.UpdateFormData(_id, SelectedValue);
+    }
+}
+

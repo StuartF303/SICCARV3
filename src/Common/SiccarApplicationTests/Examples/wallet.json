@@ -1,0 +1,27 @@
+{
+  "wallet": {
+    "address": "ws1jzzt5fe9yjx3srx2dx4qvuh4lhn2tadrqhaftpfyvum0ugqxncpcs9pehu8",
+    "name": "Named Test Wallet",
+    "owner": "3a8f6708-94d5-469b-847b-c7e6659b3479",
+    "tenant": "0afebb0a-f3f9-48d2-9ae0-293755e883bd",
+    "delegates": [
+      {
+        "walletId": "ws1jzzt5fe9yjx3srx2dx4qvuh4lhn2tadrqhaftpfyvum0ugqxncpcs9pehu8",
+        "tenant": "0afebb0a-f3f9-48d2-9ae0-293755e883bd",
+        "subject": "3a8f6708-94d5-469b-847b-c7e6659b3479",
+        "accessType": "owner",
+        "reason": "Wallet Creation",
+        "assignedTime": "2022-05-09T18:37:01.5599765Z"
+      }
+    ],
+    "addresses": [
+      {
+        "walletId": "ws1jzzt5fe9yjx3srx2dx4qvuh4lhn2tadrqhaftpfyvum0ugqxncpcs9pehu8",
+        "address": "ws1jzzt5fe9yjx3srx2dx4qvuh4lhn2tadrqhaftpfyvum0ugqxncpcs9pehu8",
+        "derivationPath": "m/"
+      }
+    ],
+    "transactions": []
+  },
+  "mnemonic": "swarm ranch mind wash treat latin dash verb elder nice round receive destroy swallow cannon wedding hood old clay bus estate fragile layer skin"
+}

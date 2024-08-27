@@ -1,0 +1,212 @@
+---
+  variables:
+    repositoryName: adminui-service
+    dockerFileName: '**/UI/AdminUI/Server/Dockerfile'
+    imageName: $(repositoryName)
+    imageTag: $(Build.SourceBranchName)
+    azureSubscription: siccarv3conn #AZURE_PIPELINES_SERVICE_CONN_NAME_VAR_VAL
+    azureContainerRegistry: siccardev.azurecr.io #ACR_SERVER_VAR_VAL
+    azureContainerRegistryName: siccardev #ACR_NAME_VAR_VAL
+    fullCI: $[startsWith(variables['build.sourceBranch'], 'refs/heads/release/adminui/v') ]
+    buildImage: $[ eq(variables['build.sourceBranch'], 'refs/heads/main') ]
+    artifactName: 'manifests'
+    vmImageName: 'ubuntu-latest'
+  
+  name: $(build.sourceBranch)-$(Date:yyyyMMdd)$(Rev:.rr)
+  
+  trigger:
+    batch: "true"
+    branches:
+      include:
+      - release/adminui/server/v*
+      - refs/release/adminui/server/v*
+      - feature/adminui/server/*
+      - topic/adminui/server/*
+    paths:
+      include:
+      - src/UI/AdminUI/Server/*
+  
+  resources:
+  - repo: self
+  
+  stages:
+  - stage: AdminUI_CI
+    displayName: 'AdminUI Services CI'
+    # variables:
+    jobs:
+    - job: adminuijobci
+      displayName: 'Admin UI CI'
+      pool: 
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "90"
+      # variables:
+      steps:
+  
+      - task: PowerShell@2
+        displayName: 'Debug'
+        enabled: "true"
+        inputs:
+          targetType: 'inline'
+          script: | 
+            Write-Host "Debug"
+            Write-Host "fullCI=$(fullCI)"
+            Write-Host "buildImage=$(buildImage)"
+            Write-Host "imageName=$(imageName)"
+            Write-Host "imageTag=$(imageTag)"
+            Write-Host "azureContainerRegistry=$(azureContainerRegistry)"
+            Write-Host "azureContainerRegistryName=$(azureContainerRegistryName)"
+            Write-Host "Build.Repository.LocalPath=$(Build.Repository.LocalPath)"
+            Get-ChildItem -Path $(Build.Repository.LocalPath)
+            Write-Host "Pipeline.Workspace=$(Pipeline.Workspace)"
+            Get-ChildItem -Path $(Pipeline.Workspace)
+          pwsh: true
+          
+      - task: Docker@1
+        displayName: 'Build testrunner image'
+        enabled: "true"
+        inputs:
+          command: Build an image
+          useDefaultContext: false
+          buildContext: $(Build.Repository.LocalPath)
+          azureSubscriptionEndpoint: $(azureSubscription)
+          azureContainerRegistry: $(azureContainerRegistry)
+          arguments: '--pull --target testrunner --build-arg FEED_ACCESSTOKEN=$(System.AccessToken)'
+          dockerFile: $(dockerFileName)
+          imageName: '$(imageName)-test'
+    
+      - task: Docker@1
+        displayName: 'Run tests'
+        enabled: "true"
+        inputs:
+          azureSubscriptionEndpoint: $(azureSubscription)
+          azureContainerRegistry: $(azureContainerRegistry)
+          command: Run an image
+          containerName: testrunner
+          volumes: '$(System.DefaultWorkingDirectory)/TestResults:/app/src/AdminUI/AdminUiTests/tests/TestResults'
+          imageName: '$(imageName)-test'
+          runInBackground: false
+    
+      - task: PublishTestResults@2
+        displayName: 'Publish test results'
+        enabled: "true"
+        inputs:
+          testResultsFormat: XUnit
+          testResultsFiles: 'TestResults/*.trx'
+          searchFolder: '$(System.DefaultWorkingDirectory)'
+          publishRunAttachments: true
+
+      - task: Docker@1
+        enabled: "true"
+        condition: or(eq(variables['buildImage'],True),eq(variables['fullCI'],True))
+        displayName: 'Build runtime image'
+        inputs:
+          command: Build an image
+          useDefaultContext: false
+          buildContext: $(Build.Repository.LocalPath)
+          azureSubscriptionEndpoint: $(azureSubscription)
+          azureContainerRegistry: $(azureContainerRegistry)
+          containerregistrytype: Azure Container Registry
+          arguments: '--build-arg FEED_ACCESSTOKEN=$(System.AccessToken)'
+          dockerFile: $(System.DefaultWorkingDirectory)/$(dockerFileName)
+          includeLatestTag: false
+          imageName: $(imageName):$(imageTag)
+    
+      - task: Docker@1
+        enabled: "true"
+        condition: eq(variables['fullCI'],True)
+        displayName: 'Push runtime image'
+        inputs:
+          azureSubscriptionEndpoint: $(azureSubscription)
+          containerregistrytype: Azure Container Registry
+          azureContainerRegistry: $(azureContainerRegistry)
+          command: 'Push an image'
+          imageName: $(imageName):$(imageTag)
+
+      - task: PowerShell@2
+        enabled: "true"
+        condition: eq(variables['fullCI'],True)
+        displayName: 'Debug'
+        inputs:
+          targetType: 'inline'
+          script: | 
+            Write-Host "Manifests"
+            Write-Host "AdminUI/deploy"
+            Get-ChildItem -Path src/UI/AdminUI/Server/deploy         
+          pwsh: true
+
+      - task: PublishPipelineArtifact@1
+        enabled: "true"      
+        displayName: 'Publish manifest files'
+        condition: eq(variables['fullCI'],True)       
+        inputs:
+          artifact: '$(artifactName)'
+          targetPath: src/UI/AdminUI/Server/deploy
+          
+  - stage: AdminUIDevCD
+    displayName: 'Admin UI CD to Dev'
+    dependsOn: AdminUI_CI
+    condition: eq(variables['fullCI'],True)
+    variables:
+        envName: siccardev
+        resourceName: default       
+    jobs:
+    - deployment: adminui_dev_cd_job
+      displayName: 'Admin UI (Dev) CD Job'
+      pool:
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "90"
+      variables:
+        - group: SICCARV3-DEV
+      environment: 'siccardev.default'   #"$(envName).$(resourceName)"
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+            - task: DownloadPipelineArtifact@2
+              enabled: "true"
+              displayName: 'Download manifest files'
+              inputs:
+                artifactName: $(artifactName)
+
+            - task: PowerShell@2
+              enabled: "true"
+              displayName: 'Debug'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  Write-Host "Debug $(envName)"
+                  Write-Host "Container=$(ACR_SERVER)/$(imageName):$(imageTag)"
+                  Write-Host "Pipeline.Workspace=$(Pipeline.Workspace)"
+                  Write-Host "Artifact=$(artifactName)"
+                  Get-ChildItem -Path "$(Pipeline.Workspace)/$(artifactName)"
+                pwsh: true
+                errorActionPreference: continue
+
+            - task: replacetokens@3
+              displayName: 'replace env var tokens' #can replace this custom task with Helm later              
+              enabled: "true"
+              inputs:
+                rootDirectory: $(Pipeline.Workspace)/$(artifactName)
+                targetFiles: |
+                  deployment-microservice-action.yaml
+                keepToken: true
+                tokenPrefix: "#{"
+                tokenSuffix: "}#"
+                verbosity: "detailed"
+                actionOnMissing: "warn"
+                # encoding: "auto"
+                # writeBOM: true
+
+            - task: KubernetesManifest@0
+              displayName: 'Deploy Action Service'
+              enabled: "true"
+              inputs:
+                kind: deployment
+                action: deploy
+                namespace: default   #perhaps not required with Environment? todo
+                manifests: |
+                  $(Pipeline.Workspace)/$(artifactName)/deployment-microservice-action.yaml
+                  $(Pipeline.Workspace)/$(artifactName)/service-microservice-action.yaml
+                containers: |
+                  $(azureContainerRegistry)/$(imageName):$(imageTag)

@@ -1,0 +1,172 @@
+﻿@using Siccar.Common.ServiceClients
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Buttons
+@using Siccar.UI.Admin.Models
+@using System.Text.Json
+@using System.Text.Json.Nodes
+
+<div class="createActionsGroup">
+
+    @if (Blueprint != null && ActionId >= 0)
+    {
+        <EditForm Model="@Action" OnValidSubmit="() => SaveActionHandler(Action)">
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+                <label class="blueprintLabel">Title :</label>
+                <SfTextBox @bind-Value="@Action.Title" Placeholder="Enter an action title" CssClass="blueprintDataTitle"></SfTextBox>
+                <ValidationMessage For="@(() => Action.Title)"></ValidationMessage>
+            </div>
+            <label class="blueprintLabel">Sender :</label>
+            <SfDropDownList TValue="string" TItem="Participant" Placeholder='Select Sender' CssClass="blueprintTitle" DataSource="@Blueprint.Participants" @bind-Value="@Action.Sender">
+                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+            </SfDropDownList>
+            <ValidationMessage For="@(() => Action.Sender)"></ValidationMessage>
+
+            <!--
+            <h3>Required Action Data</h3>
+            <SfMultiSelect TValue="List<string>" @bind-Value="@Action.RequiredActionData" TItem="string" DataSource="_availableData" Placeholder="Select Required Data" CssClass="blueprintTitle">
+            </SfMultiSelect>
+            -->
+
+            <div class="titleAndBut">
+
+                <div class="leftBlueprintTitle"><h3>Data Fields</h3></div>
+                <div class="rightBlueprintBut"><SfButton Disabled=_showAddDataSchema @onclick="RenderAddDataSchema" CssClass="addField dataBut">ADD DATA FIELD</SfButton></div>
+
+            </div>
+
+            @if (Action.DataSchemas != null && Action.DataSchemas.Any())
+            {
+                <div class="actionList">
+                    @foreach (var dataField in Action.DataSchemas[0].Properties)
+                    {
+                        <div class="blueprint-data-row">
+                            <div class="blueprint-data-row-required">@(dataField.Value.Required ? "*" : "")</div>
+                            <div @onclick="() => RenderUpdateDataSchema(dataField.Value)" class="actionContent">
+                                <div class="blueprint-data-row-title">@dataField.Value.Title</div>
+                                <div class="blueprint-data-row-showData">@dataField.Value.Type</div>
+                            </div>
+                            <div @onclick="() => DeleteDataSchemaProperty(dataField.Value.Id)" class="blueprint-data-row-delete">X</div>
+                        </div>
+                        @if (_showAddDataSchema && dataField.Value.Id == SelectedDataSchemaPropertyId)
+                        {
+                            <AddDataSchema CancelAddDataSchema=@CancelAddDataSchema
+                           AddDataSchemaHandler=@AddOrUpdateDataSchemaProperty
+                           Participants="@Blueprint.Participants"
+                           DataSchema="SelectedDataSchemaProperty" />
+                        }
+                    }
+                </div>
+            }
+            @if (_showAddDataSchema && SelectedDataSchemaPropertyId == null)
+            {
+                <AddDataSchema CancelAddDataSchema=@CancelAddDataSchema
+                               AddDataSchemaHandler=@AddOrUpdateDataSchemaProperty
+                               Participants="@Blueprint.Participants"
+                               DataSchema="SelectedDataSchemaProperty" />
+            }
+
+            <ValidationMessage For="@(() => Action.DataSchemas)"></ValidationMessage>
+
+
+            @if (!_showAddDataSchema)
+            {
+                <SfButton type="submit" CssClass="dataBut">Save Action</SfButton>
+                <SfButton type="button" OnClick="CancelAddActionHandler" CssClass="dataBut">Cancel Action</SfButton>
+            }
+        </EditForm>
+
+    }
+
+</div>
+
+
+
+
+@code {
+    [Parameter]
+    public System.Action<UIAction> SaveActionHandler { get; set; }
+    [Parameter]
+    public System.Action CancelAddActionHandler { get; set; }
+    [Parameter]
+    public int ActionId { get; set; }
+    [Parameter]
+    public DataSchemaProperty SelectedDataSchemaProperty { get; set; }
+    public string SelectedDataSchemaPropertyId { get; set; }
+    [Parameter]
+    public Blueprint Blueprint { get; set; }
+    public UIAction Action { get; set; } = new();
+
+    private bool _showAddDataSchema;
+    //private List<string> _availableData { get; set; } = new List<string>();
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (ActionId > 0)
+        {
+            //Updated Action
+            Action = new UIAction(Blueprint.Actions.Find(action => action.Id == ActionId));
+        }
+        else
+        {
+            //Set action id of new action
+            Action.Id = Blueprint.Actions.Count + 1;
+        }
+        Action.Blueprint = Blueprint.Id;
+
+        //TODO we will requrire this later
+        //var actions = Blueprint.Actions.Select(action => new UIAction(action));
+        //var listOfAvailableDataSchemaProperties = new List<string>();
+        //foreach (var action in actions)
+        //{
+        //    if (action.Id != Action.Id)
+        //    {
+        //        listOfAvailableDataSchemaProperties.AddRange(action.DataSchemas.First().Properties.Keys);
+        //    }
+        //}
+        //_availableData = listOfAvailableDataSchemaProperties;
+        return base.OnParametersSetAsync();
+    }
+
+    private void RenderUpdateDataSchema(DataSchemaProperty dataSchemaProperty)
+    {
+        SelectedDataSchemaProperty = dataSchemaProperty;
+        SelectedDataSchemaPropertyId = dataSchemaProperty.Id;
+        _showAddDataSchema = true;
+    }
+
+    private void DeleteDataSchemaProperty(string propertyId)
+    {
+        Action.DataSchemas[0].Properties.Remove(propertyId);
+        Action.DataSchemas[0].Required.Remove(propertyId);
+        Action.Disclosures.ForEach(disclosure => disclosure.DataPointers.Remove(propertyId));
+        SelectedDataSchemaProperty = null;
+        SelectedDataSchemaPropertyId = null;
+        _showAddDataSchema = false;
+        StateHasChanged();
+    }
+
+    public void AddOrUpdateDataSchemaProperty(DataSchemaProperty dataSchemaProperty)
+    {
+        Action.UpdateSchemaAndRelatedProperties(dataSchemaProperty, SelectedDataSchemaPropertyId);
+
+        _showAddDataSchema = false;
+        SelectedDataSchemaProperty = null;
+        SelectedDataSchemaPropertyId = null;
+        StateHasChanged();
+    }
+
+    private void RenderAddDataSchema()
+    {
+        _showAddDataSchema = true;
+    }
+
+    private void CancelAddDataSchema()
+    {
+        _showAddDataSchema = false;
+        SelectedDataSchemaProperty = null;
+        SelectedDataSchemaPropertyId = null;
+        StateHasChanged();
+    }
+}

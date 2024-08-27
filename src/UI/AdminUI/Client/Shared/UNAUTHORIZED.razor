@@ -1,0 +1,23 @@
+﻿@inject NavigationManager Navigation
+@page "/login"
+<div class="p-5 text-center">
+    <p><img src="images/logo.png" alt="SICCAR by Wallet Services" /></p>
+    <p class="fw-bold">
+        If you are authorized to proceed please:
+    </p>
+    <div class="mt-4">
+         <button class="login-btn" @onclick="goLogin">Login</button>
+    </div>
+</div>
+
+
+@code {
+
+    [CascadingParameter] protected Task<AuthenticationState> AuthState { get; set; }
+
+    private void goLogin()
+    {
+        Navigation.NavigateTo($"authentication/login"); // has to come back here
+    }
+
+}

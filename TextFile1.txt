@@ -1,0 +1,60 @@
+<div class="designer-icons">
+    <ConnectorSymbols />
+    <div class="logic-items">
+        <SfTreeView TValue="LogicItem" AllowDragAndDrop="true" CssClass="parts" EnablePersistence="true">
+            <TreeViewFieldsSettings TValue="LogicItem" Id="Id" DataSource="@LogicItems" Text="LogicType"></TreeViewFieldsSettings>
+            <TreeViewEvents TValue="LogicItem" OnNodeDragStop="@((args) => OnLogicNodeDragged(args, LogicItems))"></TreeViewEvents>
+            <TreeViewTemplates TValue="LogicItem">
+                <NodeTemplate>
+                    @{
+                        var lg = ((context as LogicItem));
+                        <div class="library-participant">
+                            <div class="@lg.LogicIcon"></div>
+
+                        </div>
+                        <div>@lg.LogicType</div>
+                    }
+                </NodeTemplate>
+            </TreeViewTemplates>
+        </SfTreeView>
+    </div>
+
+</div>
+
+
+
+OnNodeDragStop="@((args) => OnLogicNodeDragged(args, LogicItemList))"
+
+
+
+ public async Task OnLogicNodeDragged(DragAndDropEventArgs arg, List<LogicItem> logicitems)
+    {
+        var gg = await JSRuntime.InvokeAsync<IDictionary<string, double>>("jsinteropfunction", new object[] { arg.Top, arg.Left });
+
+        var logicitem = logicitems.Find(p => p.Id == arg.DraggedNodeData.Id);
+
+        Dictionary<string, object> data = new Dictionary<string, object>();
+
+
+        NodeCollection.Add(
+        new DiagramNode()
+
+        {
+
+            OffsetY = gg["offsetY"],
+            OffsetX = gg["offsetX"],
+            Data = logicitem,
+            MinHeight = 70,
+            MinWidth = 70,
+            Constraints = NodeConstraints.Default & ~NodeConstraints.Rotate,
+            Shape = new DiagramShape()
+            {
+
+                Type = Shapes.HTML,
+                Scale = Stretch.Stretch,
+
+            }
+
+
+        });
+    }

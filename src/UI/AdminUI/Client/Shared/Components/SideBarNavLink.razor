@@ -1,0 +1,17 @@
+﻿@inject NavigationManager NavigationManager;
+
+<li>
+    <a href="@Path" data-bs-dismiss="offcanvas" aria-label="Close">@Text</a>
+</li>
+
+@code {
+    [Parameter]
+    public string Text { get; set; } = "";
+
+    [Parameter]
+    public string Icon { get; set; } = "";
+
+    [Parameter]
+    public string Path { get; set; } = "";
+
+}

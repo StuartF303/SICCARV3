@@ -1,0 +1,72 @@
+﻿@using Siccar.UI.Admin.Shared.Components
+@using Syncfusion.Blazor.Navigations
+
+<!-- remove accordion on left nav for demo
+<div class="accordion accordion-flush mt-lg-5" id="@menuID">
+    <SidebarNavGroup MainMenuID=@menuID GroupID="tenantGroup" GroupName="Tenant" />
+    <SidebarNavGroup MainMenuID=@menuID GroupID="regisitersGroup" GroupName="Registers" />
+    <SidebarNavGroup MainMenuID=@menuID GroupID="walletsGroup" GroupName="Wallets" />
+    <SidebarNavGroup MainMenuID=@menuID GroupID="usersGroup" GroupName="Users" />
+    <SidebarNavGroup MainMenuID=@menuID GroupID="designerGroup" GroupName="Designer" />
+</div>-->
+
+<SfSidebar @ref="sidebarObj" Width="220px" DockSize="72px" EnableDock=true @bind-IsOpen="SidebarToggle">
+    <ChildContent>
+        <div class="dock">
+
+        <!--<div class="simpleMenu">
+            <a href="tenants" class="Tenant sidenavBut" id="toggle" @onclick="Toggle">Dock</a>
+            <a href="tenants" class="Tenant sidenavBut">Tenants</a>
+            <a href="registers" class="Registers sidenavBut">Registers</a>
+            <a href="wallets" class="Wallets sidenavBut">Wallets</a>
+            <a href="/admin" class="Users sidenavBut">Users</a>
+            <a href="blueprints" class="Designer sidenavBut">Blueprints</a>
+        </div>-->
+
+        <div class="simpleMenu">
+        <ul>
+            <li class="sidebar-item" id="toggle" @onclick="Toggle">
+                        <span class="e-icons expand"></span>
+            </li>
+            <li class="sidebar-item">
+                        <a href="tenants" class="e-icons tenants"></a>
+                        <a href="tenants" class="e-text sidenavBut" title="tenants">Tenants</a>
+            </li>
+            <li class="sidebar-item">
+                        <a href="registers" class="e-icons registers"></a>
+                        <a href="registers" class="e-text sidenavBut" title="registers">Registers</a>
+            </li>
+            <li class="sidebar-item">
+                        <a href="wallets" class="e-icons wallets"></a>
+                        <a href="wallets" class="e-text sidenavBut" title="wallets">Wallets</a>
+            </li>
+            <li class="sidebar-item">
+                        <a href="blueprints" class="e-icons blueprints"></a>
+                        <a href="blueprints" class="e-text sidenavBut" title="blueprints">Blueprints</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="participantslist/noregister" class="e-icons users"></a>
+                <a href="participantslist/noregister" class="e-text sidenavBut" title="participants">participants</a>
+            </li>
+        </ul>
+        </div>
+
+
+        <Footer />
+
+        </div>
+    </ChildContent>
+</SfSidebar>
+
+@code {
+    public string menuID { get; set; } = "sideNav";
+}
+
+@code {
+    SfSidebar sidebarObj;
+    public bool SidebarToggle = false;
+    public void Toggle()
+    {
+        SidebarToggle = !SidebarToggle;
+    }
+}

@@ -1,0 +1,62 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject Siccar.UI.Admin.Services.PageHistoryState pageHistoryState
+
+
+@inject IJSRuntime JS
+
+
+<nav class="main-header navbar navbar-expand bg-white">
+    <div class="container-fluid noPad">
+        <a class="navbar-toggler text-black-bottom-50 d-lg-none" data-bs-toggle="offcanvas" href="#mobilenav" aria-controls="mobilenav">
+            <i class="fas fa-bars"></i>
+        </a>
+        <div class="collapse navbar-collapse">
+            <button @onclick="GoBack" class="backBut nav-link btn btn-link fw-bold text-uppercase text-dark">BACK</button>
+            <div class="d-flex">
+                <LoginDisplay />
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="offcanvas offcanvas-start bg-primary w-100 d-lg-none" tabindex="-1" id="mobilenav" aria-labelledby="offcanvasExampleLabel" data-bs-scroll="true" data-bs-backdrop="false">
+    <div class="offcanvas-header">
+        <h5 id="offcanvasTopLabel">&nbsp;</h5>
+        <button type="button" class="close-button text-reset" data-bs-dismiss="offcanvas" aria-label="Close"><i class="fas fa-times fa-2x"></i></button>
+    </div>
+    <div class="offcanvas-body">
+        <MainMenu />
+    </div>
+</div>
+
+
+
+@code {
+    private DateTime dt = DateTime.Now;
+
+    [Parameter] public EventCallback<string> OnClick { get; set; }
+
+
+    protected override void OnAfterRender(bool isFirstRender)
+    {
+        base.OnAfterRender(isFirstRender);
+    }
+
+    private void GoBack()
+    {
+        if (pageHistoryState.CanGoBack()) NavigationManager.NavigateTo(pageHistoryState.GetGoBackPage());
+    }
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            pageHistoryState.AddPageToHistory(NavigationManager.Uri);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+}

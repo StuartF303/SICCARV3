@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>Siccar.Network.Router</RootNamespace>
+		<AssemblyName>PeerRouter</AssemblyName>
+		<Company>Wallet.Services (Scotland) Limited</Company>
+		<Authors>Development</Authors>
+		<Product>Siccar</Product>
+		<Description>A Peer state and traffic director</Description>
+		<Copyright>Wallet.Services (Scotland) Limited</Copyright>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Makaretu.Dns" Version="2.0.1" />
+		<PackageReference Include="Makaretu.Dns.Multicast" Version="0.27.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Connections.Abstractions" Version="8.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.Json" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+		<PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\PeerCore\PeerCore.csproj" />
+		<ProjectReference Include="..\PeerUtilities\PeerUtilities.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="nuget.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+</Project>

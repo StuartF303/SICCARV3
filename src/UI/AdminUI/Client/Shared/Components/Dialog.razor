@@ -1,0 +1,12 @@
+﻿@using Syncfusion.Blazor.Popups
+
+<SfDialog Width="@Width" ShowCloseIcon="@ShowCloseIcon" IsModal="@IsModal" @bind-Visible="@IsVisible">
+    <DialogTemplates>
+        <Header>@Title</Header>
+        <Content><div class="dialogContent">@Content</div></Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="OK" IsPrimary="true" OnClick="@OkClick" CssClass="butDialogOk" />
+        <DialogButton Content="Cancel" OnClick="@CancelClick" CssClass="butDialogCancel" />
+    </DialogButtons>
+</SfDialog>

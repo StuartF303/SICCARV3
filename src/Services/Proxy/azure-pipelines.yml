@@ -1,0 +1,183 @@
+---
+  variables:
+    repositoryName: proxy
+    dockerFileName: '**/Services/Proxy/Dockerfile'
+    dockerRegistryServiceConnection: 'b4aea668-ec9b-4dd4-a823-95c3bbc35af1'
+    imageName: $(repositoryName)
+    imageTag: $(Build.SourceBranchName)
+    imageLTag: $[lower(variables.imageTag)]
+    azureSubscription: siccarv3conn #AZURE_PIPELINES_SERVICE_CONN_NAME_VAR_VAL
+    azureContainerRegistry: siccardev.azurecr.io #ACR_SERVER_VAR_VAL
+    azureContainerRegistryName: siccardev #ACR_NAME_VAR_VAL
+    k8sNamespace: default
+    fullCI: $[startsWith(variables['build.sourceBranch'], 'refs/heads/feature') ]
+    buildImage: $[ eq(variables['build.sourceBranch'], 'refs/heads/feature') ]
+    artifactName: 'manifests'
+    vmImageName: 'ubuntu-latest'
+  
+  name: $(build.sourceBranch)-$(Date:yyyyMMdd)$(Rev:.rr)  
+
+  trigger:
+    batch: "true"
+    branches:
+      include:
+      - release/proxy/v*
+      - refs/release/proxy/v*
+      - feature/proxy/*
+      - topic/proxy/*
+      - bugfix/proxy/*
+    paths:
+      include:
+      - src/Services/Proxy/*
+
+  resources:
+    - repo: self
+
+  stages:
+  - stage: ProxyCI
+    displayName: Proxy Build and push stage
+    jobs:
+    - job: Build_Proxy
+      displayName: 'Build Proxy'
+      pool:
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "90"
+    
+      steps:
+        - task: PowerShell@2
+          displayName: Debug
+          enabled: "true"
+          inputs:
+            targetType: 'inline'
+            script: | 
+              Write-Host "Debug"
+              Write-Host "fullCI=$(fullCI)"
+              Write-Host "buildImage=$(buildImage)"
+              Write-Host "imageName=$(imageName)"
+              Write-Host "imageTag=$(imageTag)"
+              Write-Host "imageLTag=$(imageLTag)"
+              Write-Host "azureContainerRegistry=$(azureContainerRegistry)"
+              Write-Host "azureContainerRegistryName=$(azureContainerRegistryName)"
+              Write-Host "Build.Repository.LocalPath=$(Build.Repository.LocalPath)"
+              Get-ChildItem -Path $(Build.Repository.LocalPath)
+              Write-Host "Pipeline.Workspace=$(Pipeline.Workspace)"
+              Get-ChildItem -Path $(Pipeline.Workspace)
+            pwsh: true       
+
+        - task: Docker@1
+          enabled: "true"
+          condition: or(eq(variables['buildImage'],True),eq(variables['fullCI'],True))
+          displayName: 'Build Proxy image'
+          inputs:
+            command: Build an image
+            useDefaultContext: false
+            buildContext: $(Build.Repository.LocalPath)
+            azureSubscriptionEndpoint: $(azureSubscription)
+            azureContainerRegistry: $(azureContainerRegistry)
+            containerregistrytype: Azure Container Registry
+            dockerFile: $(System.DefaultWorkingDirectory)/$(dockerFileName)
+            arguments: '--build-arg FEED_ACCESSTOKEN=$(System.AccessToken)'
+            includeLatestTag: false
+            imageName: $(imageName):$(imageTag)
+
+        - task: PowerShell@2
+          enabled: "true"
+          condition: eq(variables['fullCI'],True)
+          displayName: 'Get Deployment Settings'
+          inputs:
+            targetType: 'inline'
+            script: | 
+              Write-Host "Manifests"
+              Write-Host "Proxy/deploy"
+              Get-ChildItem -Path src/Services/Proxy/deploy         
+            pwsh: true
+
+        - task: PublishPipelineArtifact@1
+          displayName: 'Publish manifest files'
+          enabled: "true"
+          condition: eq(variables['fullCI'],True)       
+          inputs:
+            artifact: '$(artifactName)'
+            targetPath: src/Services/Proxy/deploy
+
+        - task: Docker@1
+          enabled: "true"
+          condition: eq(variables['fullCI'],True)
+          displayName: 'Push Proxy image'
+          inputs:
+            azureSubscriptionEndpoint: $(azureSubscription)
+            containerregistrytype: Azure Container Registry
+            azureContainerRegistry: $(azureContainerRegistry)
+            command: 'Push an image'
+            imageName: $(imageName):$(imageTag)
+
+
+  - stage: ProxyDevCD
+    displayName: 'Proxy Image to Dev'
+    dependsOn: ProxyCI
+    condition: false #eq(variables['fullCI'],True)
+    variables:
+        envName: siccardev
+        resourceName: default       
+    jobs:
+    - deployment: proxy_dev_cd_job
+      displayName: 'Proxy Image (Dev) CD Job'
+      pool:
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "90"
+      variables:
+        - group: SICCARV3-DEV
+      environment: 'siccardev.default'   #"$(envName).$(resourceName)"
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+            - task: DownloadPipelineArtifact@2
+              enabled: "true"
+              displayName: 'Download manifest files'
+              inputs:
+                artifactName: $(artifactName)
+
+            - task: PowerShell@2
+              enabled: "true"
+              displayName: 'Debug'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  Write-Host "Debug $(envName)"
+                  Write-Host "Container=$(ACR_SERVER)/$(imageName):$(imageTag)"
+                  Write-Host "Pipeline.Workspace=$(Pipeline.Workspace)"
+                  Write-Host "Artifact=$(artifactName)"
+                  Write-Host "imageLTag=$(imageLTag)"
+                  Get-ChildItem -Path "$(Pipeline.Workspace)/$(artifactName)"
+                pwsh: true
+                errorActionPreference: continue
+
+            - task: replacetokens@3
+              displayName: 'replace env var tokens' #can replace this custom task with Helm later              
+              enabled: "true"
+              inputs:
+                rootDirectory: $(Pipeline.Workspace)/$(artifactName)
+                targetFiles: |
+                  deployment-microservice-proxy.yaml
+                keepToken: true
+                tokenPrefix: "#{"
+                tokenSuffix: "}#"
+                verbosity: "detailed"
+                actionOnMissing: "warn"
+                # encoding: "auto"
+                # writeBOM: true
+
+            - task: KubernetesManifest@0
+              displayName: 'Deploy Proxy Service'
+              enabled: "true"
+              inputs:
+                kind: deployment
+                action: deploy
+                namespace: default
+                manifests: |
+                  $(Pipeline.Workspace)/$(artifactName)/deployment-microservice-proxy.yaml
+                  $(Pipeline.Workspace)/$(artifactName)/service-microservice-proxy.yaml
+                containers: |
+                  $(azureContainerRegistry)/$(imageName):$(imageTag)

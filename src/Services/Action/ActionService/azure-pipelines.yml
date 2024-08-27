@@ -1,0 +1,267 @@
+---
+  variables:
+    repositoryName: action-service
+    dockerFileName: '**/Services/Action/ActionService/Dockerfile'
+    imageName: $(repositoryName)
+    imageTag: $(Build.BuildNumber)
+    serviceConnection: siccarsp
+    azureSubscription: siccarv3conn #AZURE_PIPELINES_SERVICE_CONN_NAME_VAR_VAL
+    azureContainerRegistry: siccardev.azurecr.io #ACR_SERVER_VAR_VAL
+    azureContainerRegistryName: siccardev #ACR_NAME_VAR_VAL
+    fullCI: $[startsWith(variables['build.sourceBranch'], 'refs/heads/main') ]   
+    buildImage: true
+    artifactName: 'manifests'
+    vmImageName: 'ubuntu-latest'
+    ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+      why: pr
+    ${{ elseif eq(variables['Build.Reason'], 'Manual' ) }}:
+      why: manual
+    ${{ elseif eq(variables['Build.Reason'], 'IndividualCI' ) }}:
+      why: indivci 
+    ${{ else }}:
+      why: other
+  
+  name: $(SourceBranchName)-$(why)-$(Date:yyyyMMdd)$(Rev:.rr)
+  
+  trigger:
+    batch: "true"
+    branches:
+      include:
+      - release/actionservice/v*
+      - release/full/v*
+      - refs/release/actionservice/v*
+      - main
+      - feature/actionservice/*
+      - topic/actionservice/*
+      # - bugfix/actionservice/*
+    paths:
+      include:
+      - src/Services/Action/ActionService/*
+      - src/Services/Action/ActionTests/*
+  
+  resources:
+  - repo: self
+  
+  stages:
+  - stage: ActionServiceCI
+    displayName: 'Action Microservice CI'
+    # variables:
+    jobs:
+    - job: actionservicejobci
+      displayName: 'Action Service CI'
+      pool: 
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "30"
+      # variables:
+      steps:
+      - task: NuGetAuthenticate@1
+
+      - task: PowerShell@2
+        displayName: 'Debug'
+        enabled: "true"
+        inputs:
+          targetType: 'inline'
+          script: | 
+            Write-Host "Debug"
+            Write-Host "fullCI=$(fullCI)"
+            Write-Host "buildImage=$(buildImage)"
+            Write-Host "imageName=$(imageName)"
+            Write-Host "imageTag=$(imageTag)"
+            Write-Host "azureContainerRegistry=$(azureContainerRegistry)"
+            Write-Host "azureContainerRegistryName=$(azureContainerRegistryName)"
+            Write-Host "Build.Repository.LocalPath=$(Build.Repository.LocalPath)"
+            Get-ChildItem -Path $(Build.Repository.LocalPath)
+            Write-Host "Pipeline.Workspace=$(Pipeline.Workspace)"
+            Get-ChildItem -Path $(Pipeline.Workspace)
+          pwsh: true
+          
+      - task: Docker@1
+        displayName: 'Build testrunner image'
+        enabled: "true"
+        inputs:
+          command: Build an image
+          useDefaultContext: false
+          buildContext: $(Build.Repository.LocalPath)
+          azureSubscriptionEndpoint: $(azureSubscription)
+          azureContainerRegistry: $(azureContainerRegistry)
+          arguments: '--pull --target testrunner --build-arg FEED_ACCESSTOKEN=$(System.AccessToken)'
+          dockerFile: $(dockerFileName)
+          imageName: '$(imageName)-test'
+    
+      - task: Docker@1
+        displayName: 'Run tests'
+        enabled: "true"
+        inputs:
+          azureSubscriptionEndpoint: $(azureSubscription)
+          azureContainerRegistry: $(azureContainerRegistry)
+          command: Run an image
+          containerName: testrunner
+          volumes: '$(System.DefaultWorkingDirectory)/TestResults:/app/src/Services/Action/tests/TestResults'
+          imageName: '$(imageName)-test'
+          runInBackground: false
+    
+      - task: PublishTestResults@2
+        displayName: 'Publish test results'
+        enabled: "true"
+        inputs:
+          testResultsFormat: XUnit
+          testResultsFiles: 'TestResults/*.trx'
+          searchFolder: '$(System.DefaultWorkingDirectory)'
+          publishRunAttachments: true
+          
+    - job: actionservicejobbld
+      displayName: 'Build Deployment Images'
+      dependsOn: actionservicejobci
+      pool: 
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "30"
+      # variables:
+      steps:
+      - task: Docker@2
+        displayName: Login to ACR
+        inputs:
+          command: login
+          containerRegistry: $(serviceConnection)
+          repository: $(repositoryName)
+
+      - task: Docker@2
+        enabled: "true"
+        #condition: or(eq(variables['buildImage'],True),eq(variables['fullCI'],True))
+        displayName: 'Build runtime image'
+        inputs:
+          command: build
+          useDefaultContext: false
+          buildContext: $(Build.Repository.LocalPath)
+          dockerFile: $(System.DefaultWorkingDirectory)/$(dockerFileName)
+          repository: $(repositoryName)
+          arguments: '--build-arg FEED_ACCESSTOKEN=$(System.AccessToken)'
+          includeLatestTag: true
+          imageName: $(imageName):$(imageTag)
+          tags: |
+            $(repositoryName)
+            $(imageName)
+            $(imageTag)
+            latest
+
+      - task: Docker@2
+        enabled: "true"
+        displayName: 'Push build image'
+        inputs:
+          command: push
+          containerRegistry: $(serviceConnection)
+          repository: $(repositoryName)
+          imageName: $(imageName):$(imageTag)
+          tags: |
+            $(repositoryName)
+            $(imageName)
+            $(imageTag)
+            latest
+
+
+      - task: PowerShell@2
+        enabled: "true"
+        #condition: eq(variables['fullCI'],True)
+        displayName: 'Create Action Deployment manifest'
+        inputs:
+          targetType: 'inline'
+          script: | 
+            Write-Host "Manifests"
+            Write-Host "ActionService/deploy"
+            Get-ChildItem -Path src/Services/Action/ActionService/deploy         
+          pwsh: true
+
+      - task: PublishPipelineArtifact@1
+        enabled: "true"      
+        displayName: 'Publish manifest files'
+        #condition: eq(variables['fullCI'],True)       
+        inputs:
+          artifact: '$(artifactName)'
+          targetPath: src/Services/Action/ActionService/deploy
+            
+  - stage: ActionServiceIntegrationTesting
+    displayName: 'Integration Testing'
+    dependsOn: ActionServiceCI 
+    variables:
+      envName: siccardev
+      resourceName: default   
+
+    jobs:
+    - job: actionservicejobtest
+      displayName: 'Run Integration Tests'
+      pool: 
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "90"
+      # variables:
+      steps:
+        - task: NuGetAuthenticate@1
+       
+  - stage: ActionServiceDevCD
+    displayName: 'Development Deploy'
+    dependsOn: ActionServiceIntegrationTesting
+    condition: False #and(succeeded(), eq(variables['fullCI'],True))  
+    variables:
+        envName: siccardev
+        resourceName: default       
+    jobs:
+    - deployment: actionservice_dev_cd_job
+      displayName: 'Deploy to Azure AKS'
+      pool:
+        vmImage: $(vmImageName)
+      timeoutInMinutes: "90"
+      variables:
+        - group: SICCARV3-DEV
+      environment: 'siccardev.default'   #"$(envName).$(resourceName)"
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+            - task: DownloadPipelineArtifact@2
+              enabled: "true"
+              displayName: 'Download manifest files'
+              inputs:
+                artifactName: $(artifactName)
+
+            - task: PowerShell@2
+              enabled: "true"
+              displayName: 'Debug'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  Write-Host "Debug $(envName)"
+                  Write-Host "Container=$(ACR_SERVER)/$(imageName):$(imageTag)"
+                  Write-Host "Pipeline.Workspace=$(Pipeline.Workspace)"
+                  Write-Host "Artifact=$(artifactName)"
+                  Get-ChildItem -Path "$(Pipeline.Workspace)/$(artifactName)"
+                pwsh: true
+                errorActionPreference: continue
+
+            - task: replacetokens@3
+              displayName: 'replace env var tokens' #can replace this custom task with Helm later              
+              enabled: "true"
+              inputs:
+                rootDirectory: $(Pipeline.Workspace)/$(artifactName)
+                targetFiles: |
+                  deployment-microservice-action.yaml
+                  component-binding-action.yaml
+                keepToken: true
+                tokenPrefix: "#{"
+                tokenSuffix: "}#"
+                verbosity: "detailed"
+                actionOnMissing: "warn"
+                # encoding: "auto"
+                # writeBOM: true
+
+            - task: KubernetesManifest@0
+              displayName: 'Deploy Action Service'
+              enabled: "true"
+              inputs:
+                kind: deployment
+                action: deploy
+                namespace: default   #perhaps not required with Environment? todo
+                manifests: |
+                  $(Pipeline.Workspace)/$(artifactName)/deployment-microservice-action.yaml
+                  $(Pipeline.Workspace)/$(artifactName)/service-microservice-action.yaml
+                  $(Pipeline.Workspace)/$(artifactName)/component-binding-action.yaml
+                containers: |
+                  $(azureContainerRegistry)/$(imageName):$(imageTag)

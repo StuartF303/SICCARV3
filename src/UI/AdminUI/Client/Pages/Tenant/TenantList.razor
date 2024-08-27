@@ -1,0 +1,53 @@
+﻿@page "/tenants"
+@using Siccar.Platform.Tenants.Core
+@using Siccar.UI.Admin.Services
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Data
+@using System.Linq
+@using Siccar.Common.ServiceClients
+@using Syncfusion.Blazor.Spinner
+@using Models
+@attribute [Authorize]
+
+<style>
+    .e-spinner-pane .e-spinner-inner .e-spin-bootstrap5 {
+        stroke: navy;
+    }
+</style>
+
+<div class="mainPadding">
+
+<SfSpinner @bind-Visible="SpinnerVisible" Label="Data loading..." size="50" Type="@SpinnerType.Bootstrap5">
+
+</SfSpinner>
+
+<h3>Tenant List</h3>
+
+@if (Tenants != null)
+{
+    <div class="box mt-4">
+        <div class="box-body">
+            <SfGrid @ref="Grid" DataSource="@Tenants" ID="Grid" AllowPaging="true" AllowSorting="true" GridLines="GridLine.Horizontal" RowHeight="50">
+                <GridSortSettings AllowUnsort="false">
+                    <GridSortColumns>
+                        <GridSortColumn Field="Name" Direction="SortDirection.Ascending"></GridSortColumn>
+                    </GridSortColumns>
+                </GridSortSettings>
+                <GridPageSettings PageSize="10" PageSizes="@pageDropdown"></GridPageSettings>
+                <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+                <GridColumns>
+                    <GridColumn Field=@nameof(TenantModel.Name) HeaderText="Name" TextAlign="TextAlign.Left" Width="20%"></GridColumn>
+                        <GridColumn Field=@nameof(TenantModel.Authority) HeaderText="Primary IDP" TextAlign="TextAlign.Left" Width="50%"></GridColumn>
+                        <GridColumn Field=@nameof(TenantModel.AccountsCount) HeaderText="Accounts" TextAlign="TextAlign.Center" Width="10%"></GridColumn>
+                        <GridColumn Field=@nameof(TenantModel.Clients) HeaderText="Clients" TextAlign="TextAlign.Center" Width="10%"></GridColumn>
+                        <GridColumn Field=@nameof(TenantModel.Registers) HeaderText="Registers" TextAlign="TextAlign.Center" Width="10%"></GridColumn>
+                </GridColumns>
+                <GridEvents RowSelected="RowSelectedHandler" TValue="TenantModel"></GridEvents>
+            </SfGrid>
+        </div>
+    </div>
+}
+
+</div>
+
+

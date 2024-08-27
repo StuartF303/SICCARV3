@@ -1,0 +1,14 @@
+﻿<footer class="main-footer bg-primary p-3 d-none d-lg-block">
+    <div class="row">
+        <div class="col text-center p-3 footLogo">
+             <div><img src="images/logo_white.png" alt="SICCAR logo" style="width:150px; height: 38px;"/></div>
+             <p style="color: #fff; font-size: 12px;">SECURE SHARED DATA</p>
+            <!-- remove copyright notice for demo
+            <p style="color: #fff; font-size: 10px;">Copyright &copy; 2020-@currentYear / <a href="https://siccar.net" style="color: #fff;">Siccar.net</a>. All rights reserved.<br/>
+            For Support Contact: <a href="mailto:support@siccar.net" style="color: #fff;">support@siccar.net</a></p> -->
+        </div>
+    </div>
+ </footer>
+@code {
+    public string currentYear { get; set; } = DateTime.Now.Year.ToString();
+}

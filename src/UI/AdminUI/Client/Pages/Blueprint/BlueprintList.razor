@@ -1,0 +1,196 @@
+﻿@page "/blueprints"
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using Siccar.Common.ServiceClients
+@using Siccar.UI.Admin.Shared.Components
+@inject NavigationManager NavManager
+@inject IBlueprintServiceClient BlueprintServiceClient
+@inject IRegisterServiceClient RegisterServiceClient
+@inject IWalletServiceClient WalletServiceClient
+@inject Siccar.UI.Admin.Services.PageHistoryState pageHistoryState
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@attribute [Authorize]
+
+<div class="mainPadding">
+
+    <h3>Blueprints</h3>
+    <SfButton OnClick="CreateBlueprintClickHandler">Create Blueprint</SfButton>
+
+    <div class="blueprintFilterSwitch">
+        <label for="listPublishedBlueprints" style="padding: 10px 10px 10px 0">Published</label>
+        <SfSwitch ID="listPublishedBlueprints" @bind-Checked="_listPublished" ValueChange="OnListPublishedChange" TChecked="bool"></SfSwitch>
+    </div>
+    <div class="blueprintFilterSwitch">
+        <label for="list-draft-blueprints" style="padding: 10px 10px 10px 0">Draft</label>
+        <SfSwitch ID="list-draft-blueprints" @bind-Checked="_listDraft" ValueChange="OnListDraftChange" TChecked="bool"></SfSwitch>
+    </div>
+
+    <div class="blueprintsDropdown">
+        <div class="registersDropdown">
+            <SfDropDownList @ref=dropdown TValue="string" TItem="Register" PopupHeight="350px" PopupWidth="350px" Placeholder="Select a Register" DataSource="@_registers" CssClass="BlueprintListDrop" @bind-Value=_selectedRegister>
+                <DropDownListEvents TItem="Register" TValue="string" ValueChange="@OnRegisterChangeHandler"></DropDownListEvents>
+                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+            </SfDropDownList>
+        </div>
+    </div>
+    <SfGrid DataSource="@Blueprints" @ref=@grid>
+        <GridColumns>
+            <GridColumn Field="Blueprint.Title" HeaderText="Blueprint Name" CustomAttributes="@(new Dictionary<string, object>(){ { "class", "blueprintList" }})" />
+            <GridColumn HeaderText="Status" CustomAttributes="@(new Dictionary<string, object>(){ { "class", "blueprintStatus" }})">
+                <Template>
+                    @{
+                        var blueprint = context as BlueprintModel;
+
+                        if (blueprint!.IsDraft)
+                        {
+                            <span>@(blueprint.Blueprint.Version > 1 ? $"Draft V{blueprint.Blueprint.Version}" : "Draft")</span>
+                        }
+                        else
+                        {
+                            <span>Published</span>
+                        }
+                    }
+                </Template>
+            </GridColumn>
+        </GridColumns>
+        <GridEvents OnRecordClick="RecordClickHandler" TValue="BlueprintModel"></GridEvents>
+    </SfGrid>
+
+</div>
+
+@code {
+    [CascadingParameter]
+    public Error Error { get; set; }
+    public SfGrid<BlueprintModel> grid;
+    public SfDropDownList<string, Register> dropdown;
+    private bool _listPublished = true;
+    private bool _listDraft;
+    protected List<BlueprintModel> Blueprints = new();
+    private List<Register> _registers;
+    private string _selectedRegister;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _registers = await RegisterServiceClient.GetRegisters();
+            pageHistoryState.AddPageToHistory(NavManager.Uri);
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError(e);
+        }
+     
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (await localStorage.ContainKeyAsync("draft"))
+                _listDraft = await localStorage.GetItemAsync<bool>("draft");
+            if (await localStorage.ContainKeyAsync("published"))
+                _listPublished = await localStorage.GetItemAsync<bool>("published");
+            _selectedRegister = await localStorage.GetItemAsync<string>("register_id");
+            await GetBlueprints();
+            StateHasChanged();
+        }
+    }
+
+    private void CreateBlueprintClickHandler()
+    {
+        NavManager.NavigateTo("blueprints/create");
+    }
+
+    private void RecordClickHandler(RecordClickEventArgs<BlueprintModel> args)
+    {
+        if (args.RowData.IsDraft)
+        {
+            NavManager.NavigateTo($"blueprints/draft/{args.RowData.Blueprint.Id}");
+        }
+        else
+        {
+            NavManager.NavigateTo($"blueprints/published/{_selectedRegister}/{args.RowData.Blueprint.Id}");
+        }
+
+    }
+
+    private async Task OnRegisterChangeHandler(ChangeEventArgs<string, Register> args)
+    {
+        await localStorage.SetItemAsync("register_id", args.ItemData.Id);
+
+        await GetBlueprints();
+    }
+
+    private async Task GetBlueprints()
+    {
+        if (Blueprints.Any())
+        {
+            Blueprints.Clear();
+        }
+        var blueprintList = new List<BlueprintModel>();
+        if (_listDraft)
+        {
+            try
+            {
+                var draft = (await BlueprintServiceClient.GetAllDraft()).Select(bp => new BlueprintModel
+                {
+                    Blueprint = bp,
+                    IsDraft = true
+                });
+
+                blueprintList.AddRange(draft);
+            }
+            catch (Exception e)
+            {
+                Error?.ProcessError(e);
+            }
+           
+        }
+
+        if (_selectedRegister != null)
+        {
+            if (_listPublished)
+            {
+                try
+                {
+                    var published = (await BlueprintServiceClient.GetAllPublished(_selectedRegister)).Select(bp => new BlueprintModel
+                    {
+                        Blueprint = bp,
+                        IsDraft = false
+                    });
+
+                    blueprintList.AddRange(published);
+                }
+                catch (Exception e)
+                {
+                    Error?.ProcessError(e);
+                }
+            }
+        }
+
+        Blueprints = blueprintList;
+        StateHasChanged();
+        await grid.Refresh();
+    }
+
+    private async Task OnListPublishedChange(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+    {
+        await localStorage.SetItemAsync("published", _listPublished);
+
+        await GetBlueprints();
+    }
+
+    private async Task OnListDraftChange(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+    {
+        await localStorage.SetItemAsync("draft", _listDraft);
+
+        await GetBlueprints();
+    }
+
+    public class BlueprintModel
+    {
+        public bool IsDraft { get; set; }
+        public Blueprint Blueprint { get; set; }
+    }
+}

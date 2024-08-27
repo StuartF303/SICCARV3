@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "keyName": {
+            "value": "wallet-key"
+        },
+        "servicePrincipalId":{
+            "value": "7be9ee54-938f-4b1f-88b9-daae923632c9"
+        },
+        "secrets":{
+            "value": []
+        },
+        "tags": {
+            "value": {}
+        }
+    }
+}

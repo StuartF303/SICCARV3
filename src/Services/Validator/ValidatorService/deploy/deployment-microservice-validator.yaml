@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: validator-service
+  namespace: default
+  labels:
+    app: validator-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: validator-service
+  template:
+    metadata:
+      labels:
+        app: validator-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "validator-service"
+        dapr.io/app-port: "8080"
+        dapr.io/log-level: "debug"
+        dapr.io/sidecar-liveness-probe-period-seconds: "20"
+        dapr.io/sidecar-readiness-probe-period-seconds: "20"
+        dapr.io/http-max-request-size: "16"
+        dapr.io/config: featureconfig
+        dapr.io/enable-app-health-check: "true"
+        dapr.io/app-health-check-path: "/api/validators/healthz"
+        dapr.io/app-token-secret: app-api-token
+    spec:
+      containers:
+      - name: validator-service
+        image: siccardev.azurecr.io/validator-service:latest
+        env:
+        - name: SERILOG__MINIMUMLEVEL
+          value: "#{SERILOG__MINIMUMLEVEL}#"
+        - name: APP__API__TOKEN
+          value: "#{APP__API__TOKEN}#"
+        - name: DaprSecret
+          value: "#{DaprSecret}#"
+        - name: TENANTISSUER
+          value: "#{TENANTISSUER}#"
+        - name: APPLICATIONINSIGHTS__CONNECTIONSTRING
+          value: "#{APPLICATIONINSIGHTS__CONNECTIONSTRING}#"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          value: "#{APPLICATIONINSIGHTS__CONNECTIONSTRING}#"
+        - name: APPLICATIONINSIGHTS__INSTRUMENTATIONKEY
+          value: "#{APPLICATIONINSIGHTS__INSTRUMENTATIONKEY}#"
+        - name: VALIDATOR__CYCLETIME
+          value: "#{VALIDATOR__CYCLETIME}#"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m" 
+          limits:
+            memory: "1500Mi"
+            cpu: "1000m"          
+        ports:
+        - containerPort: 80
+        imagePullPolicy: Always

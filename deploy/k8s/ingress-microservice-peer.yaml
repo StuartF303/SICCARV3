@@ -1,0 +1,24 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: peer-service-ingress
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  labels:
+    name: peer-service-ingress
+spec:
+  rules:
+    # The host value is from the http_application_routing add on
+  - host: dc4931334e134cb6add7.uksouth.aksapp.io
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/api/peer"   #note: NOT 'peers' like the other services
+        backend:
+          service:
+            name: peer-service
+            port: 
+              number: 80
+           

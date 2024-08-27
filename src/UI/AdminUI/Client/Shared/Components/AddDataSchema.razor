@@ -1,0 +1,213 @@
+﻿@page "/dataschema"
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using System.ComponentModel.DataAnnotations
+@using Siccar.Application.Constants;
+@using Siccar.UI.Admin.Models;
+@inject NavigationManager navManager;
+
+<EditForm Model="@DataSchema" OnValidSubmit="@SaveDataSchemaProperty">
+    <DataAnnotationsValidator />
+    <div class="form-row dashedBorder">
+        <div class="row">
+            <div class="form-group col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                <label class="blueprintLabel">Required :</label>
+                <SfCheckBox @bind-Checked="@DataSchema.Required" CssClass="dataSchemaRequired"></SfCheckBox>
+                <ValidationMessage For="@(() => DataSchema.Required)"></ValidationMessage>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                <label class="blueprintLabel">Id :</label>
+                <SfTextBox @bind-Value="DataSchema.Id" Placeholder="Enter data Id" CssClass="blueprintDataTitle"></SfTextBox>
+                <ValidationMessage For="@(() => DataSchema.Id)"></ValidationMessage>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                <label class="blueprintLabel">Name :</label>
+                <SfTextBox @bind-Value="@DataSchema.Title" Placeholder="Enter data name" CssClass="blueprintDataTitle"></SfTextBox>
+                <ValidationMessage For="@(() => DataSchema.Title)"></ValidationMessage>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                <label class="blueprintLabel">Description :</label>
+                <SfTextBox @bind-Value="@DataSchema.Description" Placeholder="Enter data description" CssClass="blueprintDataTitle"></SfTextBox>
+                <ValidationMessage For="@(() => DataSchema.Description)"></ValidationMessage>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                <label class="blueprintLabel">Input Type :</label>
+                <SfDropDownList DataSource="controlTypes" TItem="InputType" TValue="string" Placeholder="Select data input type" @bind-Value="@DataSchema.Type" CssClass="blueprintDataTitle">
+                    <DropDownListEvents TItem="InputType" TValue="string" ValueChange="@DropdownOnChangeHandler"></DropDownListEvents>
+                    <DropDownListFieldSettings Text="Name" Value="Type"></DropDownListFieldSettings>
+                </SfDropDownList>
+                <ValidationMessage For="@(() => DataSchema.Type)"></ValidationMessage>
+            </div>
+        </div>
+
+        @if (_showOptions && DataSchema.Enum != null)
+        {
+            @foreach (var option in DataSchema.Enum)
+            {
+                <div class="form-group col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                    <label class="blueprintLabel">Option :</label>
+                    <SfTextBox Value="@option" @onchange="(args) => OnOptionChangeHandler(DataSchema.Enum.IndexOf(option), args)" Placeholder="Enter Option Text" CssClass="blueprintTitle plusDesc"></SfTextBox>
+                    <div @onclick="() => DeleteOptionClickHandler(option)" class="row-delete">X</div>
+                </div>
+            }
+            <div class="form-group col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                <SfButton Type="button" OnClick="AddOptionClickHandler">Add Option</SfButton>
+            </div>
+        }
+
+        <div class="col-lg-12 control-section">
+            <!--<div class="content-wrapper">-->
+            <h5>Disclosures</h5>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                    <label class="col-form-label">Public</label>
+                    <SfSwitch id="Public" CssClass="dataSwitch" TChecked="bool" Checked="@(IsChecked(DisclosureConstants.PublicData))" ValueChange="() => UpdateDisclosure(DisclosureConstants.PublicData)" />
+                </div>
+            </div>
+            @foreach (var participant in Participants)
+            {
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                        <label class="col-form-label">@participant.Name</label>
+                        <SfSwitch id=@participant.Name CssClass="dataSwitch" TChecked="bool" Checked="@(IsChecked(participant.Id))" ValueChange="() => UpdateDisclosure(participant.Id)" />
+                    </div>
+                </div>
+            }
+            <!--</div>-->
+        </div>
+    </div>
+
+    <SfButton Type="submit" CssClass="dataBut">SAVE DATA FIELD</SfButton>
+    <SfButton Type="button" OnClick="() => CancelAddDataSchema.Invoke()" CssClass="dataBut">CANCEL DATA FIELD</SfButton>
+</EditForm>
+
+@code {
+    [Parameter]
+    public List<Participant> Participants { get; set; } = new List<Participant>{ new Participant
+    {
+        Id = "fc08c4e4-b34e-444c-ba9f-109ccee94dd8",
+        WalletAddress = "ws1jw3s4964su9aqgqfxh5c8gwrzuvx74h92gmpq5wln6334kzw2f0cq384wsj",
+        Name = "Operator",
+        Organisation = "Oil and Gas Operator"
+    },
+     new Participant {
+        Id = "gh08c4e4-b34e-444c-ba9f-109ccee94dgw5",
+        WalletAddress = "ws1jw3s4964su9aqgqfxh5c8gwrzuvx74h92gmpq5wln6334kzw2f0cq384wsj",
+        Name = "AnchorHandling",
+        Organisation = "Oil and Gas Operator"
+    }};
+    [Parameter]
+    public System.Action<DataSchemaProperty> AddDataSchemaHandler { get; set; }
+    [Parameter]
+    public System.Action CancelAddDataSchema { get; set; }
+    [Parameter]
+    public DataSchemaProperty DataSchema { get; set; } = new();
+    private bool _showOptions = false;
+
+    public class InputType
+    {
+        public ControlTypes? Type { get; set; }
+        public string Name { get; set; }
+    }
+
+    private bool IsChecked(string participantId)
+    {
+        return DataSchema.Disclosures.Contains(participantId);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (DataSchema == null)
+        {
+            DataSchema = new DataSchemaProperty();
+        }
+        else
+        {
+            DataSchema = new DataSchemaProperty(DataSchema);
+        }
+        _showOptions = DataSchema.Type == ControlTypes.Choice.ToString();
+        base.OnParametersSet();
+    }
+    public IEnumerable<InputType> controlTypes = GetEnumDisplayNames<ControlTypes>();
+
+    private void SaveDataSchemaProperty()
+    {
+        if (DataSchema.Type != ControlTypes.Choice.ToString())
+        {
+            DataSchema.Enum = null;
+        }
+        AddDataSchemaHandler.Invoke(DataSchema);
+    }
+
+    private void AddOptionClickHandler()
+    {
+        DataSchema.Enum.Add("");
+    }
+
+    private void DeleteOptionClickHandler(string option)
+    {
+        DataSchema.Enum.Remove(option);
+    }
+
+    private void UpdateDisclosure(string participantId)
+    {
+        if (DataSchema.Disclosures.Contains(participantId))
+        {
+            DataSchema.Disclosures.Remove(participantId);
+        }
+        else
+        {
+            DataSchema.Disclosures.Add(participantId);
+        }
+        StateHasChanged();
+    }
+
+    private void OnOptionChangeHandler(int itemIndex, ChangeEventArgs args)
+    {
+        DataSchema.Enum[itemIndex] = args.Value.ToString();
+        StateHasChanged();
+    }
+
+
+    private void DropdownOnChangeHandler(ChangeEventArgs<string, InputType> args)
+    {
+        var isChoice = args.ItemData?.Type == ControlTypes.Choice;
+        var isFile = args.ItemData?.Type == ControlTypes.File;
+        _showOptions = isChoice;
+        if (isChoice)
+            DataSchema.Enum = new();
+        if (isFile)
+        {
+            DataSchema.AddFileProperites();
+        }
+    }
+
+    private static List<InputType>
+    GetEnumDisplayNames<T>
+        ()
+    {
+        var type = typeof(T);
+        return Enum.GetValues(type).Cast<T>()
+            .Select(x =>
+            {
+
+                var enumDisplayAttibute = (DisplayAttribute)type.GetMember(x.ToString()).First().GetCustomAttributes(typeof(DisplayAttribute), true).First();
+                var input = new InputType
+                    {
+                        Type = x as ControlTypes?,
+                        Name = enumDisplayAttibute.Name
+                    };
+
+                return input;
+            }).ToList();
+    }
+}

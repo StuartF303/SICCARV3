@@ -1,0 +1,55 @@
+﻿@using Syncfusion.Blazor.Popups
+@using Siccar.Common.Exceptions
+<CascadingValue Value="this">
+    <SfDialog Width="600" ShowCloseIcon="true" IsModal="true" @bind-Visible="@_showErrorDialog">
+        <DialogTemplates>
+            <Header>An error has occurred</Header>
+            <Content>
+                @_exception.Message;
+            
+                @if (!string.IsNullOrWhiteSpace(_traceId))
+                {
+                    <br />
+
+                    <span>Trace ID: @_traceId</span>
+
+                    <br />
+                    <SfButton Type="button" @onclick="CopyTraceId" CssClass="copyTraceIdBut">Copy Trace ID</SfButton>
+                }
+            </Content>
+        </DialogTemplates>
+    </SfDialog>
+
+    @ChildContent
+</CascadingValue>
+
+
+
+@code {
+    [Inject]
+    public IJSRuntime JsRuntime { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private bool _showErrorDialog;
+    private string _traceId;
+    private Exception _exception;
+
+    public void ProcessError(Exception ex)
+    {
+        if (_exception is HttpStatusException httpStatusException)
+        {
+            _traceId = httpStatusException.TraceId;
+        }
+        _exception = ex;
+        _showErrorDialog = true;
+        StateHasChanged();
+    }
+
+    private async Task CopyTraceId()
+    {
+        await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", _traceId);
+    }
+
+}

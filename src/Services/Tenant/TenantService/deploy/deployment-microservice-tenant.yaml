@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tenant-service
+  namespace: default
+  labels:
+    app: tenant-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tenant-service
+  template:
+    metadata:
+      labels:
+        app: tenant-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "tenant-service"
+        dapr.io/app-port: "8080"
+        dapr.io/log-level: "debug"
+        dapr.io/sidecar-liveness-probe-period-seconds: "20"
+        dapr.io/sidecar-readiness-probe-period-seconds: "20"
+        dapr.io/http-max-request-size: "16"
+        dapr.io/config: featureconfig
+        dapr.io/enable-app-health-check: "true"
+        dapr.io/app-health-check-path: "/api/tenants/healthz"
+        dapr.io/app-token-secret: "app-api-token"
+    spec:
+      containers:
+      - name: tenant-service
+        image: siccardev.azurecr.io/tenant-service:latest
+        imagePullPolicy: Always
+        env:
+        - name: SERILOG__MINIMUMLEVEL
+          value: "#{SERILOG__MINIMUMLEVEL}#"
+        - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+          value: "true"
+        - name: ASPNETCORE_Kestrel__Certificates__Default__Password
+          value: "5iccar"
+        - name: ASPNETCORE_Kestrel__Certificates__Default__Path
+          value: "default.pfx"
+        - name: TENANTREPOSITORY__MONGODBSERVER
+          value: "#{TENANTREPOSITORY__MONGODBSERVER}#"
+        - name: TENANTREPOSITORY__DATABASENAME
+          value: "#{TENANTREPOSITORY__DATABASENAME}#"
+        - name: IdentityServer__IssuerName
+          value: "#{TENANTISSUER}#"
+        - name: TENANTISSUER
+          value: "#{TENANTISSUER}#"
+        - name: DEFAULTTENANT
+          value: "#{DefaultTenant}#"
+        - name: APP__API__TOKEN
+          value: "#{APP__API__TOKEN}#"
+        - name: DaprSecret
+          value: "#{DaprSecret}#"
+        - name: APPLICATIONINSIGHTS__CONNECTIONSTRING
+          value: "#{APPLICATIONINSIGHTS__CONNECTIONSTRING}#"
+        - name: APPLICATIONINSIGHTS__INSTRUMENTATIONKEY
+          value: "#{APPLICATIONINSIGHTS__INSTRUMENTATIONKEY}#"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m" 
+          limits:
+            memory: "1000Mi"
+            cpu: "500m"  
+        volumeMounts:
+          - name: keydata
+            mountPath: "/app/data"
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+      volumes:
+        - name: keydata
+          persistentVolumeClaim:
+            claimName: keys-azurefile  
+    

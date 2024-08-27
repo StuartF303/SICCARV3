@@ -1,0 +1,94 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>Siccar.Application.Client</RootNamespace>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<Company>Wallet.Services (Scotland) Limited</Company>
+		<Authors>Wallet.Services</Authors>
+		<PackageId>Siccar.Application.Client</PackageId>
+		<AssemblyName>Siccar.Application.Client</AssemblyName>
+		<RootNamespace>Siccar.Application.Client</RootNamespace>
+		<Copyright>Wallet.Services (Scotland) Limited</Copyright>
+		<Version>1.6.0</Version>
+		<PackageProjectUrl>https://www.siccar.net</PackageProjectUrl>
+		<Description>Encapsulate the client for building applications with the Siccar Platform</Description>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<UseBlazorWebAssembly>false</UseBlazorWebAssembly>
+		<StaticWebAssetBasePath>siccarclient</StaticWebAssetBasePath>
+		<OutputType>Library</OutputType>
+		<PackageTags>Siccar; Siccar.Application; Client; Siccar.Application.Client;</PackageTags>
+		<Description>
+			This client library enables working with the Siccar SDK Services.
+
+			See:  docs.siccar.dev
+
+		</Description>
+		<IsPublishable>True</IsPublishable>
+		<IsPackable>True</IsPackable>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+		<ApplicationIcon>logo.ico</ApplicationIcon>
+		<Title>Siccar.Application.Client</Title>
+		<PackageIcon>logo.png</PackageIcon>
+		<PackageOutputPath>$(Solutiondir)packages</PackageOutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DefineConstants>$(DefineConstants)TRACE; TRACE;DEBUG;NET;NET6_0;NETCOREAPP</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DefineConstants>$(DefineConstants)TRACE; TRACE;DEBUG;NET;NET6_0;NETCOREAPP</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="logo.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\Common\SiccarCommon\logo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="nuget.config">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<SupportedPlatform Include="browser" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="IdentityModel" Version="6.2.0" />
+		<PackageReference Include="IdentityModel.OidcClient" Version="5.2.1" />
+		<PackageReference Include="JsonPath.Net" Version="0.7.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+		<PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<ProjectReference Include="..\..\Common\SiccarCommonServiceClients\SiccarCommonServiceClients.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+		<PackageReference Include="Siccar.Common.ServiceClients" Version="1.6.*" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="Readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+
+</Project>

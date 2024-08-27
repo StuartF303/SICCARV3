@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>siccarcmd</ToolCommandName>
+		<PackageOutputPath>./nupkg</PackageOutputPath>
+		<Company>Wallet.Services (Scotland) Limited</Company>
+		<Product>Siccar Platform Tools</Product>
+		<Description>A collection of utilites to enable operation of a Siccar Platform instance.
+&gt; dotnet tool install siccarcmd 
+&gt; dotnet siccarcmd --help</Description>
+		<Copyright>Wallet.Services (Scotland) Limited</Copyright>
+		<PackageProjectUrl>www.siccar.net</PackageProjectUrl>
+		<PackageIcon>logo.png</PackageIcon>
+		<PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+		<PackageTags>siccar platform tools</PackageTags>
+		<Version>1.2.1</Version>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+		<Title>siccarcmd</Title>
+		<RepositoryUrl>https://github.com/siccar</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App"></FrameworkReference>
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.1" />
+		<PackageReference Include="Microsoft.OData.Client" Version="7.20.0" />
+		<PackageReference Include="Polly" Version="8.2.1" />
+		<PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
+		<PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+		<PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+		<PackageReference Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1" />
+		<PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="logo.png">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
+		<None Update="ReadMe.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Action\" />
+		<Folder Include="nupkg\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\SDK\SiccarApplicationClient\SiccarApplicationClient.csproj" />
+		<ProjectReference Include="..\..\Services\Peer\PeerCore\PeerCore.csproj" />
+	</ItemGroup>
+
+</Project>

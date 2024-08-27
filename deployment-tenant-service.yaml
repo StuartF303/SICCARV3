@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    azure-pipelines/jobName: '"Tenant Service (Dev) CD Job"'
+    azure-pipelines/org: https://projectbob.visualstudio.com/
+    azure-pipelines/pipeline: '"Tenant Service CICD"'
+    azure-pipelines/pipelineId: '"230"'
+    azure-pipelines/project: SICCARV3
+    azure-pipelines/run: refs_heads_release_full_v0.81-20220209.04
+    azure-pipelines/runuri: https://projectbob.visualstudio.com/SICCARV3/_build/results?buildId=11888
+    deployment.kubernetes.io/revision: "2"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"tenant-service"},"name":"tenant-service","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"tenant-service"}},"template":{"metadata":{"annotations":{"dapr.io/app-id":"tenant-service","dapr.io/app-port":"80","dapr.io/enabled":"true","dapr.io/log-level":"debug","dapr.io/sidecar-liveness-probe-period-seconds":"20","dapr.io/sidecar-readiness-probe-period-seconds":"20"},"labels":{"app":"tenant-service"}},"spec":{"containers":[{"env":[{"name":"SERILOG__MINIMUMLEVEL","value":"Debug"},{"name":"ASPNETCORE_FORWARDEDHEADERS_ENABLED","value":"true"},{"name":"ASPNETCORE_Kestrel__Certificates__Default__Password","value":"5iccar"},{"name":"ASPNETCORE_Kestrel__Certificates__Default__Path","value":"default.pfx"},{"name":"TENANTREPOSITORY__MONGODBSERVER","value":"mongodb://siccar-mongo-dev:Vjd5nBMxglQ2BFkAmpvWPPoBovPIiI1o8LB31FbCSgDR0UKu5Zu2OpFmnXiJWcruKQyfyIfhEbJ30G9UehWHkw==@siccar-mongo-dev.mongo.cosmos.azure.com:10255/?ssl=true\u0026replicaSet=globaldb\u0026retrywrites=false\u0026maxIdleTimeMS=120000\u0026appName=@siccar-mongo-dev@"},{"name":"TENANTREPOSITORY__DATABASENAME","value":"siccar-mongo-dev"}],"image":"siccardev.azurecr.io/tenant-service:v0.81","imagePullPolicy":"Always","name":"tenant-service","ports":[{"containerPort":80},{"containerPort":443}],"resources":{"limits":{"cpu":"250m","memory":"64Mi"}}}]}}}}
+  creationTimestamp: "2022-02-09T12:21:53Z"
+  generation: 4
+  labels:
+    app: tenant-service
+  name: tenant-service
+  namespace: default
+  resourceVersion: "33739371"
+  uid: 777eecb3-46cf-4125-aee3-5ddf2426da8d
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: tenant-service
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        dapr.io/app-id: tenant-service
+        dapr.io/app-port: "80"
+        dapr.io/enabled: "true"
+        dapr.io/log-level: debug
+        dapr.io/sidecar-liveness-probe-period-seconds: "20"
+        dapr.io/sidecar-readiness-probe-period-seconds: "20"
+      creationTimestamp: null
+      labels:
+        app: tenant-service
+    spec:
+      containers:
+      - env:
+        - name: SERILOG__MINIMUMLEVEL
+          value: Debug
+        - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+          value: "true"
+        - name: ASPNETCORE_Kestrel__Certificates__Default__Password
+          value: 5iccar
+        - name: ASPNETCORE_Kestrel__Certificates__Default__Path
+          value: default.pfx
+        - name: TENANTREPOSITORY__MONGODBSERVER
+          value: mongodb://siccar-mongo-dev:Vjd5nBMxglQ2BFkAmpvWPPoBovPIiI1o8LB31FbCSgDR0UKu5Zu2OpFmnXiJWcruKQyfyIfhEbJ30G9UehWHkw==@siccar-mongo-dev.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@siccar-mongo-dev@
+        - name: TENANTREPOSITORY__DATABASENAME
+          value: siccar-mongo-dev
+        image: siccardev.azurecr.io/tenant-service:v0.81
+        imagePullPolicy: Always
+        name: tenant-service
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        - containerPort: 443
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 250m
+            memory: 128Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2022-02-09T13:19:51Z"
+    lastUpdateTime: "2022-02-09T13:20:31Z"
+    message: ReplicaSet "tenant-service-77f5f8f86d" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2022-02-09T13:38:32Z"
+    lastUpdateTime: "2022-02-09T13:38:32Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  observedGeneration: 4
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1

@@ -1,0 +1,77 @@
+﻿<!--  Ok I can think about a million ways to do this but I am just going to be exteremly explict -->
+@inherits BaseControl
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+
+@switch (control.ControlType)
+{
+    case ControlTypes.Layout:
+        if(bool.Parse(Configuration["IsHeroDemo"]))
+        {
+            <HeroDemoLayout control="@control" updateParentState="@updateParentState"/>
+        }
+        else
+        {
+            <Layout control="@control" updateParentState="@updateParentState"/>
+        }
+
+        break;
+
+    case ControlTypes.Label:
+
+        <Label control="@control" />
+        break;
+
+    case ControlTypes.TextArea:
+
+        <TextArea control="@control" />
+        break;
+
+    case ControlTypes.TextLine:
+
+        <TextLine control="@control" />
+        break;
+
+    case ControlTypes.Numeric:
+
+        <Numeric control="@control" />
+        break;
+
+    case ControlTypes.File:
+
+        <File control="@control" />
+        break;
+    case ControlTypes.DateTime:
+
+        <DateTime control="@control" />
+        break;
+    case ControlTypes.Choice:
+
+        <Choice control="@control" />
+        break;
+    case ControlTypes.Checkbox:
+
+        <Checkbox control="@control" />
+        break;
+    case ControlTypes.Selection:
+
+        <Selection control="@control" />
+        break;
+}
+
+@code {
+    //[Parameter]
+    //public Siccar.Application.Control control { get; set; }
+
+    [Parameter]
+    public bool isHeroDemo { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (control == null)
+            control = new Control() { Elements = new List<Control>() };
+
+        base.OnInitialized();
+    }
+
+}

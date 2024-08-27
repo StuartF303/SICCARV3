@@ -1,0 +1,64 @@
+﻿@inject NavigationManager NavigationManager;
+
+<style>
+    span.Blueprints::before {
+        content: url("../images/designer.svg");
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+        display: inline-block;
+        vertical-align: -15%;
+    }
+</style>
+
+<div class="accordion-item mt-2">
+    <div class="accordion-header" id="@GroupID">
+        <button class="menu-button collapsed text-uppercase" type="button" data-bs-toggle="collapse" data-bs-target="#@GroupID-collapse" aria-expanded="false" aria-controls="@GroupID">
+            <span class="menu-link d-flex justify-content-between">
+                <span class="menu-title d-flex justify-content-start @GroupName">@GroupName</span>
+                <span class="menu-arrow d-flex justify-content-end"><i></i></span>
+            </span>
+        </button>
+    </div>
+    <div id="@GroupID-collapse" class="accordion-collapse collapse" aria-labelledby="@GroupID">
+        <div class="accordion-body">
+            <div class="accordion-shadow">
+                <ul class="nav flex-column">
+
+                    @if (GroupName == "Tenant")
+                    {
+                        <SideBarNavLink Path="tenants" Text="Tenant Overview" Icon="fas fa-user-friends" />
+                    }
+
+                    @if (GroupName == "Registers")
+                    {
+                        <SideBarNavLink Path="registers" Text="Available Registers" Icon="fas fa-user-friends" />
+                    }
+
+                    @if (GroupName == "Designer")
+                    {
+                        <SideBarNavLink Path="blueprints" Text="Blueprints" Icon="fas fa-user-friends" />
+                    }
+
+                    @if (GroupName == "Blueprints")
+                    {
+                        <SideBarNavLink Path="blueprints" Text="Blueprints" Icon="fas fa-user-friends" />
+                        <SideBarNavLink Path="participant/40daacacf4ef407cb5c4b9b7d0e7fe36/new" Text="Participant" Icon="fas fa-user-friends" />
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string GroupID { get; set; } = "";
+
+    [Parameter]
+    public string GroupName { get; set; } = "";
+
+    [Parameter]
+    public string MainMenuID { get; set; } = "";
+
+}

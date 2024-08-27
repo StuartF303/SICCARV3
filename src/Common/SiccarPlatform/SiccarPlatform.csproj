@@ -1,0 +1,77 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<AssemblyName>Siccar.Platform</AssemblyName>
+		<RootNamespace>Siccar.Platform</RootNamespace>
+		<PackageId>Siccar.Platform</PackageId>
+		<Version>1.6.0</Version>
+		<Authors>Wallet.Services</Authors>
+		<Company>Wallet.Services (Scotland) Limited</Company>
+		<IsPackable>true</IsPackable>
+		<PackageTags>Siccar;Registers;Platform;DLT</PackageTags>
+		<Description>
+			This library enables working with  the Siccar Plaform.
+
+			For Developer information see https://www.siccar.dev
+
+			For this release see notes - https://projectbob.visualstudio.com/_git/SICCARV3?path=%2Fsrc%2FCommon%2FSiccarPlatformRegisters%2FREADME.md
+			For the change log - https://projectbob.visualstudio.com/_git/SICCARV3?path=%2Fsrc%2FCommon%2FSiccarPlatformRegisters%2FCHANGELOG.md
+		</Description>
+		<Copyright>Wallet.Services (Scotland) Limited</Copyright>
+		<PackageProjectUrl>www.siccar.net</PackageProjectUrl>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+		<ApplicationIcon>logo.ico</ApplicationIcon>
+		<Title>Siccar.Platform</Title>
+		<PackageIcon>logo.png</PackageIcon>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<PackageOutputPath>$(Solutiondir)packages</PackageOutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<Content Include="logo.ico" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\SiccarCommon\logo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+	  <ProjectReference Include="..\..\Services\Register\RegisterCore\RegisterCore.csproj" />
+	  <ProjectReference Include="..\..\Services\Tenant\TenantCore\TenantCore.csproj" />
+	  <ProjectReference Include="..\..\Services\Validator\ValidatorCore\ValidatorCore.csproj" />
+	  <ProjectReference Include="..\..\Services\Wallet\WalletServiceCore\WalletServiceCore.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+		<PackageReference Include="Siccar.Platform.Registers.Core" Version="1.6.*" />
+		<PackageReference Include="Siccar.Platform.Tenant.Core" Version="1.6.*" />
+		<PackageReference Include="Siccar.Platform.Wallet.Core" Version="1.6.*" />
+		<PackageReference Include="Siccar.Registers.Validator.Core" Version="1.6.*" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="logo.png">
+			<PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+		</None>
+		<None Update="nuget.config">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

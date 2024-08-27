@@ -1,0 +1,175 @@
+﻿@import 'custom.scss';
+@import 'fontawesome/scss/fontawesome.scss';
+@import "fontawesome/scss/solid.scss";
+@import 'bootstrap/bootstrap.scss';
+@import 'components/grid.scss';
+@import '../css/style.css';
+
+.wrapper, body, html{
+    min-height:100%;
+}
+
+.navbar-expand .navbar-toggler {
+    display: block;
+
+    &:hover {
+        opacity:0.8
+    }
+}
+
+.e-grid .e-gridheader .e-icons:not(.e-icon-hide):not(.e-check):not(.e-stop):not(.e-icon-reorderuparrow):not(.e-icon-reorderdownarrow) {
+    color: lightgoldenrodyellow;
+}
+
+.wrapper {
+    position: relative;
+
+    .content-wrapper {
+        padding-bottom: calc(5em + 1px);
+    }
+
+    .main-header {
+        left: 0;
+        position: fixed;
+        right: 0;
+        top: 0;
+        z-index: 1037;
+    }
+
+    .main-sidebar {
+        bottom: 0;
+        float: none;
+        height: 100vh;
+        left: 0;
+        position: fixed;
+        top: 0;
+
+        @media only screen and (min-width: 992px) {
+            width: 20em;
+        }
+    }
+
+    .main-footer {
+        bottom: 0;
+        left: 0;
+        position: fixed;
+        right: 0;
+        z-index: 1032;
+    }
+
+    .mg-left {
+        @media only screen and (min-width: 992px) {
+            margin-left: 20em;
+        }
+    }
+
+    .mg-top {
+        margin-top: 3em;
+    }
+}
+
+    .wrapper-restricted {
+        .mg-left {
+            margin-left: 0;
+        }
+    }
+
+    #blazor-error-ui {
+        background: lightyellow;
+        bottom: 0;
+        box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+        display: none;
+        left: 0;
+        padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+        position: fixed;
+        width: 100%;
+        z-index: 1000;
+    }
+
+    .e-switch-wrapper, .e-css.e-switch-wrapper {
+        height: 40px;
+        width: 80px;
+
+        .e-switch-handle {
+            height: 30px;
+            width: 30px;
+
+            &.e-switch-active {
+                margin-left: -35px;
+            }
+        }
+
+        .e-switch-on {
+            background: $secondary;
+        }
+    }
+
+    .e-switch-wrapper:hover .e-switch-inner.e-switch-active .e-switch-on, .e-css.e-switch-wrapper:hover .e-switch-inner.e-switch-active .e-switch-on {
+        background: $secondary;
+    }
+
+    .validation-message {
+        margin-top: 0.5em;
+        background: $secondary;
+        padding: 0.5em;
+        font-size: 0.8rem;
+        font-weight: bold;
+        border-radius: 5px;
+    }
+
+    .nav li {
+        line-height: 3rem;
+        opacity: 0.9;
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: bold;
+
+        :hover {
+            opacity: 0.5
+        }
+
+        a {
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            text-transform: capitalize;
+        }
+    }
+
+ 
+
+    // Sidenav
+
+.close-button {
+    background: none;
+    border: none;
+    i{
+        color: $light
+    }
+}
+.accordion-item, .accordion-button, .accordion-button:not(.collapsed), .menu-button {
+    background: transparent;
+    color: $light;
+    font-weight: 700;
+    border: none;
+    box-shadow: none;
+    font-size: 1.0rem;
+    width: 100%;
+    text-align: left;
+}
+
+.menu-arrow {
+    transform: rotate(90deg);
+}
+
+.collapsed{
+    .menu-arrow{
+        transform:rotate(0deg);
+    }
+}
+
+.accordion-button{
+    ::after{
+        color:#fff;
+    }
+}

@@ -1,0 +1,392 @@
+﻿@using Syncfusion.Blazor.Buttons
+@using Siccar.Common.ServiceClients
+@using Siccar.UI.Admin.Models
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Inputs
+@using System.ComponentModel.DataAnnotations
+@using System.Collections.Generic
+
+<SfButton @onclick="Add" data-testid="add-delegates-button">Add Delegates</SfButton>
+
+@if (_delegatesToAdd != null)
+{
+    <SfDialog Width="600" ShowCloseIcon="true" IsModal="true" Visible="@_showAddDelegatesDialog" VisibleChanged="isVisible => { if (!isVisible) { GetAvailableUsers(); _showAddDelegatesDialog=false; } }">
+        <DialogTemplates>
+            <Header> @_dialogHeader </Header>
+            <Content>
+                <EditForm @ref="_form" Model="@_delegatesToAdd" OnValidSubmit="@AddDelegates">
+                    <DataAnnotationsValidator />
+                    <div class="col-lg-12 control-section">
+                        <div class="content-wrapper">
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                                    <label class="col-form-label">Users</label>
+                                    <SfMultiSelect ID="Id" TItem="UserModel" TValue="List<string>" @bind-Value="@(_delegatesToAdd.DelegateIds)" DataSource="@AvailableUsers" CssClass="delegateName" data-testid="add-delegates-users-dropdown">
+                                        <MultiSelectFieldSettings Value="Id" Text="UserName"></MultiSelectFieldSettings>
+                                    </SfMultiSelect>
+                                    <ValidationMessage For="@(() => _delegatesToAdd.DelegateIds)"></ValidationMessage>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                                    <label class="col-form-label">Access</label>
+                                    <SfDropDownList ID="AccessType" TItem="AccessTypes" TValue="AccessTypes" @bind-Value="@(_delegatesToAdd.AccessType)" DataSource="@AccessTypes" CssClass="delegateName">
+                                    </SfDropDownList>
+                                    <ValidationMessage For="@(() => _delegatesToAdd.AccessType)"></ValidationMessage>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                                    <label class="col-form-label">Reason</label>
+                                    <SfTextBox Multiline=true @bind-Value="@_delegatesToAdd.Reason" Placeholder="Enter a reason" CssClass="delegateName"></SfTextBox>
+                                    <ValidationMessage For="@(() => _delegatesToAdd.Reason)"></ValidationMessage>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <SfButton CssClass="addRegBut">@_dialogHeader</SfButton>
+                </EditForm>
+            </Content>
+        </DialogTemplates>
+    </SfDialog>
+}
+
+@if (_delegateToEdit != null)
+{
+    <SfDialog Width="600" ShowCloseIcon="true" IsModal="true" Visible="@_showEditDelegateDialog" VisibleChanged="isVisible => { if (!isVisible) { GetAvailableUsers(); _showEditDelegateDialog=false; } }">
+        <DialogTemplates>
+            <Header> @_dialogHeader </Header>
+            <Content>
+                <EditForm @ref="_form" Model="@_delegateToEdit" OnValidSubmit="@EditDelegate">
+                    <DataAnnotationsValidator/>
+                    <div class="col-lg-12 control-section">
+                        <div class="content-wrapper">
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                                    <label class="col-form-label">User</label>
+                                    <SfDropDownList ID="Id" TItem="UserModel" TValue="string" @bind-Value="@(_delegateToEdit.Subject)" DataSource="@AvailableUsers" CssClass="delegateName" Enabled="false">
+                                        <DropDownListFieldSettings Value="Id" Text="UserName"></DropDownListFieldSettings>
+                                        <DropDownListEvents TItem="UserModel" TValue="string" OnValueSelect="OnEditDelegateUserSelected" />
+                                    </SfDropDownList>
+                                    <ValidationMessage For="@(() => _delegateToEdit.Subject)"></ValidationMessage>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                                    <label class="col-form-label">Access</label>
+                                    <SfDropDownList ID="AccessType" TItem="AccessTypes" TValue="AccessTypes" @bind-Value="@(_delegateToEdit.AccessType)" DataSource="@AccessTypes" CssClass="delegateName">
+                                    </SfDropDownList>
+                                    <ValidationMessage For="@(() => _delegateToEdit.AccessType)"></ValidationMessage>
+
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                                    <label class="col-form-label">Reason</label>
+                                    <SfTextBox Multiline=true @bind-Value="@_delegateToEdit.Reason" Placeholder="Enter a reason" CssClass="delegateName"></SfTextBox>
+                                    <ValidationMessage For="@(() => _delegateToEdit.Reason)"></ValidationMessage>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <SfButton CssClass="addRegBut">@_dialogHeader</SfButton>
+                </EditForm>
+            </Content>
+        </DialogTemplates>
+
+    </SfDialog>
+}
+
+<div class="box mt-4">
+
+    <SfGrid TValue="DelegateModel" DataSource="Delegates" @ref="_grid">
+        <GridEditSettings></GridEditSettings>
+        <GridColumns>
+            <GridColumn Field=@nameof(DelegateModel.Subject) HeaderText="User" TextAlign="TextAlign.Left" IsPrimaryKey="true">
+                <Template>
+                    @{
+                        var user = context as DelegateModel;
+
+                        string userName;
+                        if (string.IsNullOrWhiteSpace(user?.UserName) && AllUsers != null && !string.IsNullOrWhiteSpace(user?.Subject))
+                        {
+                            userName = AllUsers.FirstOrDefault(u => u.Id.Equals(user.Subject, StringComparison.CurrentCultureIgnoreCase))?.UserName;
+                        }
+                        else
+                        {
+                            userName = user?.UserName;
+                        }
+                        @userName
+                    }
+                </Template>
+
+            </GridColumn>
+
+            <GridColumn Field=@nameof(DelegateModel.AccessType) HeaderText="Access" TextAlign="TextAlign.Left"></GridColumn>
+            <GridColumn Field=@nameof(DelegateModel.Reason) HeaderText="Reason" TextAlign="TextAlign.Left"></GridColumn>
+
+            <GridColumn AutoFit="true">
+                <Template>
+                    @{
+                        var delegateModel = context as DelegateModel;
+                        <SfButton @onclick="async () => await DeleteDelegate(delegateModel)"CssClass="row-delete">X</SfButton>
+                    }
+                </Template>
+            </GridColumn>
+        </GridColumns>
+        <GridEvents TValue="DelegateModel"
+                    CellSelecting="OnCellSelecting">
+        </GridEvents>
+        <GridSelectionSettings Mode="Syncfusion.Blazor.Grids.SelectionMode.Cell"></GridSelectionSettings>
+    </SfGrid>
+
+</div>
+
+@code {
+    [CascadingParameter] 
+    public Error Error { get; set; }
+    private List<AccessTypes> AccessTypes => Enum.GetValues(typeof(AccessTypes)).Cast<AccessTypes>().ToList();
+    private List<DelegateModel> _delegates;
+    private AddDelegatesModel _delegatesToAdd;
+    private DelegateModel _delegateToEdit;
+    private EditForm _form;
+    private bool _showAddDelegatesDialog;
+    private bool _showEditDelegateDialog;
+    private string _dialogHeader => _delegatesToAdd is not null ? "Add Delegates" : "Edit Delegate";
+
+    [Parameter]
+    public EventCallback<List<DelegateModel>> DelegatesChanged { get; set; }
+
+    [Inject]
+    public IUserServiceClient UserServiceClient { get; set; }
+
+    [Inject]
+    public IWalletServiceClient WalletServiceClient { get; set; }
+
+    SfGrid<DelegateModel> _grid;
+
+#pragma warning disable BL0007
+    [Parameter]
+    public List<DelegateModel> Delegates
+    {
+        get => _delegates;
+        set
+        {
+            if (_delegates == value)
+            {
+                return;
+            }
+
+            _delegates = value;
+            DelegatesChanged.InvokeAsync(value);
+        }
+    }
+#pragma warning restore BL0007
+
+    [Parameter]
+    public string WalletAddress { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var users = await UserServiceClient.All();
+
+            AllUsers = users.Select(u => new UserModel
+            {
+                Id = u.Id.ToString(),
+                Roles = u.Roles,
+                UserName = u.UserName
+            }).ToList();
+            GetAvailableUsers();
+            foreach(var walletDelegate in Delegates)
+            {
+                walletDelegate.UserName = AllUsers.FirstOrDefault(u => u.Id.Equals(walletDelegate.Subject, StringComparison.CurrentCultureIgnoreCase))?.UserName;
+            }
+
+            await _grid.Refresh();
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError(e);
+        }
+
+    }
+    private void GetAvailableUsers()
+    {
+        AvailableUsers = AllUsers.Select(u => new UserModel
+        {
+            Id = u.Id.ToString(),
+            Roles = u.Roles,
+            UserName = u.UserName
+        }).Where(a => Delegates.All(d => d.Subject != a.Id)).ToList();
+    }
+
+    private void Add()
+    {
+        _delegatesToAdd = new AddDelegatesModel
+        {
+            DelegateIds = new(),
+            AccessType = Platform.AccessTypes.none,
+            Reason = null,
+        };
+        _showAddDelegatesDialog = true;
+    }
+
+    private List<UserModel> AvailableUsers { get; set; }
+    private List<UserModel> AllUsers { get; set; }
+
+    public class DelegateModel
+    {
+        [Required(ErrorMessage = "The User field is required.")]
+        public string Subject { get; set; }
+        public string UserName { get; set; }
+        [Required]
+        public AccessTypes AccessType { get; set; }
+        [Required]
+        public string Reason { get; set; }
+    }
+
+    public class AddDelegatesModel
+    {
+        [MinLength(1)]
+        public List<string> DelegateIds { get; set; } = new();
+
+        [Required]
+        public AccessTypes AccessType { get; set; }
+
+        [Required]
+        public string Reason { get; set; }
+    }
+
+    private async Task DeleteDelegate(DelegateModel @delegate)
+    {
+        try
+        {
+            await WalletServiceClient.DeleteDelegate(WalletAddress, @delegate.Subject);
+            Delegates.Remove(@delegate);
+            await _grid.Refresh();
+            GetAvailableUsers();
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError(e);
+        }
+    }
+
+    private void EditDelegate(DelegateModel @delegate)
+    {
+        if (AvailableUsers.All(u => u.Id != @delegate.Subject))
+        {
+            var user = AllUsers.FirstOrDefault(u => u.Id == @delegate.Subject);
+            AvailableUsers.Add(user);
+        }
+        _showEditDelegateDialog = true;
+        _delegateToEdit = @delegate;
+    }
+
+    private async Task AddDelegates()
+    {
+        if (!_form!.EditContext!.Validate())
+        {
+            return;
+        }
+
+        try
+        {
+            var reason = _delegatesToAdd.Reason;
+            var accessType = _delegatesToAdd.AccessType;
+
+            var delegatesToAdd = _delegatesToAdd.DelegateIds.Select(delegateId => new WalletAccess
+                {
+                    Subject = delegateId,
+                    AccessType = accessType,
+                    Reason = reason,
+                    WalletId = WalletAddress,
+                });
+
+            await WalletServiceClient.AddDelegates(WalletAddress, delegatesToAdd);
+
+            Delegates.AddRange(delegatesToAdd.Select(d => new DelegateModel
+                {
+                    Subject = d.Subject,
+                    UserName = AllUsers.FirstOrDefault(u => u.Id == d.Subject)?.UserName ?? "",
+                    AccessType = accessType,
+                    Reason = reason,
+                }));
+
+            await _grid.Refresh();
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError(e);
+        }
+        finally
+        {
+            await _grid.Refresh();
+            _delegatesToAdd = null;
+            GetAvailableUsers();
+            _showAddDelegatesDialog = false;
+        }
+    }
+
+    private async Task EditDelegate()
+    {
+        if (!_form!.EditContext!.Validate())
+        {
+            return;
+        }
+
+        try
+        {
+            await WalletServiceClient.UpdateDelegate(WalletAddress, new WalletAccess
+            {
+                Subject = _delegateToEdit.Subject,
+                AccessType = _delegateToEdit.AccessType,
+                Reason = _delegateToEdit.Reason,
+                WalletId = WalletAddress
+            });
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError(e);
+        }
+        finally
+        {
+            await _grid.Refresh();
+            _delegateToEdit = null;
+            GetAvailableUsers();
+            _showEditDelegateDialog = false;
+        }
+    }
+
+    private void OnEditDelegateUserSelected(SelectEventArgs<UserModel> obj)
+    {
+        _delegateToEdit.UserName = obj.ItemData.UserName;
+    }
+
+    private void OnCellSelecting(CellSelectingEventArgs<DelegateModel> args)
+    {
+        if (args.CellIndex > 2)
+        {
+            args.Cancel = true;
+        }
+        else
+        {
+            EditDelegate(args.Data);
+        }
+    }
+
+}

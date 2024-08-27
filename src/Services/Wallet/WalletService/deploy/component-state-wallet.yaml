@@ -1,0 +1,29 @@
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: walletstore
+  labels:
+    app: wallet-service
+spec:
+  type: state.mongodb
+  version: v1
+  metadata:
+  - name: host
+    value: siccarv3dev.mongo.cosmos.azure.com:10255
+  - name: username
+    secretKeyRef:
+      key: username
+      name: statestore
+  - name: password
+    secretKeyRef:
+      key: token
+      name: statestore
+  - name: params
+    value: ?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@siccarv3dev@
+  - name: database
+    value: dapr
+  - name: collectionName
+    value: walletstate
+scopes:
+- wallet-service

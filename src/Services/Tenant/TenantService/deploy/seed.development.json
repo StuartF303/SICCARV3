@@ -1,0 +1,411 @@
+{
+  "tenants": [
+    {
+      "Id": "aadf0c6b-8c30-4ce0-85d4-07df54a7eccb",
+      "Name": "Sample External Id",
+      "Authority": "https://externalidserver20210215104107.azurewebsites.net/",
+      "ClientId": "interactive.confidential",
+      "ClientSecret": "K7gNU3sdo+OL0wNhqoVWhr3g6s1xYv72ol/pe/Unols=",
+      "GetClaimsFromUserInfoEndpoint": true,
+      "SaveTokens": true,
+      "Scope": [
+        "email"
+      ],
+      "ResponseType": "code",
+      "TokenValidationParameters": {
+        "AuthenticationType": "oidc",
+        "NameClaimType": "name",
+        "RoleClaimType": "role"
+      },
+      "Registers": [
+        "1a3bb4a7e0c34291bbe1343dcf9e2cf2"
+      ],
+      "AdminEmail": "dev@siccar.net"
+    },
+    {
+      "Id": "6b007458-7fdf-4556-8a0a-022cb83ef47b",
+      "Name": "Azure AD B2C",
+      "Authority": "https://localsiccardev.b2clogin.com/tfp/localsiccardev.onmicrosoft.com/B2C_1_SiccarV3/v2.0",
+      "ClientId": "e7e07297-1eec-4de7-a6e1-43b24a73e1ae",
+      "CallbackPath": "/signin-b2c",
+      "SignedOutCallbackPath": "/signout-callback-b2c",
+      "RemoteSignOutPath": "/signout-b2c",
+      "ResponseType": "id_token",
+      "TokenValidationParameters": {
+        "AuthenticationType": "oidc",
+        "NameClaimType": "name",
+        "RoleClaimType": "role"
+      },
+      "Registers": [
+        "70ae688b8ed74e3ea578a2d29f8ac8c8"
+      ],
+      "AdminEmail": "dev@siccar.net"
+    },
+    {
+      "Id": "0afebb0a-f3f9-48d2-9ae0-293755e883bd",
+      "Name": "Siccar.Net",
+      "Authority": "https://login.microsoftonline.com/a2b9ca5b-54e5-437e-866e-bd48bfa6159a/",
+      "ClientId": "53cb40d8-edef-47b9-8836-f2162fcf3e62",
+      "CallbackPath": "/signin-ad",
+      "SignedOutCallbackPath": "/signout-callback-ad",
+      "RemoteSignOutPath": "/signout-ad",
+      "ResponseType": "id_token",
+      "TokenValidationParameters": {
+        "AuthenticationType": "oidc",
+        "NameClaimType": "name",
+        "RoleClaimType": "role"
+      },
+      "Registers": [
+        "40daacacf4ef407cb5c4b9b7d0e7fe36",
+        "1a3bb4a7e0c34291bbe1343dcf9e2cf2",
+        "70ae688b8ed74e3ea578a2d29f8ac8c8"
+      ],
+      "AdminEmail": "dev@siccar.net"
+    }
+  ],
+  "clients": [
+    {
+      "ClientId": "siccar-client",
+      "TenantId": "0afebb0a-f3f9-48d2-9ae0-293755e883bd",
+      "ClientSecrets": [
+        {
+          "Description": null,
+          "Type": "SharedSecret",
+          "Value": "K7gNU3sdo+OL0wNhqoVWhr3g6s1xYv72ol/pe/Unols=",
+          "Expiration": null
+        }
+      ],
+      "AllowedGrantTypes": [
+        "authorization_code",
+        "client_credentials"
+      ],
+      "RedirectUris": [ "https://localhost:6004/authentication/login-callback" ],
+      "PostLogoutRedirectUris": [ "https://localhost:6004/signout-callback-oidc" ],
+      "AllowOfflineAccess": true,
+      "AllowedCorsOrigins": [ "https://localhost:6004" ],
+      "AllowedScopes": [
+        "openId",
+        "profile",
+        "openid",
+        "profile",
+        "installation.admin",
+        "blueprint.admin",
+        "blueprint.publish",
+        "tenant.admin",
+        "wallet.user",
+        "register.admin",
+        "tenant.admin",
+        "wallet.read",
+        "wallet.update",
+        "wallet.create",
+        "wallet.admin"
+      ]
+    },
+    {
+      "ClientId": "siccar-admin-ui-client",
+      "RequireClientSecret": false,
+      "TenantId": "0afebb0a-f3f9-48d2-9ae0-293755e883bd",
+      "AllowedGrantTypes": [
+        "authorization_code",
+        "client_credentials"
+      ],
+      "RedirectUris": [
+        "https://localhost:6004/admin/authentication/login-callback",
+        "https://localhost:5101/authentication/login-callback",
+        "https://localhost:5101/signin-oidc",
+        "http://localhost:6004",
+        "https://passportdemoserverlive.azurewebsites.net/authentication/login-callback"
+      ],
+      "PostLogoutRedirectUris": [
+        "https://localhost:6004/admin/signout-callback-oidc",
+        "https://localhost:5101/authentication/logout-callback",
+        "https://passportdemoserverlive.azurewebsites.net/authentication/logout-callback"
+      ],
+      "AllowOfflineAccess": true,
+      "AllowedCorsOrigins": [
+        "https://localhost:6004",
+        "https://localhost:5101",
+        "http://localhost:6004",
+        "https://passportdemoserverlive.azurewebsites.net"
+      ],
+      "AllowedScopes": [
+        "openid",
+        "profile",
+        "installation.admin",
+        "blueprint.admin",
+        "blueprint.publish",
+        "tenant.admin",
+        "wallet.user",
+        "register.admin",
+        "register.creator",
+        "tenant.admin",
+        "wallet.admin"
+      ],
+      "ClientClaimsPrefix": "",
+      "Claims": [
+        {
+          "type": "role",
+          "value": "blueprint.admin"
+        },
+        {
+          "type": "role",
+          "value": "blueprint.publish"
+        },
+        {
+          "type": "role",
+          "value": "blueprint.authoriser"
+        },
+        {
+          "type": "role",
+          "value": "installation.admin"
+        },
+        {
+          "type": "role",
+          "value": "installation.reader"
+        },
+        {
+          "type": "role",
+          "value": "installation.billing"
+        },
+        {
+          "type": "role",
+          "value": "register.creator"
+        },
+        {
+          "type": "role",
+          "value": "register.maintainer"
+        },
+        {
+          "type": "role",
+          "value": "register.admin"
+        },
+        {
+          "type": "role",
+          "value": "register.reader"
+        },
+        {
+          "type": "role",
+          "value": "tenant.billing"
+        },
+        {
+          "type": "role",
+          "value": "tenant.admin"
+        },
+        {
+          "type": "role",
+          "value": "tenant.app.admin"
+        },
+        {
+          "type": "role",
+          "value": "wallet.user"
+        },
+        {
+          "type": "role",
+          "value": "wallet.owner"
+        },
+        {
+          "type": "role",
+          "value": "wallet.delegate"
+        }
+      ]
+    },
+    {
+      "ClientId": "siccar-integration-client",
+      "RequireClientSecret": true,
+      "TenantId": "0afebb0a-f3f9-48d2-9ae0-293755e883bd",
+      "ClientSecrets": [
+        {
+          "Description": null,
+          "Type": "SharedSecret",
+          "Value": "K7gNU3sdo+OL0wNhqoVWhr3g6s1xYv72ol/pe/Unols=",
+          "Expiration": null
+        }
+      ],
+      "ClientClaimsPrefix": "",
+      "Claims": [
+        {
+          "type": "tenant",
+          "value": "0afebb0a-f3f9-48d2-9ae0-293755e883bd"
+        },
+        {
+          "type": "sub",
+          "value": "3a7358f7-9fdf-4cc8-a33b-c85076dfa510"
+        },
+        {
+          "type": "role",
+          "value": "wallet.user"
+        },
+        {
+          "type": "role",
+          "value": "installation.admin"
+        },
+        {
+          "type": "role",
+          "value": "register.creator"
+        },
+        {
+          "type": "role",
+          "value": "blueprint.admin"
+        },
+        {
+          "type": "role",
+          "value": "blueprint.publish"
+        },
+        {
+          "type": "role",
+          "value": "tenant.admin"
+        }
+      ],
+      "AllowedGrantTypes": [
+        "client_credentials"
+      ],
+      "AllowedScopes": [
+        "api",
+        "wallet.read",
+        "wallet.update",
+        "wallet.create",
+        "wallet.admin",
+        "blueprint.publish",
+        "installation.admin"
+      ]
+    },
+    {
+      "ClientId": "siccar-react-example",
+      "RequireClientSecret": false,
+      "TenantId": "0afebb0a-f3f9-48d2-9ae0-293755e883bd",
+      "ClientClaimsPrefix": "",
+      "AllowedGrantTypes": [
+        "authorization_code",
+        "client_credentials"
+      ],
+      "RedirectUris": [
+        "http://localhost:3000/authentication/callback"
+      ],
+      "PostLogoutRedirectUris": [
+        "http://localhost:3000/logout-callback"
+      ],
+      "AllowOfflineAccess": true,
+      "AllowedCorsOrigins": [
+        "http://localhost:3000"
+      ],
+      "AllowedScopes": [
+        "openid",
+        "profile",
+        "wallet.read",
+        "wallet.update",
+        "wallet.create",
+        "wallet.admin"
+      ]
+    },
+    {
+      "ClientId": "1d16784f-c8dc-4633-8768-ae5694ede252",
+      "TenantId": "0afebb0a-f3f9-48d2-9ae0-293755e883bd",
+      "ProtocolType": "oidc",
+      "ClientSecrets": [
+        {
+          "Description": "Api Key",
+          "Value": "ySoFBnadRFZ/gUb5OwGOKz8mUM95SvhHnbZ0Bdx2++8=",
+          "Expiration": null,
+          "Type": "SharedSecret"
+        }
+      ],
+      "RequireClientSecret": true,
+      "ClientName": "Test Runner",
+      "Description": "A client for running stress tests",
+      "AllowedGrantTypes": [
+        "client_credentials"
+      ],
+      "RequirePkce": false,
+      "AllowPlainTextPkce": false,
+      "RequireRequestObject": false,
+      "AllowAccessTokensViaBrowser": false,
+      "RedirectUris": [
+        "https://localhost:6004",
+        "http://localhost:6004",
+        "https://localhost:6004/authentication/login-callback"
+      ],
+      "PostLogoutRedirectUris": [],
+      "FrontChannelLogoutUri": null,
+      "FrontChannelLogoutSessionRequired": true,
+      "BackChannelLogoutUri": null,
+      "BackChannelLogoutSessionRequired": true,
+      "AllowOfflineAccess": true,
+      "AllowedScopes": [
+        "openid",
+        "profile",
+        "installation.admin",
+        "blueprint.admin",
+        "blueprint.publish",
+        "tenant.admin",
+        "tenant.billing",
+        "wallet.user",
+        "register.creator",
+        "register.maintainer",
+        "register.admin",
+        "wallet.admin"
+      ],
+      "AlwaysIncludeUserClaimsInIdToken": false,
+      "IdentityTokenLifetime": 300,
+      "AllowedIdentityTokenSigningAlgorithms": [],
+      "AccessTokenLifetime": 3600,
+      "AuthorizationCodeLifetime": 300,
+      "AbsoluteRefreshTokenLifetime": 2592000,
+      "SlidingRefreshTokenLifetime": 1296000,
+      "ConsentLifetime": null,
+      "RefreshTokenUsage": 1,
+      "UpdateAccessTokenClaimsOnRefresh": false,
+      "RefreshTokenExpiration": 1,
+      "AccessTokenType": 0,
+      "EnableLocalLogin": true,
+      "IdentityProviderRestrictions": [],
+      "IncludeJwtId": true,
+      "Claims": [
+        {
+          "Type": "tenant",
+          "Value": "0afebb0a-f3f9-48d2-9ae0-293755e883bd",
+          "ValueType": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        {
+          "type": "tenant",
+          "value": "0afebb0a-f3f9-48d2-9ae0-293755e883bd"
+        },
+        {
+          "type": "sub",
+          "value": "3a7358f7-9fdf-4cc8-a33b-c85076dfa510"
+        },
+        {
+          "type": "role",
+          "value": "wallet.user"
+        },
+        {
+          "type": "role",
+          "value": "installation.admin"
+        },
+        {
+          "type": "role",
+          "value": "register.creator"
+        },
+        {
+          "type": "role",
+          "value": "blueprint.admin"
+        },
+        {
+          "type": "role",
+          "value": "blueprint.publish"
+        },
+        {
+          "type": "role",
+          "value": "tenant.admin"
+        }
+      ],
+      "AlwaysSendClientClaims": false,
+      "ClientClaimsPrefix": "",
+      "PairWiseSubjectSalt": null,
+      "UserSsoLifetime": null,
+      "UserCodeType": null,
+      "DeviceCodeLifetime": 300,
+      "AllowedCorsOrigins": [],
+      "Properties": {}
+    }
+  ]
+}

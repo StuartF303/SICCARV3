@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>Siccar.Platform.Registers.Core</RootNamespace>
+		<Title>Siccar.Platform.Register.Core</Title>
+		<IncludeSymbols>True</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageTags>siccar;</PackageTags>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<PackageProjectUrl>www.siccar.net</PackageProjectUrl>
+		<Company>Wallet.Services (Scotland) Limited</Company>
+		<Description>Siccar Register shared components</Description>
+		<AssemblyName>Siccar.Platform.Registers.Core</AssemblyName>
+		<PackageIcon>logo.png</PackageIcon>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<Version>1.6.0-alpha</Version>
+		<PackageOutputPath>$(Solutiondir)packages</PackageOutputPath>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Json.More.Net" Version="1.10.1" />
+		<PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="MongoDB.Bson" Version="2.23.1" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<ProjectReference Include="..\..\..\Common\SiccarCommon\SiccarCommon.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+		<PackageReference Include="Siccar.Common" Version="1.5.*" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<None Update="logo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="nuget.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

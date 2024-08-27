@@ -1,0 +1,83 @@
+---
+#Azure Pipeline for Siccar.Common Library
+#This could have been done with nuget tasks but dotnet tasks seem to be preferred
+variables:
+  AzureArtifactsFeedId: 'd5d7b089-0ba1-4b7c-b132-19b693376e2e/95abafbc-e681-4a74-86c9-576273b46b20' #siccarv3feed
+  BuildEnv: $(Build.BuildNumber)  #we can decide on the where to version later - there's a couple of choices
+  BuildConfiguration: 'Debug'
+
+trigger:
+  batch: "true"
+  branches:
+    include:
+    - feature/siccarcommon/*
+
+resources:
+- repo: self    
+    
+name: 1.4.$(Rev:r)
+jobs:
+- job: Job_1
+  displayName: Agent job for Siccar.Common Library
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET 8.0 sdk'
+    inputs:
+      packageType: sdk
+      version: 8.0.x
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: 'restore'
+      projects: '**/SiccarCommon/*.csproj'
+      feedsToUse: 'select'
+      vstsFeed: $(AzureArtifactsFeedId)
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet build
+    inputs:
+      command: build
+      projects: '**/SiccarCommon/*.csproj'
+      arguments: --configuration $(BuildConfiguration)
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet pack
+    inputs:
+      command: pack
+      arguments: --configuration $(BuildConfiguration)
+      packagesToPack: '**/SiccarCommon/*.csproj'
+      versioningScheme: byEnvVar
+      versionEnvVar: BuildEnv
+
+  - task: PowerShell@2
+    displayName: 'Debug'
+    enabled: "true"
+    inputs:
+      targetType: 'inline'
+      script: | 
+        Write-Host "Debug"
+        Write-Host "fullCI=$(fullCI)"
+        Write-Host "buildImage=$(buildImage)"
+        Write-Host "imageName=$(imageName)"
+        Write-Host "imageTag=$(imageTag)"
+        Write-Host "azureContainerRegistry=$(azureContainerRegistry)"
+        Write-Host "azureContainerRegistryName=$(azureContainerRegistryName)"
+        Write-Host "Build.Repository.LocalPath=$(Build.Repository.LocalPath)"
+        Get-ChildItem -Path $(Build.Repository.LocalPath)
+        Write-Host "Pipeline.Workspace=$(Pipeline.Workspace)"
+        Get-ChildItem -Path $(Pipeline.Workspace)
+      pwsh: true   
+
+  - task: DotNetCoreCLI@2
+    displayName: Local Repository Push
+    inputs:
+      command: 'push'
+      searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg;!$(Build.ArtifactStagingDirectory)/*.Tests.nupkg'
+      feedPublish: $(AzureArtifactsFeedId)
+
+  - script: dotnet nuget push --api-key $(nuget-api-key) --source https://api.nuget.org/v3/index.json '$(Build.ArtifactStagingDirectory)/Siccar.Common.*.nupkg'
+
+...

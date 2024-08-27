@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>Siccar.Platform.Tenant.Core</AssemblyName>
+		<RootNamespace>Siccar.Platform.Tenant.Core</RootNamespace>
+		<ApplicationIcon>logo.ico</ApplicationIcon>
+		<Title>Siccar.Platform.Tenant.Core</Title>
+		<Company>Wallet.Service (Scotland) Limited</Company>
+		<Authors>Wallet.Services</Authors>
+		<Description>Shared components of the Tenant Service</Description>
+		<PackageProjectUrl>www.siccar.net</PackageProjectUrl>
+		<PackageIcon>logo.png</PackageIcon>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<Version>1.6.0-alpha</Version>
+		<PackageOutputPath>$(Solutiondir)packages</PackageOutputPath>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="nuget.config" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="logo.ico" />
+		<Content Include="nuget.config">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		  <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AspNetCore.Identity.MongoDbCore" Version="3.1.2" />
+		<PackageReference Include="Finbuckle.MultiTenant" Version="6.13.0" />
+		<PackageReference Include="FluentValidation" Version="11.9.0" />
+		<PackageReference Include="IdentityServer4.Storage" Version="4.1.2" />
+		<PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.1" />
+		<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.2.0" />
+		<PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="logo.png">
+			<PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+		</None>
+	</ItemGroup>
+
+</Project>

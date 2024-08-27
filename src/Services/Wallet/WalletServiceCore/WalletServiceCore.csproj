@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AssemblyName>Siccar.Platform.Wallet.Core</AssemblyName>
+		<RootNamespace>WalletService.Core</RootNamespace>
+		<ApplicationIcon>logo.ico</ApplicationIcon>
+		<Title>Siccar.Platform.Wallet.Core</Title>
+		<Authors>Wallet.Services</Authors>
+		<Company>Wallet.Services (Scotland) Limted</Company>
+		<Description>Siccar shared components within the Wallet Service</Description>
+		<PackageProjectUrl>www.siccar.net</PackageProjectUrl>
+		<PackageIcon>logo.png</PackageIcon>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<Version>1.7.0-alpha</Version>
+		<PackageOutputPath>$(Solutiondir)packages</PackageOutputPath>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Copyright>Copyright Wallet.Services (Scotland) Ltd</Copyright>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="logo.ico" />
+		<None Remove="nuget.config" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="logo.ico" />
+		<Content Include="nuget.config">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		  <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="8.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.1" />
+		<PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+	  <ProjectReference Include="..\..\Register\RegisterCore\RegisterCore.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+		<PackageReference Include="Siccar.Platform.Registers.Core" Version="1.5.*" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<None Update="logo.png">
+			<PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+		</None>
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,46 @@
+﻿@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using Siccar.Common.ServiceClients
+@using Syncfusion.Blazor.Notifications
+@using Microsoft.Extensions.Logging
+@inject IRegisterServiceClient RegisterServiceClient
+@inject ILogger<AddRegister> Logger
+@inject NavigationManager NavigationManager
+
+<SfToast @ref="_toastNotification" ID="toast_type">
+    <ToastPosition X="Right"></ToastPosition>
+</SfToast>
+
+<EditForm @ref="_form" Model="@_register">
+    <DataAnnotationsValidator />
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper">
+        
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                    <label class="col-form-label">Register Name</label>
+                    <SfTextBox @bind-Value="@_register.Name" CssClass="regName"></SfTextBox>
+                    <ValidationMessage For="@(() => _register.Name)"></ValidationMessage>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                    <label class="col-form-label">Advertise Register</label>
+                    <SfSwitch @bind-Checked="@_register.Advertise" Disabled="true"></SfSwitch>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                    <label class="col-form-label">Full Replica?</label>
+                    <SfSwitch @bind-Checked="@_register.IsFullReplica" Disabled="true"></SfSwitch>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <SfButton @onclick="CreateRegister" CssClass="addRegBut">Add Register</SfButton>
+</EditForm>
+
+
