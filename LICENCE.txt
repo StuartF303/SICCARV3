@@ -1,0 +1,163 @@
+SICCAR PROPRIETARY LIMITED USE LICENSE
+Copyright © 2024 Siccar (Registered co. Wallet.Services (Scotland) Ltd). All rights reserved.
+
+1. Definitions
+-	“Copyright Notice” means the copyright notice as listed in Schedule 1 to this Agreement.
+-	“Intellectual Property Rights” means  patents, utility models, rights to inventions, copyright and related rights, trademarks and service marks, trade names and domain names, rights in get-up, goodwill and the right to sue for passing off or unfair competition, rights in designs, rights in computer software, database rights, rights to preserve the confidentiality of information (including know-how and trade secrets) and any other intellectual property rights, including all applications for (and rights to apply for and be granted), renewals or extensions of, and rights to claim priority from, such rights and all similar or equivalent rights or forms of protection which subsist or will subsist, now or in the future, in any part of the world.
+-	“Original Code” means the source code of the Software that is contained within the Repository.
+-	"Siccar" means Wallet.Services (Scotland) Ltd, trading as Siccar. For clarity, any reference to "Siccar" in this License shall be deemed to include its successors and assignees.
+-	"Repository" means the read-only GitHub.com source code repository created by Siccar containing the Software.
+-	"Software" refers to SICCARV3 and all associated source, documentation, and materials, including the Original Code, provided by Siccar and contained within the Repository.
+-	"Source" form shall mean the preferred form for making modifications, including but not limited to software source code, documentation source, and configuration files.
+-	"Licensee" refers to any individual or entity using the Software.
+-	"Commercial Use" refers to any use of the Software that generates revenue, directly or indirectly.
+-	"Work" refers to the Software and any modifications, enhancements, or derivative works based on the Software.
+
+2. Grant of Licence
+
+Siccar grants Licensee a worldwide, royalty-free, non-exclusive licence to use, copy, modify, merge, publish, and distribute the Software for non-commercial purposes only, subject to the terms and conditions of this Licence.
+
+3. Intellectual Property Rights
+
+Siccar retains all rights, title, and interest in and to the Software, including all Intellectual Property Rights in the Software. Any modifications or additions made by Licensee shall be clearly marked and distinguished from the Original Code.
+
+For the avoidance of doubt, nothing in this Licence agreement gives the Licensee any licence or other right in respect of the Software and Siccar’s Intellectual Property Rights in the Software beyond the right expressly granted in clause 2. This Licence does not grant permission to use the trade names, trademarks, service marks, or product names of Siccar in any way, shape or form whatsoever.
+Licensee shall not remove, alter, or obscure any copyright, trademark, or other proprietary rights notices contained in or on the Software.
+
+4. Non-Commercial Use
+
+Licensee may use, modify, and distribute the Software freely for non-commercial purposes, provided that this
+Licence and the Copyright Notice are included with all copies made of the Software, whether in whole or in part, or substantial portions of the Software.
+
+5. Commercial Use
+
+Any Commercial Use of the Software requires prior written agreement with Siccar. In the event of Commercial
+Use, Siccar reserves the right to claim a percentage of any revenue directly or indirectly generated through the
+use of the Software. The exact percentage and terms shall be negotiated separately for each Commercial Use case.
+
+If the Licensee engages in Commercial Use of the Software without first negotiating and agreeing to a specific
+percentage with Siccar, the default revenue share payable to Siccar shall be seventy-five percent (75%) of all
+revenue directly or indirectly generated through the use of the Software. This default percentage shall apply
+from the start of any such Commercial Use until such time as a written agreement specifying a
+different percentage is reached between Siccar and the Licensee.
+
+If Siccar and the Licensee cannot reach an agreement on the percentage of revenue or other terms of
+Commercial Use, Siccar reserves the right to immediately terminate this Licence. Upon such termination, the Licensee shall cease any further Commercial Use, distribution, or possession of the Software and must destroy all copies of the Software in their possession.
+
+Licensee acknowledges that any use of the Software for Commercial purposes without a prior written agreement with Siccar, or any continued use after failure to reach an agreement and subsequent termination, constitutes a material breach of this Licence and may subject Licensee to legal action for copyright infringement and damages.
+
+6. Successors and Assignees
+
+This Licence shall be binding upon and inure to the benefit of Siccar, its successors, and assignees. In the event of a change in Siccar's corporate name, merger, acquisition, or sale of substantially all of its assets, all rights, title, interest, and ownership in the Software, including all associated Intellectual Property Rights and the rights granted under this Licence, shall automatically transfer to and vest in the successor entity or purchaser, as applicable.
+
+Licensee acknowledges and agrees that Siccar may freely assign, transfer, or delegate all or any part of its rights and obligations under this Licence to any third party without notice or consent from Licensee.
+Such assignment, transfer, or delegation shall not affect the validity or enforceability of this Licence.
+
+7. Modification and Redistribution Rights
+
+Licensee is granted the right to modify, enhance, and redistribute the Software, subject to the following conditions:
+
+a.	Redistribution: Any redistribution of the Software, whether in its original form or modified, must include this entire Licence agreement and the Copyright Notice attributing ownership to Siccar.
+b.	Modifications: Licensee may modify, enhance, or create derivative works based on the Software. However, any such modifications, enhancements, or derivative works:
+a.	Must be clearly marked as changes from the original Software provided by Siccar.
+b.	Do not affect Siccar's copyright ownership of the original Software.
+c.	Are subject to the terms of this Licence.
+c.	Copyright Retention: Notwithstanding any modifications, enhancements, or derivative works created by Licensee or any third party, Siccar retains full copyright ownership of the original Software and any part thereof. This retention of copyright applies even in cases of significant modification or updates to the Software.
+d.	No Implied Rights: Nothing in this License shall be construed as granting, by implication, estoppel, or otherwise, any ownership rights in the Software to the Licensee or any third party.
+e.	Contribution: Any contributions, modifications, or enhancements made to the Software and distributed back to Siccar may be incorporated into the Software at Siccar's discretion. By making such contributions, Licensee agrees to grant Siccar a perpetual, worldwide, non-exclusive, royalty-free, irrevocable, sub-licensable license to use, copy, modify, and distribute such contributions as part of the Software. Siccar shall become the owner of any such contributions and may use them for any purpose without restriction or compensation to the Licensee. Licensee acknowledges that failure to comply with these terms may result in immediate termination of this License and may subject Licensee to legal action for copyright infringement.
+
+8. No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+Any condition, warranty, representation or other term concerning the supply of the Software and Documents which might otherwise be implied into, or incorporated in, this Licence whether by statute, common law or otherwise, is excluded to the fullest extent permitted by law.
+
+9. Limitation of Liability
+
+To the extent permitted by law, In no event and under no legal theory whether in tort (including negligence), contract, or otherwise, shall Siccar be liable for any claim, damages, or other liability arising from the use or inability to use the Software, including any direct, indirect, special, incidental, or consequential damages of any character arising as a result of this License or out of the use or inability to use the Work (including but not limited to damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses), even if Siccar has been advised of the possibility of such damages.
+
+10. Termination
+
+This Licence and the rights granted hereunder will terminate automatically if Licensee fails to comply with any term(s) herein.
+Upon termination for any reason, including but not limited to failure to comply with the License terms or failure to reach a Commercial Use agreement, Licensee must:
+
+a)	Cease all use, distribution, and possession of the Software.
+b)	Destroy all copies of the Software in their possession.
+c)	Certify in writing to Siccar that all copies have been destroyed within 30 days of termination.
+
+Any sections that by their nature should survive termination will survive, including but not limited to Sections 3 (Intellectual Property Rights), 8 (No Warranty), and 9 (Limitation of Liability).
+Termination of this License shall not limit any of Siccar's rights or remedies at law or in equity. Siccar reserves the right to seek injunctive relief to prevent unauthorised use of the Software, in addition to any other legal remedies available.
+
+Licensee acknowledges that any use of the Software after termination, including any Commercial Use without a prior written agreement or after failure to reach such an agreement, constitutes wilful infringement of Siccar's intellectual property rights and may subject Licensee to significant legal liability.
+
+12. Export Compliance
+
+Licensee agrees to comply with all applicable export control laws and regulations, including but not limited to
+the UK Export Control Act 2002 (as amended), the Export Control Order 2008, EU Regulation 428/2009 (as
+retained in UK law and amended), and any other applicable UK, EU, or international export control laws and
+regulations. Licensee shall not export, re-export, transfer, or make available, whether directly or indirectly, any
+regulated item or information to anyone outside the UK or EU in connection with this License without first
+complying with all export control laws and regulations which may be imposed by the UK Government, EU
+institutions, or any country or organization of nations within whose jurisdiction Licensee operates or does
+business.
+
+13. Severability
+
+If any provision of this Licence is held to be unenforceable or invalid, that provision will be enforced to the maximum extent possible, and the other provisions will remain in full force and effect.
+
+14. Entire Agreement
+
+This Licence constitutes the entire agreement between the parties with respect to the use of the Software licensed hereunder and supersedes all prior or contemporaneous understandings regarding such subject matter.
+
+15. No partnership
+
+Nothing in this agreement is intended to, or shall be deemed to, establish any partnership or joint venture between any of the parties, constitute any party the agent of another party, or authorise any party to make or enter into any commitments for or on behalf of any other party.
+
+16. Waiver
+
+A waiver of any right or remedy is only effective if given in writing.
+
+17. Notices
+
+Any notice given to a party under or in connection with this contract shall be in writing and shall be:
+(a)	delivered by hand or by pre-paid first-class post or other next working day delivery service at its registered office (if a company) or its principal place of business (in any other case); or
+(b)	sent by email.
+
+18. Dispute Resolution
+
+Any dispute arising out of or in connection with this License, including any question regarding its existence,
+validity, or termination, shall be referred to and finally resolved by arbitration under the rules of the Scottish
+Arbitration Centre, which rules are deemed to be incorporated by reference into this clause. The seat of the
+arbitration shall be Edinburgh, Scotland. The language of the arbitration shall be English.
+
+19. Governing Law
+
+This License shall be governed by and construed in accordance with the laws of Scotland, UK.
+
+By using, copying, modifying, merging, publishing, or distributing the Software, Licensee agrees to be bound by
+the terms of this License.
+
+ 
+Schedule 1
+
+The Copyright Notice set out below shall be included in all copies or substantial portions of the Software.
+
+SOURCE CODE HEADER TEXT
+The following text must be included at to the top of every source code file covered under this licence.
+Any modifications, omissions or deletions of any or all of this text from the source code files is strictly prohibited.
+
+/*
+* Copyright (c) 2024 Siccar (Registered co. Wallet.Services (Scotland) Ltd).
+* All rights reserved.
+*
+* This file is part of a proprietary software product developed by Siccar.
+*
+* This source code is licensed under the Siccar Proprietary Limited Use License.
+* Use, modification, and distribution of this software is subject to the terms
+* and conditions of the license agreement. The full text of the license can be
+* found in the LICENSE file or at [URL_TO_LICENSE_FILE_ON_GITHUB].
+*
+* Unauthorized use, copying, modification, merger, publication, distribution,
+* sublicensing, and/or sale of this software or any part thereof is strictly
+* prohibited except as explicitly allowed by the license agreement.
+*/
