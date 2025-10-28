@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+
+    <PackageId>Siccar.SDK.Fluent</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Siccar (Wallet.Services Scotland Ltd)</Authors>
+    <Company>Siccar</Company>
+    <Description>Fluent API for building SICCAR Blueprints with an intuitive, chainable interface</Description>
+    <PackageTags>siccar;blockchain;dlt;fluent;builder;blueprint</PackageTags>
+    <PackageLicenseExpression>SEE LICENSE IN LICENSE FILE</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/siccar/SICCARV3</RepositoryUrl>
+    <Copyright>Copyright (c) 2024 Siccar (Wallet.Services Scotland Ltd)</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="Json.Schema.Net" Version="7.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\SiccarApplication\SiccarApplication.csproj" />
+    <ProjectReference Include="..\..\Common\SiccarPlatform\SiccarPlatform.csproj" />
+  </ItemGroup>
+
+</Project>

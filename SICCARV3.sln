@@ -283,6 +283,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{7783E3F1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminUI.Client", "src\UI\AdminUI\Client\AdminUI.Client.csproj", "{A9407761-A197-4C67-813C-14FCA7406ADE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siccar.SDK.Fluent", "src\SDK\Siccar.SDK.Fluent\Siccar.SDK.Fluent.csproj", "{4B7B7268-27A4-462B-964F-3AB8D7CB80A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -481,6 +483,10 @@ Global
 		{A9407761-A197-4C67-813C-14FCA7406ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9407761-A197-4C67-813C-14FCA7406ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9407761-A197-4C67-813C-14FCA7406ADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B7B7268-27A4-462B-964F-3AB8D7CB80A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B7B7268-27A4-462B-964F-3AB8D7CB80A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B7B7268-27A4-462B-964F-3AB8D7CB80A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B7B7268-27A4-462B-964F-3AB8D7CB80A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -554,6 +560,7 @@ Global
 		{E9CC283C-8610-47A1-83B3-8DC4B57E4419} = {25039567-9B9C-4671-B458-ABDBDAA76BAF}
 		{7783E3F1-1038-4D46-A404-CAAD0A8C8D70} = {AE229E88-CB19-4752-AB4F-1C62A719D127}
 		{A9407761-A197-4C67-813C-14FCA7406ADE} = {55436DB0-4CF9-4059-8E09-91AC04E10993}
+		{4B7B7268-27A4-462B-964F-3AB8D7CB80A8} = {428327E1-FAD0-4C15-93B1-31BAD876619A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {924D2041-07BF-4C1C-B627-66969B2BBDD6}
