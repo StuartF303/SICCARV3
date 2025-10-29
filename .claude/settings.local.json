@@ -11,7 +11,11 @@
       "Bash(git commit:*)",
       "Bash(dotnet add:*)",
       "Bash(find:*)",
-      "Bash(python scripts/fix-nuget-configs.py:*)"
+      "Bash(python scripts/fix-nuget-configs.py:*)",
+      "Bash(python scripts/clean-nuget-configs.py:*)",
+      "Bash(findstr:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"c:\\Projects\\SICCARV3\\scripts\\upgrade-dependencies-phase1.ps1\")",
+      "Bash(dotnet restore:*)"
     ],
     "deny": [],
     "ask": []
