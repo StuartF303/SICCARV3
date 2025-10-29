@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2024 SICCAR Project Contributors
+// Copyleft 2026 Sorcha Project Contributors
 
 using System;
 using System.Collections.Generic;

@@ -6,7 +6,13 @@
       "Bash(powershell -ExecutionPolicy Bypass -File \"c:\\Projects\\SICCARV3\\scripts\\remove-projectbob-feeds.ps1\")",
       "Bash(git restore:*)",
       "Bash(powershell -ExecutionPolicy Bypass -File:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)",
+      "Bash(git merge:*)",
+      "Bash(powershell:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
