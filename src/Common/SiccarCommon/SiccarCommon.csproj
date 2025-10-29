@@ -1,4 +1,4 @@
-﻿<!-- /*
+<!-- /*
 * Copyright (c) 2024 Siccar (Registered co. Wallet.Services (Scotland) Ltd).
 * All rights reserved.
 *
@@ -79,7 +79,7 @@ For the change log - https://projectbob.visualstudio.com/_git/SICCARV3?path=%2Fs
 		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.11" />
 		<PackageReference Include="Microsoft.Extensions.Primitives" Version="8.0.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-		<PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0">
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

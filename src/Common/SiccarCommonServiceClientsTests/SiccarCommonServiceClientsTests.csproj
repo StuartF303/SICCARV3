@@ -1,4 +1,4 @@
-﻿<!-- /*
+<!-- /*
 * Copyright (c) 2024 Siccar (Registered co. Wallet.Services (Scotland) Ltd).
 * All rights reserved.
 *
@@ -26,7 +26,7 @@
 	<ItemGroup>
 		<PackageReference Include="FakeItEasy" Version="8.1.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-		<PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0">
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
