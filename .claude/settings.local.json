@@ -15,7 +15,8 @@
       "Bash(python scripts/clean-nuget-configs.py:*)",
       "Bash(findstr:*)",
       "Bash(powershell -ExecutionPolicy Bypass -File \"c:\\Projects\\SICCARV3\\scripts\\upgrade-dependencies-phase1.ps1\")",
-      "Bash(dotnet restore:*)"
+      "Bash(dotnet restore:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"c:\\Projects\\SICCARV3\\scripts\\upgrade-serilog.ps1\")"
     ],
     "deny": [],
     "ask": []
