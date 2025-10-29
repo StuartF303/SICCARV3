@@ -5,7 +5,8 @@
       "Bash(dotnet test:*)",
       "Bash(powershell -ExecutionPolicy Bypass -File \"c:\\Projects\\SICCARV3\\scripts\\remove-projectbob-feeds.ps1\")",
       "Bash(git restore:*)",
-      "Bash(powershell -ExecutionPolicy Bypass -File:*)"
+      "Bash(powershell -ExecutionPolicy Bypass -File:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
