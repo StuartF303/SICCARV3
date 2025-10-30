@@ -1,5 +1,5 @@
 # simple dockerize Blazor Web Assembly Project to NGINX Host
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS base
 WORKDIR /app
 ARG BUILDARGS=Debug
 ENV BUILDCONFIG=$BUILDARGS
